@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import br.ifsul.finwise.model.InvestmentAccountModel;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
 @Repository
 public interface InvestmentAccountRepository extends JpaRepository<InvestmentAccountModel, Long> {

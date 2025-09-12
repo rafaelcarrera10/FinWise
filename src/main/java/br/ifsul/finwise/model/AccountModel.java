@@ -186,7 +186,6 @@ public class AccountModel {
     }
 
     public void remove(AccountModel account) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'remove'");
     }
 }

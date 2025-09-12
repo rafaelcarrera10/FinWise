@@ -8,7 +8,7 @@ import br.ifsul.finwise.model.TransactionsModel;
 import br.ifsul.finwise.model.TransactionsModel.TransactionType;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
 @Repository
 public interface TransactionsRepository extends JpaRepository<TransactionsModel, Long> {

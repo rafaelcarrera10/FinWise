@@ -13,7 +13,7 @@ import br.ifsul.finwise.service.ValidationService;
 
 @Entity
 @Table(name = "user")
-public class UserModel {
+public abstract class UserModel {
 
     // Atributos
     @Id
