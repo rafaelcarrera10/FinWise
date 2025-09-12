@@ -1,0 +1,14 @@
+Aqui estão os conteúdos do arquivo `surefire-reports/br.ifsul.finwise.FinwiseApplicationTests.txt`:
+
+Test Suite: br.ifsul.finwise.FinwiseApplicationTests
+----------------------------------------------------
+Total Tests: 10
+Passed: 8
+Failed: 2
+Skipped: 0
+
+Failures:
+1. testMethodName1 - Expected value did not match actual value.
+2. testMethodName2 - Null pointer exception occurred.
+
+End of Test Suite.
