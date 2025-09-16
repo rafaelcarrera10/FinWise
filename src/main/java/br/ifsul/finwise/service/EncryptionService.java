@@ -39,7 +39,7 @@ public class EncryptionService {
         
         byte[] encryptedData = cipher.doFinal(data.getBytes("UTF-8"));
         
-        // Combinar IV + dados criptografados
+        // Combinar IV com os dados criptografados
         byte[] combined = new byte[IV_SIZE + encryptedData.length];
         System.arraycopy(iv, 0, combined, 0, IV_SIZE);
         System.arraycopy(encryptedData, 0, combined, IV_SIZE, encryptedData.length);

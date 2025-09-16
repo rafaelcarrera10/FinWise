@@ -26,7 +26,7 @@ public class TransactionsModel {
     @Column(name = "description", nullable = false)
     private String description; //Descrição da transação
 
-    // ========== RELACIONAMENTOS ==========
+    // RELACIONAMENTOS
     
     /**
      * Relacionamento ManyToOne com AccountModel
@@ -109,7 +109,7 @@ public class TransactionsModel {
         return this.description;
     }
     
-    // ========== GETTERS E SETTERS DOS RELACIONAMENTOS ==========
+    // GETTERS E SETTERS DOS RELACIONAMENTOS 
     
     /**
      * Obtém a conta da transação

@@ -26,7 +26,7 @@ public class InvestmentAccountModel {
     @Column(name = "quantity", nullable = false)
     private Integer quantity; //Quantidade de ações
 
-    // ========== RELACIONAMENTOS ==========
+    // RELACIONAMENTOS
     
     /**
      * Relacionamento ManyToOne com UserModel

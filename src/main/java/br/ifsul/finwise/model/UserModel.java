@@ -12,6 +12,8 @@ import br.ifsul.finwise.service.EncryptionService;
 import br.ifsul.finwise.service.ValidationService;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type_user", discriminatorType = DiscriminatorType.STRING)
 @Table(name = "user")
 public abstract class UserModel {
 
@@ -34,14 +36,14 @@ public abstract class UserModel {
     @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
     private String password; // Senha do usuário
 
-    // ========== RELACIONAMENTOS ==========
+    // RELACIONAMENTOS
     
     /**
      * Relacionamento OneToOne com AccountModel
-     * Um usuário pode ter uma conta bancaria
+     * Um usuário pode ter multiplas contas bancarias
      */
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private AccountModel account;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AccountModel> account = new ArrayList<>();
 
     
     /**
@@ -50,6 +52,13 @@ public abstract class UserModel {
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InvestmentAccountModel> investments = new ArrayList<>();
+    
+    /**
+     * Relacionamento OneToMany com ContentModel
+     * Um usuário(professor) pode ter múltiplos conteudos
+     */
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
+    private List<ContentModel> contentsModel = new ArrayList<>();
 
     // Chave secreta para a criptografia AES
     private static final SecretKey key;
@@ -122,31 +131,31 @@ public abstract class UserModel {
     }
     
     /**
-    * Obtém a conta do usuário.
+    * Obtém a(as) conta do usuário.
     * @return conta
          */
-    public AccountModel getAccount() {
-        return this.account;  // Retorna a conta associada ao usuário
+    public List<AccountModel> getAccount() {
+        return account;  // Retorna a conta associada ao usuário
     }
 
-    
     /**
-     * Define a contas do usuário
-     * @param account conta
+     * Adiciona uma conta ao usuário
+     * @param account conta a ser adicionada
      */
-    public void setAccount(AccountModel account) {
+    public void setAccount(List<AccountModel> account) {
         this.account = account;
     }
-    
-    /**
-    * Adiciona uma conta ao usuário.
-    * @param account Conta a ser adicionada.
-    */
+
+    /** 
+     * Adicionar outra conta ao usuario
+     * @param account Conta a ser adicionada
+     */ 
     public void addAccount(AccountModel account) {
-     if (account != null) {
-        this.account = account;  // Atribuindo a conta ao usuário.
-        account.setUser(this);    // Definindo o usuário para a conta.
+        if (this.account == null) {
+            this.account = new ArrayList<>();
         }
+        this.account.add(account);
+        account.setUser(this);
     }
     
     /**

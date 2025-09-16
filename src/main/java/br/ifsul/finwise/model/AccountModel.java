@@ -1,6 +1,8 @@
 package br.ifsul.finwise.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
@@ -19,12 +21,15 @@ public class AccountModel {
     private Long id; //ID da conta
     
     @Column(name = "number", nullable = false)
+    @NotNull
     private Integer number; //Número da conta
 
     @Column(name = "balance", precision = 19, scale = 2, nullable = false)
+    @NotNull   
+    @DecimalMin("0.00")
     private BigDecimal balance; //Saldo da conta
 
-    // Relacionamento
+    // RELACIONAMENTOS
     
     /**
      * Relacionamento ManyToOne com UserModel
@@ -71,10 +76,12 @@ public class AccountModel {
         this.id = id;
     }
 
+    /**
     public Integer getNumber() {
         // NUNCA retornar o número da conta descriptografado por questões de segurança
         return null; // Retorna null por segurança
     }
+     */
 
     public void setNumber(Integer number) {
         this.number = number;
@@ -88,10 +95,12 @@ public class AccountModel {
         return this.number;
     }
 
+    /**
     public BigDecimal getBalance() {
         // NUNCA retornar o saldo descriptografado por questões de segurança
         return null; // Retorna null por segurança
     }
+     */
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
@@ -185,7 +194,9 @@ public class AccountModel {
         return Objects.equals(id, accountModel.id);
     }
 
+    
     public void remove(AccountModel account) {
         throw new UnsupportedOperationException("Unimplemented method 'remove'");
     }
+    
 }

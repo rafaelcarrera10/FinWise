@@ -6,6 +6,16 @@ import java.util.Objects;
 @Entity
 @Table(name = "content")
 public class ContentModel {
+
+    //RELACIONAMENTO
+
+    /**
+     * Relacionamento ManyToOne com UserModel
+     * Múltiplos conteudos podem pertencer a um autor (usuário/professor)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "autor_id", nullable = false)
+    private UserModel user;
     
     //Variaveis
 
