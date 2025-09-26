@@ -66,7 +66,7 @@ public class AccountModel {
         this.balance = balance;
     }
 
-    //Getters and Setters
+    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -76,7 +76,8 @@ public class AccountModel {
         this.id = id;
     }
 
-    /**
+    /** Método (getNumber) retornando null por segurança
+     * 
     public Integer getNumber() {
         // NUNCA retornar o número da conta descriptografado por questões de segurança
         return null; // Retorna null por segurança
@@ -95,7 +96,8 @@ public class AccountModel {
         return this.number;
     }
 
-    /**
+    /** Método (getBalance) retornando null por segurança
+     * 
     public BigDecimal getBalance() {
         // NUNCA retornar o saldo descriptografado por questões de segurança
         return null; // Retorna null por segurança
@@ -113,8 +115,6 @@ public class AccountModel {
     public BigDecimal getSecureBalance() {
         return this.balance;
     }
-    
-    // ========== GETTERS E SETTERS DOS RELACIONAMENTOS ==========
     
     /**
      * Obtém o usuário proprietário da conta

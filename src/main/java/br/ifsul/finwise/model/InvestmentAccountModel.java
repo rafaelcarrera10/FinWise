@@ -67,26 +67,20 @@ public class InvestmentAccountModel {
     }
 
     public String getActionName() {
-        // NUNCA retornar o nome da ação descriptografado por questões de segurança
-        return "****"; // Retorna asteriscos por segurança
+        return actionName;
     }
 
     public void setActionName(String actionName) {
         this.actionName = actionName;
     }
-    
-    /**
-     * Obtém o nome da ação de forma segura
-     * @return Nome da ação
-     */
-    public String getSecureActionName() {
-        return this.actionName;
-    }
 
+    /** Método (getValue) retornando null por segurança
+     * 
     public BigDecimal getValue() {
         // NUNCA retornar o valor descriptografado por questões de segurança
         return null; // Retorna null por segurança
     }
+    */
 
     public void setValue(BigDecimal value) {
         this.value = value;
@@ -101,23 +95,12 @@ public class InvestmentAccountModel {
     }
 
     public Integer getQuantity() {
-        // NUNCA retornar a quantidade descriptografada por questões de segurança
-        return null; // Retorna null por segurança
+        return quantity; 
     }
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-    
-    /**
-     * Obtém a quantidade de ações de forma segura
-     * @return Quantidade de ações
-     */
-    public Integer getSecureQuantity() {
-        return this.quantity;
-    }
-    
-    // ========== GETTERS E SETTERS DOS RELACIONAMENTOS ==========
     
     /**
      * Obtém o usuário proprietário do investimento
@@ -146,7 +129,7 @@ public class InvestmentAccountModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, actionName, quantity);
         // NÃO incluir actionName, value e quantity por questões de segurança
     }
 

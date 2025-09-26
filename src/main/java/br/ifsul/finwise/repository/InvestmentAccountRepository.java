@@ -1,5 +1,7 @@
 package br.ifsul.finwise.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,27 +15,14 @@ import java.util.List;
 public interface InvestmentAccountRepository extends JpaRepository<InvestmentAccountModel, Long> {
     
     // CRUD - Buscar
-    /**
-     * Busca investimento por nome da ação
-     * @param actionName Nome da ação
-     * @return Lista de investimentos com a ação especificada
-     */
-    List<InvestmentAccountModel> findByActionName(String actionName);
-    
+
     /**
      * Busca investimentos por nome da ação (case insensitive)
      * @param actionName Nome da ação
      * @return Lista de investimentos com a ação especificada
      */
     List<InvestmentAccountModel> findByActionNameIgnoreCase(String actionName);
-    
-    /**
-     * Busca investimentos por nome da ação contendo o texto (case insensitive)
-     * @param actionNamePart Parte do nome da ação
-     * @return Lista de investimentos que contêm o texto
-     */
-    List<InvestmentAccountModel> findByActionNameContainingIgnoreCase(String actionNamePart);
-    
+
     /**
      * Verifica se existe investimento com a ação especificada
      * @param actionName Nome da ação
@@ -118,28 +107,6 @@ public interface InvestmentAccountRepository extends JpaRepository<InvestmentAcc
     @Query("SELECT i FROM InvestmentAccountModel i ORDER BY i.quantity DESC")
     List<InvestmentAccountModel> findAllOrderByQuantityDesc();
     
-    /**
-     * Busca investimentos por múltiplas ações
-     * @param actionNames Lista de nomes de ações
-     * @return Lista de investimentos encontrados
-     */
-    @Query("SELECT i FROM InvestmentAccountModel i WHERE i.actionName IN :actionNames")
-    List<InvestmentAccountModel> findByActionNames(@Param("actionNames") List<String> actionNames);
-    
-    /**
-     * Busca investimentos com quantidade zero
-     * @return Lista de investimentos com quantidade zero
-     */
-    @Query("SELECT i FROM InvestmentAccountModel i WHERE i.quantity = 0")
-    List<InvestmentAccountModel> findByZeroQuantity();
-    
-    /**
-     * Busca investimentos com valor zero
-     * @return Lista de investimentos com valor zero
-     */
-    @Query("SELECT i FROM InvestmentAccountModel i WHERE i.value = 0")
-    List<InvestmentAccountModel> findByZeroValue();
-    
     // CRUD - Atualizar
     
     /**
@@ -197,80 +164,65 @@ public interface InvestmentAccountRepository extends JpaRepository<InvestmentAcc
     @Query("DELETE FROM InvestmentAccountModel i WHERE i.actionName = :actionName")
     int deleteByActionName(@Param("actionName") String actionName);
     
-    /**
-     * Remove investimentos com quantidade zero
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM InvestmentAccountModel i WHERE i.quantity = 0")
-    int deleteByZeroQuantity();
-    
-    /**
-     * Remove investimentos com valor zero
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM InvestmentAccountModel i WHERE i.value = 0")
-    int deleteByZeroValue();
-    
     // Consultas de Relatórios
     
     /**
-     * Calcula o valor total de todos os investimentos
+     * Calcula o valor total de todos os investimentos por usuario
+     * @param Id ID do usuário
      * @return Soma total dos valores
      */
-    @Query("SELECT SUM(i.value) FROM InvestmentAccountModel i")
-    BigDecimal getTotalValue();
+    @Query("SELECT SUM(i.value * i.quantity) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    BigDecimal getTotalInvestmentValueByUserId(@Param("Id") Long Id);
     
     /**
-     * Calcula o valor médio dos investimentos
-     * @return Valor médio
-     */
-    @Query("SELECT AVG(i.value) FROM InvestmentAccountModel i")
-    BigDecimal getAverageValue();
-    
-    /**
-     * Calcula a quantidade total de ações
+     * Calcula a quantidade total de ações por usuário
+     * @param Id ID do usuário
      * @return Soma total das quantidades
      */
-    @Query("SELECT SUM(i.quantity) FROM InvestmentAccountModel i")
-    Long getTotalQuantity();
+    @Query("SELECT SUM(i.quantity) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    Integer getTotalQuantityByUserId(@Param("Id") Long Id); 
     
     /**
-     * Encontra o maior valor entre todos os investimentos
+     * Encontra o maior valor entre todos os investimentos por usuario
+     * @param Id ID do usuário
      * @return Maior valor
      */
-    @Query("SELECT MAX(i.value) FROM InvestmentAccountModel i")
-    BigDecimal getMaxValue();
+    @Query("SELECT MAX(i.value) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    BigDecimal getMaxValueByUserId(@Param("Id") Long Id);
     
     /**
-     * Encontra o menor valor entre todos os investimentos
-     * @return Menor valor
-     */
-    @Query("SELECT MIN(i.value) FROM InvestmentAccountModel i")
-    BigDecimal getMinValue();
-    
+     * Encontra o menor valor entre todos os investimentos por usuario
+     * @param Id ID do usuário
+    * @return Menor valor
+    */
+    @Query("SELECT MIN(i.value) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    BigDecimal getMinValueByUserId(@Param("Id") Long Id);
+
     /**
-     * Encontra a maior quantidade entre todos os investimentos
+     * Encontra a maior quantidade entre todos os investimentos por usuario
+     * @param Id ID do usuário
      * @return Maior quantidade
      */
-    @Query("SELECT MAX(i.quantity) FROM InvestmentAccountModel i")
-    Integer getMaxQuantity();
+    @Query("SELECT MAX(i.quantity) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    Integer getMaxQuantityByUserId(@Param("Id") Long Id);
     
     /**
-     * Encontra a menor quantidade entre todos os investimentos
+     * Encontra a menor quantidade entre todos os investimentos por usuario
+     * @param Id ID do usuário
      * @return Menor quantidade
      */
-    @Query("SELECT MIN(i.quantity) FROM InvestmentAccountModel i")
-    Integer getMinQuantity();
+    @Query("SELECT MIN(i.quantity) FROM InvestmentAccountModel i WHERE i.user.id = :Id")
+    Integer getMinQuantityByUserId(@Param("Id") Long Id);
     
     /**
-     * Busca investimentos com paginação
-     * @param offset Posição inicial
-     * @param limit Número máximo de registros
-     * @return Lista de investimentos com paginação
+     * Busca transações com paginação
+     * @param id id da transação
+     * @param pageable Configuração de paginação
+     * @return Lista de transações com paginação
      */
     @Query("SELECT i FROM InvestmentAccountModel i ORDER BY i.id ASC")
-    List<InvestmentAccountModel> findInvestmentsWithPagination(@Param("offset") int offset, @Param("limit") int limit);
-    
+    Page<InvestmentAccountModel> findAllInvestments(Pageable pageable);
+
     /**
      * Busca investimentos agrupados por ação
      * @return Lista de investimentos agrupados

@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserModel, Long> {
     
     // CRUD - Buscar
+
     /**
      * Busca usuário por email
      * @param email Email do usuário
@@ -99,7 +100,23 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
      */
     @Query("SELECT u FROM UserModel u WHERE u.name LIKE %:searchText% OR u.email LIKE %:searchText%")
     List<UserModel> findByNameOrEmailContaining(@Param("searchText") String searchText);
-    
+
+    /** 
+     * Buscar foto de perfil por ID do usuário (professor) 
+     * @param id ID do usuário
+     * @return Foto em formato de array de bytes
+     */
+    @Query("SELECT t.photo FROM UserModel t WHERE t.id = :id")
+    byte[] findPhotoByUserId(@Param("id") Long id);
+
+    /** 
+     * Buscar descrição por ID do usuário (professor)
+     * @param id ID do usuário
+     * @return Descrição do professor
+     */
+    @Query("SELECT t.description FROM UserModel t WHERE t.id = :id")
+    String findDescriptionByUserId(@Param("id") Long id);
+
     // CRUD - Atualizar
     
     /**
@@ -128,7 +145,23 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
      */
     @Query("UPDATE UserModel u SET u.password = :newPassword WHERE u.id = :id")
     int updateUserPasswordById(@Param("id") Long id, @Param("newPassword") String newPassword);
-    
+
+    /** 
+     * Atualiza a foto de perfil do usuário (professor) por ID
+     * @param id ID do usuário
+     */
+    @Query("UPDATE UserModel t SET t.photo = :photo WHERE t.id = :id")
+    int updateUserPhotoById(@Param("id") Long id, @Param("photo") byte[] photo);
+
+    /**
+     * Atualiza a descrição do professor por ID
+     * @param id ID do usuário
+     * @param description Nova descrição
+     * @return Número de registros atualizados
+     */
+    @Query("UPDATE UserModel t SET t.description = :description WHERE t.id = :id")
+    int updateTeacherDescriptionById(@Param("id") Long id, @Param("description") String description);
+     
     // CRUD - Deletar
     
     /**
@@ -146,6 +179,20 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
      */
     @Query("DELETE FROM UserModel u WHERE u.name = :name")
     int deleteByName(@Param("name") String name);
-    
+
+    /**
+     * Remover foto de perfil do usuário (professor) por ID
+     * @param id ID do usuário
+     * @return Número de registros atualizados
+     */
+    @Query ("DELETE UserModel t SET t.photo = null WHERE t.id = :id")
+    int removeUserPhotoById(@Param("id") Long id);
+
+    /**
+     * Remover descrição do professor por ID
+     * @param id ID do usuário
+     */
+    @Query ("DELETE UserModel t SET t.description = null WHERE t.id = :id")
+    int removeTeacherDescriptionById(@Param("id") Long id);
     
 }

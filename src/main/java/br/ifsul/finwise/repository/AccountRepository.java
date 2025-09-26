@@ -59,13 +59,6 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
     long count();
     
     /**
-     * Busca contas ordenadas por número
-     * @return Lista de contas ordenadas por número
-     */
-    @Query("SELECT a FROM AccountModel a ORDER BY a.number ASC")
-    List<AccountModel> findAllOrderByNumberAsc();
-    
-    /**
      * Busca contas ordenadas por saldo (maior para menor)
      * @return Lista de contas ordenadas por saldo decrescente
      */
@@ -78,14 +71,6 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
      */
     @Query("SELECT a FROM AccountModel a ORDER BY a.balance ASC")
     List<AccountModel> findAllOrderByBalanceAsc();
-    
-    /**
-     * Busca contas por múltiplos números
-     * @param numbers Lista de números de conta
-     * @return Lista de contas encontradas
-     */
-    @Query("SELECT a FROM AccountModel a WHERE a.number IN :numbers")
-    List<AccountModel> findByNumbers(@Param("numbers") List<Integer> numbers);
     
     /**
      * Busca contas com saldo zero
@@ -173,39 +158,19 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
     // Consultas de Relatórios
     
     /**
-     * Calcula o saldo total de todas as contas
-     * @return Soma total dos saldos
+     * Calcula o saldo total de todas as contas de um usuário
+     * @param Id ID do usuário
+     * @return Saldo total
      */
-    @Query("SELECT SUM(a.balance) FROM AccountModel a")
-    BigDecimal getTotalBalance();
+    @Query("SELECT SUM(a.balance) FROM AccountModel a WHERE a.user.id = :Id")
+    BigDecimal getTotalBalanceByUserId(@Param("Id") Long Id);
     
     /**
-     * Calcula o saldo médio das contas
-     * @return Saldo médio
-     */
-    @Query("SELECT AVG(a.balance) FROM AccountModel a")
-    BigDecimal getAverageBalance();
-    
-    /**
-     * Encontra o maior saldo entre todas as contas
+     * Encontra o maior saldo entre todas as contas de um usuário
+     * @param Id ID do usuário
      * @return Maior saldo
      */
-    @Query("SELECT MAX(a.balance) FROM AccountModel a")
-    BigDecimal getMaxBalance();
+    @Query("SELECT MAX(a.balance) FROM AccountModel a WHERE a.user.id = :Id")
+    BigDecimal getMaxBalanceByUserId(@Param("Id") Long Id);
     
-    /**
-     * Encontra o menor saldo entre todas as contas
-     * @return Menor saldo
-     */
-    @Query("SELECT MIN(a.balance) FROM AccountModel a")
-    BigDecimal getMinBalance();
-    
-    /**
-     * Busca contas com paginação
-     * @param offset Posição inicial
-     * @param limit Número máximo de registros
-     * @return Lista de contas com paginação
-     */
-    @Query("SELECT a FROM AccountModel a ORDER BY a.id ASC")
-    List<AccountModel> findAccountsWithPagination(@Param("offset") int offset, @Param("limit") int limit);
 }

@@ -1,5 +1,7 @@
 package br.ifsul.finwise.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,25 +10,20 @@ import br.ifsul.finwise.model.TransactionsModel;
 import br.ifsul.finwise.model.TransactionsModel.TransactionType;
 import java.math.BigDecimal;
 import java.util.List;
-//import java.util.Optional;
 
 @Repository
 public interface TransactionsRepository extends JpaRepository<TransactionsModel, Long> {
     
-    // CRUD - Buscar
+    // CRUD - Buscar    
+    
     /**
      * Busca transações por tipo
      * @param type Tipo da transação
      * @return Lista de transações do tipo especificado
      */
-    List<TransactionsModel> findByType(TransactionType type);
-    
-    /**
-     * Verifica se existe transação do tipo especificado
-     * @param type Tipo da transação
-     * @return true se existe, false caso contrário
-     */
-    boolean existsByType(TransactionType type);
+    @Query("SELECT t FROM TransactionsModel t WHERE t.type = :type")
+     List<TransactionsModel> findByType(TransactionType type);
+
     
     /**
      * Busca transações com valor maior que o especificado
@@ -128,27 +125,6 @@ public interface TransactionsRepository extends JpaRepository<TransactionsModel,
     @Query("SELECT t FROM TransactionsModel t WHERE t.type IN :types")
     List<TransactionsModel> findByTypes(@Param("types") List<TransactionType> types);
     
-    /**
-     * Busca transações com valor zero
-     * @return Lista de transações com valor zero
-     */
-    @Query("SELECT t FROM TransactionsModel t WHERE t.value = 0")
-    List<TransactionsModel> findByZeroValue();
-    
-    /**
-     * Busca transações com valor positivo
-     * @return Lista de transações com valor positivo
-     */
-    @Query("SELECT t FROM TransactionsModel t WHERE t.value > 0")
-    List<TransactionsModel> findByPositiveValue();
-    
-    /**
-     * Busca transações com valor negativo
-     * @return Lista de transações com valor negativo
-     */
-    @Query("SELECT t FROM TransactionsModel t WHERE t.value < 0")
-    List<TransactionsModel> findByNegativeValue();
-    
     // CRUD - Atualizar
     
     /**
@@ -181,26 +157,12 @@ public interface TransactionsRepository extends JpaRepository<TransactionsModel,
     // CRUD - Deletar
     
     /**
-     * Remove transações por tipo
-     * @param type Tipo da transação
-     * @return Número de registros removidos
+     * Remover transação por ID
+     * @param id id da transação
+     * @return 
      */
-    @Query("DELETE FROM TransactionsModel t WHERE t.type = :type")
-    int deleteByType(@Param("type") TransactionType type);
-    
-    /**
-     * Remove transações com valor zero
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM TransactionsModel t WHERE t.value = 0")
-    int deleteByZeroValue();
-    
-    /**
-     * Remove transações com valor negativo
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM TransactionsModel t WHERE t.value < 0")
-    int deleteByNegativeValue();
+    @Query("DELETE FROM TransactionsModel t WHERE t.id = :id")
+    void deleteById(@Param("id") Long id);
     
     // Consultas de Relatórios
     
@@ -220,59 +182,14 @@ public interface TransactionsRepository extends JpaRepository<TransactionsModel,
     BigDecimal getTotalValueByType(@Param("type") TransactionType type);
     
     /**
-     * Calcula o valor médio das transações
-     * @return Valor médio
-     */
-    @Query("SELECT AVG(t.value) FROM TransactionsModel t")
-    BigDecimal getAverageValue();
-    
-    /**
-     * Calcula o valor médio por tipo de transação
-     * @param type Tipo da transação
-     * @return Valor médio do tipo
-     */
-    @Query("SELECT AVG(t.value) FROM TransactionsModel t WHERE t.type = :type")
-    BigDecimal getAverageValueByType(@Param("type") TransactionType type);
-    
-    /**
-     * Encontra o maior valor entre todas as transações
-     * @return Maior valor
-     */
-    @Query("SELECT MAX(t.value) FROM TransactionsModel t")
-    BigDecimal getMaxValue();
-    
-    /**
-     * Encontra o menor valor entre todas as transações
-     * @return Menor valor
-     */
-    @Query("SELECT MIN(t.value) FROM TransactionsModel t")
-    BigDecimal getMinValue();
-    
-    /**
-     * Encontra o maior valor por tipo de transação
-     * @param type Tipo da transação
-     * @return Maior valor do tipo
-     */
-    @Query("SELECT MAX(t.value) FROM TransactionsModel t WHERE t.type = :type")
-    BigDecimal getMaxValueByType(@Param("type") TransactionType type);
-    
-    /**
-     * Encontra o menor valor por tipo de transação
-     * @param type Tipo da transação
-     * @return Menor valor do tipo
-     */
-    @Query("SELECT MIN(t.value) FROM TransactionsModel t WHERE t.type = :type")
-    BigDecimal getMinValueByType(@Param("type") TransactionType type);
-    
-    /**
      * Busca transações com paginação
-     * @param offset Posição inicial
-     * @param limit Número máximo de registros
+     * @param id id da transação
+     * @param pageable Configuração de paginação
      * @return Lista de transações com paginação
      */
     @Query("SELECT t FROM TransactionsModel t ORDER BY t.id ASC")
-    List<TransactionsModel> findTransactionsWithPagination(@Param("offset") int offset, @Param("limit") int limit);
-    
+    Page<TransactionsModel> findAllTransactions(Pageable pageable);
+
     /**
      * Busca transações agrupadas por tipo
      * @return Lista de transações agrupadas
@@ -281,7 +198,7 @@ public interface TransactionsRepository extends JpaRepository<TransactionsModel,
     List<TransactionsModel> findTransactionsGroupedByType();
     
     /**
-     * Busca as últimas N transações
+     * Busca as últimas transações
      * @param limit Número de transações
      * @return Lista das últimas transações
      */

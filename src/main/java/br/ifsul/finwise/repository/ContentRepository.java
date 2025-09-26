@@ -1,23 +1,18 @@
 package br.ifsul.finwise.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import br.ifsul.finwise.model.ContentModel;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ContentRepository extends JpaRepository<ContentModel, Long> {
     
     // CRUD - Buscar
-    /**
-     * Busca conteúdo por título
-     * @param title Título do conteúdo
-     * @return Lista de conteúdos com o título especificado
-     */
-    List<ContentModel> findByTitle(String title);
     
     /**
      * Busca conteúdo por título (case insensitive)
@@ -33,19 +28,6 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
      */
     List<ContentModel> findByTitleContainingIgnoreCase(String titlePart);
     
-    /**
-     * Busca conteúdo por URL
-     * @param url URL do conteúdo
-     * @return Optional contendo o conteúdo se encontrado
-     */
-    Optional<ContentModel> findByUrl(String url);
-    
-    /**
-     * Busca conteúdo por URL contendo o texto
-     * @param urlPart Parte da URL
-     * @return Lista de conteúdos que contêm o texto
-     */
-    List<ContentModel> findByUrlContaining(String urlPart);
     
     /**
      * Busca conteúdo por descrição contendo o texto (case insensitive)
@@ -101,15 +83,7 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
      */
     @Query("SELECT c FROM ContentModel c ORDER BY c.id ASC")
     List<ContentModel> findAllOrderByIdAsc();
-    
-    /**
-     * Busca conteúdos por múltiplos títulos
-     * @param titles Lista de títulos
-     * @return Lista de conteúdos encontrados
-     */
-    @Query("SELECT c FROM ContentModel c WHERE c.title IN :titles")
-    List<ContentModel> findByTitles(@Param("titles") List<String> titles);
-    
+   
     /**
      * Busca conteúdos por múltiplas URLs
      * @param urls Lista de URLs
@@ -118,26 +92,13 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
     @Query("SELECT c FROM ContentModel c WHERE c.url IN :urls")
     List<ContentModel> findByUrls(@Param("urls") List<String> urls);
     
-    /**
-     * Busca conteúdos com título vazio ou nulo
-     * @return Lista de conteúdos com título vazio
+    /**  
+     *  Buscar conteudo por professor
+     * @param Id ID do professor
+     * @return Lista de conteúdos do professor
      */
-    @Query("SELECT c FROM ContentModel c WHERE c.title IS NULL OR c.title = ''")
-    List<ContentModel> findByEmptyTitle();
-    
-    /**
-     * Busca conteúdos com URL vazia ou nula
-     * @return Lista de conteúdos com URL vazia
-     */
-    @Query("SELECT c FROM ContentModel c WHERE c.url IS NULL OR c.url = ''")
-    List<ContentModel> findByEmptyUrl();
-    
-    /**
-     * Busca conteúdos com descrição vazia ou nula
-     * @return Lista de conteúdos com descrição vazia
-     */
-    @Query("SELECT c FROM ContentModel c WHERE c.description IS NULL OR c.description = ''")
-    List<ContentModel> findByEmptyDescription();
+    @Query("SELECT c FROM ContentModel c WHERE c.teacher.id = :userId")
+    List<ContentModel> findByUserId(@Param("userId") Long userId);
     
     // CRUD - Atualizar
     
@@ -186,27 +147,6 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
     @Query("DELETE FROM ContentModel c WHERE c.url = :url")
     int deleteByUrl(@Param("url") String url);
     
-    /**
-     * Remove conteúdos com título vazio
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM ContentModel c WHERE c.title IS NULL OR c.title = ''")
-    int deleteByEmptyTitle();
-    
-    /**
-     * Remove conteúdos com URL vazia
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM ContentModel c WHERE c.url IS NULL OR c.url = ''")
-    int deleteByEmptyUrl();
-    
-    /**
-     * Remove conteúdos com descrição vazia
-     * @return Número de registros removidos
-     */
-    @Query("DELETE FROM ContentModel c WHERE c.description IS NULL OR c.description = ''")
-    int deleteByEmptyDescription();
-    
     // Consultas de Busca Avançada
     
     /**
@@ -226,14 +166,14 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
     List<ContentModel> findByTextInTitleOrDescription(@Param("searchText") String searchText);
     
     /**
-     * Busca conteúdos com paginação
-     * @param offset Posição inicial
-     * @param limit Número máximo de registros
-     * @return Lista de conteúdos com paginação
+     * Busca transações com paginação
+     * @param id id da transação
+     * @param pageable Configuração de paginação
+     * @return Lista de transações com paginação
      */
-    @Query("SELECT c FROM ContentModel c ORDER BY c.id ASC")
-    List<ContentModel> findContentsWithPagination(@Param("offset") int offset, @Param("limit") int limit);
-    
+    @Query("SELECT c FROM ContentModel c WHERE c.id = :id")
+    Page<ContentModel> findByIdWithPagination(@Param("id") Long id, Pageable pageable);
+
     /**
      * Busca os conteúdos mais recentes
      * @param limit Número de conteúdos
@@ -242,19 +182,4 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
     @Query("SELECT c FROM ContentModel c ORDER BY c.id DESC")
     List<ContentModel> findLatestContents(@Param("limit") int limit);
     
-    /**
-     * Busca conteúdos que comecem com o texto especificado no título
-     * @param prefix Prefixo do título
-     * @return Lista de conteúdos encontrados
-     */
-    @Query("SELECT c FROM ContentModel c WHERE c.title LIKE CONCAT(:prefix, '%')")
-    List<ContentModel> findByTitleStartingWith(@Param("prefix") String prefix);
-    
-    /**
-     * Busca conteúdos que terminem com o texto especificado no título
-     * @param suffix Sufixo do título
-     * @return Lista de conteúdos encontrados
-     */
-    @Query("SELECT c FROM ContentModel c WHERE c.title LIKE CONCAT('%', :suffix)")
-    List<ContentModel> findByTitleEndingWith(@Param("suffix") String suffix);
 }

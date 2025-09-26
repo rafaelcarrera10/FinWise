@@ -93,23 +93,12 @@ public class TransactionsModel {
     }
 
     public String getDescription() {
-        // NUNCA retornar a descrição descriptografada por questões de segurança
-        return "****"; // Retorna asteriscos por segurança
+        return description; 
     }
     
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    /**
-     * Obtém a descrição da transação de forma segura
-     * @return Descrição da transação
-     */
-    public String getSecureDescription() {
-        return this.description;
-    }
-    
-    // GETTERS E SETTERS DOS RELACIONAMENTOS 
     
     /**
      * Obtém a conta da transação
