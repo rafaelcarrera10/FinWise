@@ -22,7 +22,7 @@ public class AccountModel {
     
     @Column(name = "number", nullable = false)
     @NotNull
-    private Integer number; //Número da conta
+    private String number; //Número da conta
 
     @Column(name = "balance", precision = 19, scale = 2, nullable = false)
     @NotNull   
@@ -61,7 +61,7 @@ public class AccountModel {
     public AccountModel() {
     }
 
-    public AccountModel(Integer number, BigDecimal balance) {
+    public AccountModel(@NotNull String number, BigDecimal balance) {
         this.number = number;
         this.balance = balance;
     }
@@ -84,7 +84,7 @@ public class AccountModel {
     }
      */
 
-    public void setNumber(Integer number) {
+    public void setNumber(@NotNull String number) {
         this.number = number;
     }
     
@@ -92,7 +92,7 @@ public class AccountModel {
      * Obtém o número da conta de forma segura
      * @return Número da conta descriptografado
      */
-    public Integer getSecureNumber() {
+    public String getSecureNumber() {
         return this.number;
     }
 

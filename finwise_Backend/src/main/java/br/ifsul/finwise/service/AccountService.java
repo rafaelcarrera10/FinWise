@@ -14,6 +14,10 @@ public class AccountService {
      @Autowired
     private AccountRepository accountRepository;
 
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
     // Salvar Conta
     public AccountModel save(AccountModel account) {
         return accountRepository.save(account);
@@ -22,7 +26,7 @@ public class AccountService {
     // Buscar
 
     // Buscar conta por número
-    public Optional<AccountModel> findByNumber(Integer number) {
+    public Optional<AccountModel> findByNumber(String number) {
         return accountRepository.findByNumber(number);
     }
 

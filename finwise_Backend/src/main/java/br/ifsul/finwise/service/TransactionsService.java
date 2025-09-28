@@ -3,6 +3,7 @@ package br.ifsul.finwise.service;
 import br.ifsul.finwise.model.TransactionsModel;
 import br.ifsul.finwise.repository.TransactionsRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,10 @@ public class TransactionsService {
 
     @Autowired
     private TransactionsRepository transactionsRepository;
+
+    public TransactionsService(TransactionsRepository transactionsRepository) {
+        this.transactionsRepository = transactionsRepository;
+    }
 
     // Salvar Transação
     public TransactionsModel save(TransactionsModel transaction) {
@@ -35,17 +40,17 @@ public class TransactionsService {
     }
 
     // Buscar Transações por Valor maior que um valor específico 
-    public List<TransactionsModel> findByValueGreaterThan(java.math.BigDecimal minValue) {
+    public List<TransactionsModel> findByValueGreaterThan(BigDecimal minValue) {
         return transactionsRepository.findByValueGreaterThan(minValue);
     }
 
     // Buscar Transaçôes por valor menor que um valor específico
-    public List<TransactionsModel> findByValueLessThan(java.math.BigDecimal maxValue) {
+    public List<TransactionsModel> findByValueLessThan(BigDecimal maxValue) {
         return transactionsRepository.findByValueLessThan(maxValue);
     }
 
     // Buscar Transaçôes com valor entre dois valores
-    public List<TransactionsModel> findByValueBetween(java.math.BigDecimal minValue, java.math.BigDecimal maxValue) {
+    public List<TransactionsModel> findByValueBetween(BigDecimal minValue, BigDecimal maxValue) {
         return transactionsRepository.findByValueBetween(minValue, maxValue);
     }
 
@@ -55,7 +60,7 @@ public class TransactionsService {
     }
 
     // Buscar Transações por tipo e valor maior que um valor específico
-    public List<TransactionsModel> findByTypeAndValueGreaterThan(TransactionsModel.TransactionType type, java.math.BigDecimal minValue) {
+    public List<TransactionsModel> findByTypeAndValueGreaterThan(TransactionsModel.TransactionType type, BigDecimal minValue) {
         return transactionsRepository.findByTypeAndValueGreaterThan(type, minValue);
     }
     // Contar Transações por tipo
@@ -91,7 +96,7 @@ public class TransactionsService {
     // Atualizar
     
     // Atualizar valor da Transação por ID
-    public int updateValueById(Long id, java.math.BigDecimal newValue, String newDescription) {
+    public int updateValueById(Long id, BigDecimal newValue, String newDescription) {
         return transactionsRepository.updateValueById(id, newValue);
     }
 
@@ -115,12 +120,12 @@ public class TransactionsService {
     // Consultas de Relatórios
 
     // Calcular soma de todas as transações
-    public java.math.BigDecimal sumAllTransactions() {
+    public BigDecimal sumAllTransactions() {
         return transactionsRepository.getTotalValue();
     }
 
     // Calcular soma de transações por tipo
-    public java.math.BigDecimal sumTransactionsByType(TransactionsModel.TransactionType type) {
+    public BigDecimal sumTransactionsByType(TransactionsModel.TransactionType type) {
         return transactionsRepository.getTotalValueByType(type);
     }
 

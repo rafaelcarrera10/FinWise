@@ -13,6 +13,10 @@ public class ContentService {
     @Autowired
     private ContentRepository contentRepository;
 
+    public ContentService(ContentRepository contentRepository) {
+        this.contentRepository = contentRepository;
+    }
+
     // Salvar Conteúdo
     public ContentModel save(ContentModel content) {
         return contentRepository.save(content);

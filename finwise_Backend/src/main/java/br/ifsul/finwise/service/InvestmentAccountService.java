@@ -2,6 +2,8 @@ package br.ifsul.finwise.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +11,20 @@ import br.ifsul.finwise.model.InvestmentAccountModel;
 import br.ifsul.finwise.repository.InvestmentAccountRepository;
 
 public class InvestmentAccountService {
+    
     @Autowired
     private InvestmentAccountRepository investmentRepository;
 
+    public InvestmentAccountService(InvestmentAccountRepository investmentRepository) {
+        this.investmentRepository = investmentRepository;
+    }
+
     // Buscar
+
+    // Buscar investimento por ID
+    public Optional<InvestmentAccountModel> findById(Long id) {
+        return investmentRepository.findById(id);
+    }
 
     // Buscar investimentos por nome da ação (case insensitive)
     public List<InvestmentAccountModel> findByActionNameIgnoreCase(String actionName) {

@@ -18,7 +18,7 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
      * @param number Número da conta
      * @return Optional contendo a conta se encontrada
      */
-    Optional<AccountModel> findByNumber(Integer number);
+    Optional<AccountModel> findByNumber(String number);
     
     /**
      * Verifica se existe uma conta com o número especificado

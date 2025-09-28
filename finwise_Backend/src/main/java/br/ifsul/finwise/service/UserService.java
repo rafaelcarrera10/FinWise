@@ -13,7 +13,16 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // CRUD - Buscar
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // Salvar usuário
+    public UserModel save(UserModel user) {
+        return userRepository.save(user);
+    }
+
+    // Buscar
 
     // Busca usuário por email
     public Optional<UserModel> findByEmail(String email) {
