@@ -2,10 +2,9 @@ package br.ifsul.finwise.model;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+
 
 @Entity
-@Table(name = "administrator")
 @DiscriminatorValue("administrator")
 public class AdministratorModel extends UserModel {
     

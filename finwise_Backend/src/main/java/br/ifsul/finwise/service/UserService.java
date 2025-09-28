@@ -3,14 +3,15 @@ package br.ifsul.finwise.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import br.ifsul.finwise.model.UserModel;
 import br.ifsul.finwise.repository.UserRepository;
 
+
+@Service
 public class UserService {
     
-    @Autowired
     private UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {

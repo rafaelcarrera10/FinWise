@@ -25,7 +25,7 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
      * @param number Número a ser verificado
      * @return true se existe, false caso contrário
      */
-    boolean existsByNumber(Integer number);
+    boolean existsByNumber(String number);
     
     /**
      * Busca contas com saldo maior que o valor especificado

@@ -4,10 +4,14 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Service;
+
 import javax.crypto.spec.IvParameterSpec;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@Service
 public class EncryptionService {
 
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding"; // Modo CBC com padding

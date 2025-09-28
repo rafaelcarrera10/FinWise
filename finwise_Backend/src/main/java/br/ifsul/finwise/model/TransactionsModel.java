@@ -33,7 +33,7 @@ public class TransactionsModel {
      * Múltiplas transações podem pertencer a uma conta
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account", nullable = false)
     private AccountModel account;
 
     // Chave secreta para a criptografia AES

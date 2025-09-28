@@ -6,13 +6,14 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import br.ifsul.finwise.model.InvestmentAccountModel;
 import br.ifsul.finwise.repository.InvestmentAccountRepository;
 
+
+@Service
 public class InvestmentAccountService {
     
-    @Autowired
     private InvestmentAccountRepository investmentRepository;
 
     public InvestmentAccountService(InvestmentAccountRepository investmentRepository) {

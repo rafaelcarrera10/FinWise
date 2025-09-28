@@ -97,7 +97,7 @@ public interface ContentRepository extends JpaRepository<ContentModel, Long> {
      * @param Id ID do professor
      * @return Lista de conteúdos do professor
      */
-    @Query("SELECT c FROM ContentModel c WHERE c.teacher.id = :userId")
+    @Query("SELECT c FROM ContentModel c WHERE c.autor.id = :userId")
     List<ContentModel> findByUserId(@Param("userId") Long userId);
     
     // CRUD - Atualizar

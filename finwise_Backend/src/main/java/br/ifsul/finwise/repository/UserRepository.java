@@ -185,14 +185,14 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
      * @param id ID do usuário
      * @return Número de registros atualizados
      */
-    @Query ("DELETE UserModel t SET t.photo = null WHERE t.id = :id")
+    @Query ("UPDATE UserModel t SET t.photo = null WHERE t.id = :id")
     int removeUserPhotoById(@Param("id") Long id);
 
     /**
      * Remover descrição do professor por ID
      * @param id ID do usuário
      */
-    @Query ("DELETE UserModel t SET t.description = null WHERE t.id = :id")
+    @Query ("UPDATE UserModel t SET t.description = null WHERE t.id = :id")
     int removeTeacherDescriptionById(@Param("id") Long id);
     
 }

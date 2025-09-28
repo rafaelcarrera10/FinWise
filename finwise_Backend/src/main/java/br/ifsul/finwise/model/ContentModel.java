@@ -14,8 +14,8 @@ public class ContentModel {
      * Múltiplos conteudos podem pertencer a um autor (usuário/professor)
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "autor_id", nullable = false)
-    private UserModel user;
+    @JoinColumn(name = "autor", nullable = false)
+    private UserModel autor;
     
     //Variaveis
 

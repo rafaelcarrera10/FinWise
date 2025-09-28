@@ -4,10 +4,8 @@ import java.util.Objects;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "student")
 @DiscriminatorValue("student")
 public class StudentModel extends UserModel {
     

@@ -36,7 +36,7 @@ public class AccountModel {
      * Uma conta podem pertencer a um usuário
      */
     @ManyToOne
-    @JoinColumn(name = "user_id") // Relacionamento com o usuário
+    @JoinColumn(name = "user") // Relacionamento com o usuário
     private UserModel user; // Referência ao usuário
     
     /**

@@ -4,14 +4,15 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Service;
 
 import br.ifsul.finwise.model.AccountModel;
 import br.ifsul.finwise.repository.AccountRepository;
 
+@Service
 public class AccountService {
 
-     @Autowired
     private AccountRepository accountRepository;
 
     public AccountService(AccountRepository accountRepository) {
@@ -31,7 +32,7 @@ public class AccountService {
     }
 
     // Verificar se existe uma conta com o número especificado
-    public boolean existsByNumber(Integer number) {
+    public boolean existsByNumber(String number) {
         return accountRepository.existsByNumber(number);
     }
 

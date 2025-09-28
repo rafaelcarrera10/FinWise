@@ -33,7 +33,7 @@ public class InvestmentAccountModel {
      * Múltiplos investimentos podem pertencer a um usuário
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user", nullable = false)
     private UserModel user;
 
     // Chave secreta para a criptografia AES

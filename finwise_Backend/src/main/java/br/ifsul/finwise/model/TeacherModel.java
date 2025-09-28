@@ -5,7 +5,6 @@ import java.util.Objects;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "teacher")
 @DiscriminatorValue("teacher")
 public class TeacherModel extends UserModel {
     
