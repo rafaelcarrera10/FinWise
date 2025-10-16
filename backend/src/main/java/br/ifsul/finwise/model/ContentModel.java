@@ -7,32 +7,26 @@ import java.util.Objects;
 @Table(name = "content")
 public class ContentModel {
 
-    //RELACIONAMENTO
-
-    /**
-     * Relacionamento ManyToOne com UserModel
-     * Múltiplos conteudos podem pertencer a um autor (usuário/professor)
-     */
+    // -------------------- RELACIONAMENTO --------------------
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor", nullable = false)
     private UserModel autor;
-    
-    //Variaveis
 
+    // -------------------- VARIÁVEIS --------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //ID do conteúdo
-    
+    private Long id;
+
     @Column(name = "title", nullable = false)
-    private String title; //Título do conteúdo
+    private String title;
 
     @Column(name = "url", nullable = false)
-    private String url; //URL do conteúdo
-    
-    @Column(name = "description", nullable = false)
-    private String description; //Descrição do conteúdo
+    private String url;
 
-    // Construtores
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    // -------------------- CONSTRUTORES --------------------
     public ContentModel() {
     }
 
@@ -42,14 +36,21 @@ public class ContentModel {
         this.description = description;
     }
 
-    // Getters e Setters
-
+    // -------------------- GETTERS E SETTERS --------------------
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UserModel getAutor() {
+        return autor;
+    }
+
+    public void setAutor(UserModel autor) {
+        this.autor = autor;
     }
 
     public String getTitle() {
@@ -76,27 +77,26 @@ public class ContentModel {
         this.description = description;
     }
 
-    // Métodos ToString, HashCode e Equals
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ContentModel: id=").append(id != null ? id : "null");
-        sb.append(", title=").append(title != null ? title : "null");
-        sb.append(", url=").append(url != null ? url : "null");
-        sb.append(", description=").append(description != null ? description : "null");
-        return sb.toString();
-    }
-
+    // -------------------- HASHCODE E EQUALS --------------------
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, url, description);
+        return Objects.hash(id);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        ContentModel contentModel = (ContentModel) obj;
-        return Objects.equals(id, contentModel.id);
+        ContentModel other = (ContentModel) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    // -------------------- TOSTRING --------------------
+    @Override
+    public String toString() {
+        return "ContentModel: id=" + (id != null ? id : "null") +
+               ", title=" + (title != null ? title : "null") +
+               ", url=" + (url != null ? url : "null") +
+               ", description=" + (description != null ? description : "null");
     }
 }

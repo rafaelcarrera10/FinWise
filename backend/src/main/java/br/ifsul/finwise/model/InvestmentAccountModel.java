@@ -3,51 +3,31 @@ package br.ifsul.finwise.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
-import javax.crypto.SecretKey;
-import br.ifsul.finwise.service.EncryptionService;
-
 
 @Entity
 @Table(name = "investment_account")
 public class InvestmentAccountModel {
 
-
-    //Variaveis
+    // -------------------- VARIÁVEIS --------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //ID da conta de investimento
+    private Long id;
 
     @Column(name = "action_name", nullable = false)
-    private String actionName; //Nome da ação
+    private String actionName;
 
     @Column(name = "value", precision = 19, scale = 2, nullable = false)
-    private BigDecimal value; //Valor da ação
+    private BigDecimal value;
 
     @Column(name = "quantity", nullable = false)
-    private Integer quantity; //Quantidade de ações
+    private Integer quantity;
 
-    // RELACIONAMENTOS
-    
-    /**
-     * Relacionamento ManyToOne com UserModel
-     * Múltiplos investimentos podem pertencer a um usuário
-     */
+    // -------------------- RELACIONAMENTOS --------------------
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false)
     private UserModel user;
 
-    // Chave secreta para a criptografia AES
-    private static final SecretKey key;
-    
-    static {
-        try {
-            key = EncryptionService.generateKey();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar chave de criptografia", e);
-        }
-    }
-
-    // Construtores
+    // -------------------- CONSTRUTORES --------------------
     public InvestmentAccountModel() {
     }
 
@@ -57,7 +37,7 @@ public class InvestmentAccountModel {
         this.quantity = quantity;
     }
 
-    // Getters e Setters
+    // -------------------- GETTERS E SETTERS --------------------
     public Long getId() {
         return id;
     }
@@ -74,70 +54,49 @@ public class InvestmentAccountModel {
         this.actionName = actionName;
     }
 
-    /** Método (getValue) retornando null por segurança
-     * 
     public BigDecimal getValue() {
-        // NUNCA retornar o valor descriptografado por questões de segurança
-        return null; // Retorna null por segurança
+        return value;
     }
-    */
 
     public void setValue(BigDecimal value) {
         this.value = value;
     }
-    
-    /**
-     * Obtém o valor da ação de forma segura
-     * @return Valor da ação
-     */
-    public BigDecimal getSecureValue() {
-        return this.value;
-    }
 
     public Integer getQuantity() {
-        return quantity; 
+        return quantity;
     }
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
-    
-    /**
-     * Obtém o usuário proprietário do investimento
-     * @return Usuário proprietário
-     */
+
     public UserModel getUser() {
         return user;
     }
-    
-    /**
-     * Define o usuário proprietário do investimento
-     * @param user Usuário proprietário
-     */
+
     public void setUser(UserModel user) {
         this.user = user;
     }
 
-    // Métodos ToString, HashCode e Equals
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("InvestmentAccountModel: id=").append(id != null ? id : "null");
-        sb.append(", actionName=****, value=****, quantity=****");
-        return sb.toString();
-    }
-
+    // -------------------- HASHCODE E EQUALS --------------------
     @Override
     public int hashCode() {
-        return Objects.hash(id, actionName, quantity);
-        // NÃO incluir actionName, value e quantity por questões de segurança
+        return Objects.hash(id);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        InvestmentAccountModel investmentAccountModel = (InvestmentAccountModel) obj;
-        return Objects.equals(id, investmentAccountModel.id);
+        InvestmentAccountModel other = (InvestmentAccountModel) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    // -------------------- TOSTRING --------------------
+    @Override
+    public String toString() {
+        return "InvestmentAccountModel: id=" + (id != null ? id : "null") +
+               ", actionName=" + (actionName != null ? actionName : "null") +
+               ", value=****, quantity=****";
     }
 }

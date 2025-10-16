@@ -3,20 +3,31 @@ package br.ifsul.finwise.service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import br.ifsul.finwise.model.AccountModel;
 import br.ifsul.finwise.repository.AccountRepository;
 
 @Service
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    public AccountService(AccountRepository accountRepository) {
+    private final EncryptionService encryptionService;
+
+
+    @Autowired
+    public AccountService(AccountRepository accountRepository, EncryptionService encryptionService) {
         this.accountRepository = accountRepository;
+        this.encryptionService = encryptionService;
+    }
+    
+    public String encryptUserPassword(String password) {
+        return encryptionService.encrypt(password);
+    }
+
+    public String decryptUserPassword(String encrypted) {
+        return encryptionService.decrypt(encrypted);
     }
 
     // Salvar Conta

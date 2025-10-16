@@ -3,25 +3,25 @@ package br.ifsul.finwise.model;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
-
 @Entity
 @DiscriminatorValue("administrator")
 public class AdministratorModel extends UserModel {
-    
 
-    // Construtores
-    public AdministratorModel() { 
+    // -------------------- Construtores --------------------
+    public AdministratorModel() {
         super();
     }
+
     public AdministratorModel(String name, String email, String password) {
         super(name, email, password);
     }
 
-    // Metodos HashCode, Equals e ToString
+    // -------------------- HashCode e Equals --------------------
     @Override
     public int hashCode() {
         return java.util.Objects.hash(getId());
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -31,13 +31,13 @@ public class AdministratorModel extends UserModel {
         AdministratorModel other = (AdministratorModel) obj;
         return java.util.Objects.equals(getId(), other.getId());
     }
+
+    // -------------------- ToString --------------------
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("AdministratorModel: id=").append(getId() != null ? getId() : "null");
-        sb.append(", name=").append(getName() != null ? getName() : "null");
-        sb.append(", email=").append(getEmail() != null ? getEmail() : "null");
-        sb.append(", password=**********");
-        return sb.toString();
+        return "AdministratorModel: id=" + (getId() != null ? getId() : "null") +
+               ", name=" + (getName() != null ? getName() : "null") +
+               ", email=" + (getEmail() != null ? getEmail() : "null") +
+               ", password=**********";
     }
 }

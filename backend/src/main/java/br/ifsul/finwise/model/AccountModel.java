@@ -7,67 +7,42 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
-import javax.crypto.SecretKey;
-import br.ifsul.finwise.service.EncryptionService;
 
 @Entity
 @Table(name = "account")
 public class AccountModel {
-    
-    //Variaveis
 
+    // -------------------- Variáveis --------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //ID da conta
-    
+    private Long id; // ID da conta
+
     @Column(name = "number", nullable = false)
     @NotNull
-    private String number; //Número da conta
+    private String number; // Número da conta
 
     @Column(name = "balance", precision = 19, scale = 2, nullable = false)
     @NotNull   
     @DecimalMin("0.00")
-    private BigDecimal balance; //Saldo da conta
+    private BigDecimal balance; // Saldo da conta
 
-    // RELACIONAMENTOS
-    
-    /**
-     * Relacionamento ManyToOne com UserModel
-     * Uma conta podem pertencer a um usuário
-     */
+    // -------------------- Relacionamentos --------------------
     @ManyToOne
-    @JoinColumn(name = "user") // Relacionamento com o usuário
+    @JoinColumn(name = "user")
     private UserModel user; // Referência ao usuário
-    
-    /**
-     * Relacionamento OneToMany com TransactionsModel
-     * Uma conta pode ter múltiplas transações
-     */
+
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TransactionsModel> transactions = new ArrayList<>();
 
-    // Chave secreta para a criptografia AES
-    private static final SecretKey key;
-    
-    static {
-        try {
-            key = EncryptionService.generateKey();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar chave de criptografia", e);
-        }
-    }
-
-    // Construtores
-    public AccountModel() {
-    }
+    // -------------------- Construtores --------------------
+    public AccountModel() {}
 
     public AccountModel(@NotNull String number, BigDecimal balance) {
         this.number = number;
         this.balance = balance;
     }
 
-    // Getters and Setters
-
+    // -------------------- Getters e Setters --------------------
     public Long getId() {
         return id;
     }
@@ -76,82 +51,38 @@ public class AccountModel {
         this.id = id;
     }
 
-    /** Método (getNumber) retornando null por segurança
-     * 
-    public Integer getNumber() {
-        // NUNCA retornar o número da conta descriptografado por questões de segurança
-        return null; // Retorna null por segurança
-    }
-     */
-
     public void setNumber(@NotNull String number) {
         this.number = number;
     }
-    
-    /**
-     * Obtém o número da conta de forma segura
-     * @return Número da conta descriptografado
-     */
+
     public String getSecureNumber() {
         return this.number;
     }
 
-    /** Método (getBalance) retornando null por segurança
-     * 
-    public BigDecimal getBalance() {
-        // NUNCA retornar o saldo descriptografado por questões de segurança
-        return null; // Retorna null por segurança
-    }
-     */
-
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
-    
-    /**
-     * Obtém o saldo da conta de forma segura
-     * @return Saldo da conta
-     */
+
     public BigDecimal getSecureBalance() {
         return this.balance;
     }
-    
-    /**
-     * Obtém o usuário proprietário da conta
-     * @return Usuário proprietário
-     */
+
     public UserModel getUser() {
         return user;
     }
-    
-    /**
-     * Define o usuário proprietário da conta
-     * @param user Usuário proprietário
-     */
+
     public void setUser(UserModel user) {
         this.user = user;
     }
-    
-    /**
-     * Obtém a lista de transações da conta
-     * @return Lista de transações
-     */
+
     public List<TransactionsModel> getTransactions() {
         return transactions;
     }
-    
-    /**
-     * Define a lista de transações da conta
-     * @param transactions Lista de transações
-     */
+
     public void setTransactions(List<TransactionsModel> transactions) {
         this.transactions = transactions;
     }
-    
-    /**
-     * Adiciona uma transação à conta
-     * @param transaction Transação a ser adicionada
-     */
+
     public void addTransaction(TransactionsModel transaction) {
         if (transactions == null) {
             transactions = new ArrayList<>();
@@ -159,11 +90,7 @@ public class AccountModel {
         transactions.add(transaction);
         transaction.setAccount(this);
     }
-    
-    /**
-     * Remove uma transação da conta
-     * @param transaction Transação a ser removida
-     */
+
     public void removeTransaction(TransactionsModel transaction) {
         if (transactions != null) {
             transactions.remove(transaction);
@@ -171,19 +98,15 @@ public class AccountModel {
         }
     }
 
-    // Métodos ToString, HashCode e Equals
+    // -------------------- ToString, HashCode e Equals --------------------
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("AccountModel: id=").append(id != null ? id : "null");
-        sb.append(", number=****, balance=****");
-        return sb.toString();
+        return "AccountModel: id=" + (id != null ? id : "null") + ", number=****, balance=****";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
-        // NÃO incluir number e balance por questões de segurança
+        return Objects.hash(id); // Não incluir number e balance
     }
 
     @Override
@@ -194,9 +117,8 @@ public class AccountModel {
         return Objects.equals(id, accountModel.id);
     }
 
-    
+    // Método de remoção genérico (opcional, se realmente necessário)
     public void remove(AccountModel account) {
         throw new UnsupportedOperationException("Unimplemented method 'remove'");
     }
-    
 }

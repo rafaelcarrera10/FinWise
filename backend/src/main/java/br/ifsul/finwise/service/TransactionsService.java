@@ -1,146 +1,223 @@
 package br.ifsul.finwise.service;
 
-import br.ifsul.finwise.model.TransactionsModel;
-import br.ifsul.finwise.repository.TransactionsRepository;
-
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import br.ifsul.finwise.model.TransactionsModel;
+import br.ifsul.finwise.repository.TransactionsRepository;
 
 @Service
 public class TransactionsService {
 
-    private TransactionsRepository transactionsRepository;
+    private final TransactionsRepository transactionsRepository;
+    private final EncryptionService encryptionService;
 
-    public TransactionsService(TransactionsRepository transactionsRepository) {
+    // ÚNICO construtor que inicializa todos os campos final
+    @Autowired
+    public TransactionsService(TransactionsRepository transactionsRepository, EncryptionService encryptionService) {
         this.transactionsRepository = transactionsRepository;
+        this.encryptionService = encryptionService;
     }
 
-    // Salvar Transação
+    // Salvar transação
     public TransactionsModel save(TransactionsModel transaction) {
         return transactionsRepository.save(transaction);
     }
 
-    // Buscar
-
-    // Buscar todas as Transações por ID
-    public Optional findById(Long id) {
+    // Buscar por id
+    public Optional<TransactionsModel> findById(Long id) {
         return transactionsRepository.findById(id);
     }
 
-    // Buscar Transações por Tipo
+    // Buscar por tipo
     public List<TransactionsModel> findByType(TransactionsModel.TransactionType type) {
-        return transactionsRepository.findByType(type);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getType() == type)
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações por Valor maior que um valor específico 
+    // Valor maior que
     public List<TransactionsModel> findByValueGreaterThan(BigDecimal minValue) {
-        return transactionsRepository.findByValueGreaterThan(minValue);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getSecureValue() != null && t.getSecureValue().compareTo(minValue) > 0)
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transaçôes por valor menor que um valor específico
+    // Valor menor que
     public List<TransactionsModel> findByValueLessThan(BigDecimal maxValue) {
-        return transactionsRepository.findByValueLessThan(maxValue);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getSecureValue() != null && t.getSecureValue().compareTo(maxValue) < 0)
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transaçôes com valor entre dois valores
+    // Valor entre
     public List<TransactionsModel> findByValueBetween(BigDecimal minValue, BigDecimal maxValue) {
-        return transactionsRepository.findByValueBetween(minValue, maxValue);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> {
+                    BigDecimal v = t.getSecureValue();
+                    return v != null && v.compareTo(minValue) >= 0 && v.compareTo(maxValue) <= 0;
+                })
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transação por descrição
+    // Descrição contendo
     public List<TransactionsModel> findByDescriptionContaining(String text) {
-        return transactionsRepository.findByDescriptionContaining(text);
+        if (text == null) return List.of();
+        String lower = text.toLowerCase();
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getDescription() != null && t.getDescription().toLowerCase().contains(lower))
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações por tipo e valor maior que um valor específico
+    // Tipo e valor maior
     public List<TransactionsModel> findByTypeAndValueGreaterThan(TransactionsModel.TransactionType type, BigDecimal minValue) {
-        return transactionsRepository.findByTypeAndValueGreaterThan(type, minValue);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getType() == type && t.getSecureValue() != null && t.getSecureValue().compareTo(minValue) > 0)
+                .collect(Collectors.toList());
     }
-    // Contar Transações por tipo
+
+    // Conta por tipo
     public long countByType(TransactionsModel.TransactionType type) {
-        return transactionsRepository.countByType(type);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getType() == type)
+                .count();
     }
 
-    // Buscar Transações em ordem decrescente por valor
+    // Ordenações
     public List<TransactionsModel> findAllOrderByValueDesc() {
-        return transactionsRepository.findAllOrderByValueDesc();
+        return transactionsRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(TransactionsModel::getSecureValue, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações em ordem crescente por valor
     public List<TransactionsModel> findAllOrderByValueAsc() {
-        return transactionsRepository.findAllOrderByValueAsc();
+        return transactionsRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(TransactionsModel::getSecureValue, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações ordenadas por tipo
     public List<TransactionsModel> findAllOrderByType() {
-        return transactionsRepository.findAllOrderByType();
+        return transactionsRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(TransactionsModel::getType, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações ordenadas por ID
     public List<TransactionsModel> findAllOrderById() {
-        return transactionsRepository.findAllOrderByIdDesc();
+        return transactionsRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(TransactionsModel::getId, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
     }
 
-    // Buscar Transações por multiplos tipos
+    // Buscar por múltiplos tipos
     public List<TransactionsModel> findByTypes(List<TransactionsModel.TransactionType> types) {
-        return transactionsRepository.findByTypes(types);
+        if (types == null || types.isEmpty()) return List.of();
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getType() != null && types.contains(t.getType()))
+                .collect(Collectors.toList());
     }
 
-    // Atualizar
-    
-    // Atualizar valor da Transação por ID
+    // Atualizar valor/descrição/tipo por id (retorna 1 se atualizado, 0 caso contrário)
     public int updateValueById(Long id, BigDecimal newValue, String newDescription) {
-        return transactionsRepository.updateValueById(id, newValue);
+        Optional<TransactionsModel> opt = transactionsRepository.findById(id);
+        if (opt.isPresent()) {
+            TransactionsModel t = opt.get();
+            t.setValue(newValue);
+            if (newDescription != null) t.setDescription(newDescription);
+            transactionsRepository.save(t);
+            return 1;
+        }
+        return 0;
     }
 
-    // Atualizar tipo da Transação por ID
     public int updateTypeById(Long id, TransactionsModel.TransactionType newType) {
-        return transactionsRepository.updateTypeById(id, newType);
+        Optional<TransactionsModel> opt = transactionsRepository.findById(id);
+        if (opt.isPresent()) {
+            TransactionsModel t = opt.get();
+            t.setType(newType);
+            transactionsRepository.save(t);
+            return 1;
+        }
+        return 0;
     }
 
-    // Atualizar a descrição da Transação por ID
-    public int updateDescriptionById(Long id, String newDescription) {   
-        return transactionsRepository.updateDescriptionById(id, newDescription);
+    public int updateDescriptionById(Long id, String newDescription) {
+        Optional<TransactionsModel> opt = transactionsRepository.findById(id);
+        if (opt.isPresent()) {
+            TransactionsModel t = opt.get();
+            t.setDescription(newDescription);
+            transactionsRepository.save(t);
+            return 1;
+        }
+        return 0;
     }
 
-    // Remover
-
-    // Remover Transação por ID
+    // Deletar por id
     public void deleteById(Long id) {
         transactionsRepository.deleteById(id);
     }
 
-    // Consultas de Relatórios
-
-    // Calcular soma de todas as transações
+    // Somatórios
     public BigDecimal sumAllTransactions() {
-        return transactionsRepository.getTotalValue();
+        return transactionsRepository.findAll()
+                .stream()
+                .map(TransactionsModel::getSecureValue)
+                .filter(v -> v != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    // Calcular soma de transações por tipo
     public BigDecimal sumTransactionsByType(TransactionsModel.TransactionType type) {
-        return transactionsRepository.getTotalValueByType(type);
+        return transactionsRepository.findAll()
+                .stream()
+                .filter(t -> t.getType() == type)
+                .map(TransactionsModel::getSecureValue)
+                .filter(v -> v != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    // Buscar Transações por página
-    public Page<TransactionsModel> findAllTrasactionsPage (int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size);
-        return transactionsRepository.findAllTransactions(pageable);
+    // Paginação (método com o nome exato que o controller chama)
+    public Page<TransactionsModel> findAllTrasactionsPage(int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        List<TransactionsModel> all = transactionsRepository.findAll();
+        int start = Math.min((int)p.getOffset(), all.size());
+        int end = Math.min(start + p.getPageSize(), all.size());
+        List<TransactionsModel> sub = all.subList(start, end);
+        return new PageImpl<>(sub, p, all.size());
     }
 
-    // Buscar Transações agrupadas por tipo
+    // Agrupamento (retorna lista — implementação simples que devolve todos; ajuste se precisar de agregação específica)
     public List<TransactionsModel> findTransactionsGroupedByType() {
-        return transactionsRepository.findTransactionsGroupedByType();
+        // Se quiser agregações reais, implementa query no repository. Aqui devolvemos todos (o controller só exibe)
+        return transactionsRepository.findAll();
     }
 
-    // Buscar as últimas transações
+    // Últimas transações (por id decrescente)
     public List<TransactionsModel> findLatestTransactions(int limit) {
-        return transactionsRepository.findLatestTransactions(limit);
+        return transactionsRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(TransactionsModel::getId, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(limit)
+                .collect(Collectors.toList());
     }
-
 }

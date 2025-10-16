@@ -9,15 +9,29 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import br.ifsul.finwise.model.InvestmentAccountModel;
 import br.ifsul.finwise.repository.InvestmentAccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 
 @Service
 public class InvestmentAccountService {
     
-    private InvestmentAccountRepository investmentRepository;
+    private final InvestmentAccountRepository investmentRepository;
+    private final EncryptionService encryptionService;
 
-    public InvestmentAccountService(InvestmentAccountRepository investmentRepository) {
+    @Autowired
+    public InvestmentAccountService(InvestmentAccountRepository investmentRepository,
+                                    EncryptionService encryptionService) {
         this.investmentRepository = investmentRepository;
+        this.encryptionService = encryptionService;
+    }
+
+    public String encryptUserPassword(String password) {
+        return encryptionService.encrypt(password);
+    }
+
+    public String decryptUserPassword(String encrypted) {
+        return encryptionService.decrypt(encrypted);
     }
 
     // Buscar

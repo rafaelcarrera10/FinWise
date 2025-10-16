@@ -5,27 +5,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ifsul.finwise.model.AccountModel;
 import br.ifsul.finwise.service.AccountService;
+import br.ifsul.finwise.service.EncryptionService;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
-    @Autowired
     private final AccountService service;
+    private final EncryptionService encryptionService;
 
-    public AccountController(AccountService service) {
+    // ÚNICO construtor com ambos os serviços
+    @Autowired
+    public AccountController(AccountService service, EncryptionService encryptionService) {
         this.service = service;
+        this.encryptionService = encryptionService;
+    }
+
+    @PostMapping("/encrypt")
+    public String encryptUserData(@RequestBody String data) {
+        return encryptionService.encrypt(data); // chave usada automaticamente
+    }
+
+    @PostMapping("/decrypt")
+    public String decryptUserData(@RequestBody String data) {
+        return encryptionService.decrypt(data); // chave usada automaticamente
     }
 
     // Criar nova conta
@@ -36,8 +46,8 @@ public class AccountController {
     
     // Buscar conta por número (com máscara)
     @GetMapping("/by-number")
-    public ResponseEntity<AccountModel> getByNumber(@RequestBody AccountModel request) {
-        return service.findByNumber(request.getSecureNumber())
+    public ResponseEntity<AccountModel> getByNumber(@RequestParam String number) {
+        return service.findByNumber(number)
                 .map(account -> {
                     // Mascarar número antes de retornar
                     account.setNumber(maskAccountNumber(account.getSecureNumber()));
@@ -48,7 +58,7 @@ public class AccountController {
 
     // Buscar contas com saldo maior que o valor especificado
     @GetMapping("/balance-greater-than")
-    public ResponseEntity<List<AccountModel>> getByBalanceGreaterThan(@RequestBody BigDecimal min) {
+    public ResponseEntity<List<AccountModel>> getByBalanceGreaterThan(@RequestParam BigDecimal min) {
         List<AccountModel> accounts = service.findByBalanceGreaterThan(min);
         // Mascarar número antes de retornar
         accounts.forEach(acc -> acc.setNumber(maskAccountNumber(acc.getSecureNumber())));
@@ -57,7 +67,7 @@ public class AccountController {
 
     // Buscar contas com saldo menor que o valor especificado
     @GetMapping("/balance-less-than")
-    public ResponseEntity<List<AccountModel>> getByBalanceLessThan(@RequestBody BigDecimal max) {
+    public ResponseEntity<List<AccountModel>> getByBalanceLessThan(@RequestParam BigDecimal max) {
         List<AccountModel> accounts = service.findByBalanceLessThan(max);
         // Mascarar número antes de retornar
         accounts.forEach(acc -> acc.setNumber(maskAccountNumber(acc.getSecureNumber())));
@@ -66,7 +76,9 @@ public class AccountController {
 
     // Buscar contas com saldo entre dois valores
     @GetMapping("/balance-between")
-    public ResponseEntity<List<AccountModel>> getByBalanceBetween(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
+    public ResponseEntity<List<AccountModel>> getByBalanceBetween(
+            @RequestParam BigDecimal min, 
+            @RequestParam BigDecimal max) {
         List<AccountModel> accounts = service.findByBalanceBetween(min, max);
         // Mascarar número antes de retornar
         accounts.forEach(acc -> acc.setNumber(maskAccountNumber(acc.getSecureNumber())));
@@ -126,7 +138,7 @@ public class AccountController {
 
     // Atualizar o saldo de uma conta por ID
     @PostMapping("/update-balance")
-    public ResponseEntity<AccountModel> updateBalance(@RequestParam Long id, @RequestParam BigDecimal newBalance) {
+    public ResponseEntity<Void> updateBalance(@RequestParam Long id, @RequestParam BigDecimal newBalance) {
         int updated = service.updateBalanceById(id, newBalance);
         if (updated > 0) {
             return ResponseEntity.ok().build();
@@ -137,7 +149,7 @@ public class AccountController {
 
     // Atualizar o número de uma conta por ID
     @PostMapping("/update-number")
-    public ResponseEntity<AccountModel> updateNumber(@RequestParam Long id, @RequestParam Integer newNumber) {
+    public ResponseEntity<Void> updateNumber(@RequestParam Long id, @RequestParam Integer newNumber) {
         int updated = service.updateNumberById(id, newNumber);
         if (updated > 0) {
             return ResponseEntity.ok().build();
@@ -148,7 +160,7 @@ public class AccountController {
 
     // Adicionar valor ao saldo de uma conta
     @PostMapping("/add-to-balance")
-    public ResponseEntity<AccountModel> addToBalance(@RequestParam Long id, @RequestParam BigDecimal amount) {
+    public ResponseEntity<Void> addToBalance(@RequestParam Long id, @RequestParam BigDecimal amount) {
         int updated = service.addToBalance(id, amount);
         if (updated > 0) {
             return ResponseEntity.ok().build();
@@ -159,7 +171,7 @@ public class AccountController {
 
     // Subtrair valor do saldo de uma conta
     @PostMapping("/subtract-from-balance")
-    public ResponseEntity<AccountModel> subtractFromBalance(@RequestParam Long id, @RequestParam BigDecimal amount) {
+    public ResponseEntity<Void> subtractFromBalance(@RequestParam Long id, @RequestParam BigDecimal amount) {
         int updated = service.subtractFromBalance(id, amount);
         if (updated > 0) {
             return ResponseEntity.ok().build();
