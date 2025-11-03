@@ -1,5 +1,5 @@
-// src/lib/api/investments.ts
-const API_URL = import.meta.env.VITE_API_URL + '/investment-accounts';
+// src/api/investments.ts
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + '/investment-accounts';
 
 // Tipos
 export type Investment = {
@@ -11,155 +11,115 @@ export type Investment = {
   [key: string]: any; // outros campos opcionais
 };
 
-export type PaginatedRequest = { page: number; size: number };
-
+// Função genérica de requisição
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T | null> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`Erro na API (${res.status}): ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ${response.status}: ${errorText}`);
+    }
+
+    const text = await response.text();
+    return text ? (JSON.parse(text) as T) : null;
+  } catch (error) {
+    console.error('Erro ao conectar ao backend:', error);
+    throw error;
   }
-
-  return res.status !== 204 ? res.json() : null;
 }
 
 export const InvestmentAPI = {
   // Buscar investimentos por nome da ação
   getByActionName: (actionName: string) =>
-    request<Investment[]>(`/by-action-name`, {
-      method: 'POST',
-      body: JSON.stringify(actionName),
-    }),
+    request<Investment[]>(`/by-action-name?actionName=${encodeURIComponent(actionName)}`, { method: 'GET' }),
 
+  // Verifica se existe investimento com a ação especificada
   existsByActionName: (actionName: string) =>
-    request<boolean>(`/exists-by-action-name`, {
-      method: 'POST',
-      body: JSON.stringify(actionName),
-    }),
+    request<boolean>(`/exists-by-action-name?actionName=${encodeURIComponent(actionName)}`, { method: 'GET' }),
 
+  // Buscar investimentos por valor
   getByValueGreaterThan: (minValue: number) =>
-    request<Investment[]>(`/value-greater-than`, {
-      method: 'POST',
-      body: JSON.stringify(minValue),
-    }),
+    request<Investment[]>(`/value-greater-than?minValue=${minValue}`, { method: 'GET' }),
 
   getByValueLessThan: (maxValue: number) =>
-    request<Investment[]>(`/value-less-than`, {
-      method: 'POST',
-      body: JSON.stringify(maxValue),
-    }),
+    request<Investment[]>(`/value-less-than?maxValue=${maxValue}`, { method: 'GET' }),
 
   getByValueBetween: (minValue: number, maxValue: number) =>
-    request<Investment[]>(`/value-between`, {
-      method: 'POST',
-      body: JSON.stringify({ minValue, maxValue }),
-    }),
+    request<Investment[]>(`/value-between?minValue=${minValue}&maxValue=${maxValue}`, { method: 'GET' }),
 
+  // Buscar investimentos por quantidade
   getByQuantityGreaterThan: (minQuantity: number) =>
-    request<Investment[]>(`/quantity-greater-than`, {
-      method: 'POST',
-      body: JSON.stringify(minQuantity),
-    }),
+    request<Investment[]>(`/quantity-greater-than?minQuantity=${minQuantity}`, { method: 'GET' }),
 
   getByQuantityLessThan: (maxQuantity: number) =>
-    request<Investment[]>(`/quantity-less-than`, {
-      method: 'POST',
-      body: JSON.stringify(maxQuantity),
-    }),
+    request<Investment[]>(`/quantity-less-than?maxQuantity=${maxQuantity}`, { method: 'GET' }),
 
   getByQuantityBetween: (minQuantity: number, maxQuantity: number) =>
-    request<Investment[]>(`/quantity-between`, {
-      method: 'POST',
-      body: JSON.stringify({ minQuantity, maxQuantity }),
-    }),
+    request<Investment[]>(`/quantity-between?minQuantity=${minQuantity}&maxQuantity=${maxQuantity}`, { method: 'GET' }),
 
-  countInvestments: () => request<number>(`/count`, { method: 'GET' }),
+  // Contagem total de investimentos
+  count: () => request<number>('/count', { method: 'GET' }),
 
-  getAllOrderByActionNameAsc: () => request<Investment[]>(`/order-by-action-name-asc`, { method: 'GET' }),
-  getAllOrderByValueDesc: () => request<Investment[]>(`/order-by-value-desc`, { method: 'GET' }),
-  getAllOrderByQuantityDesc: () => request<Investment[]>(`/order-by-quantity-desc`, { method: 'GET' }),
+  // Ordenações
+  getAllOrderByActionNameAsc: () => request<Investment[]>('/order-by-action-name-asc', { method: 'GET' }),
+  getAllOrderByValueDesc: () => request<Investment[]>('/order-by-value-desc', { method: 'GET' }),
+  getAllOrderByQuantityDesc: () => request<Investment[]>('/order-by-quantity-desc', { method: 'GET' }),
 
+  // Paginação
   getPaginated: (page: number, size: number) =>
-    request<Investment[]>(`/paginated`, {
-      method: 'POST',
-      body: JSON.stringify({ page, size }),
-    }),
+    request<Investment[]>(`/paginated?page=${page}&size=${size}`, { method: 'GET' }),
 
-  getInvestmentsGroupedByAction: () => request<Record<string, Investment[]>>(`/grouped-by-action`, { method: 'GET' }),
+  // Agrupamento
+  getGroupedByAction: () => request<Investment[]>('/grouped-by-action', { method: 'GET' }),
 
-  updateInvestmentValue: (id: number, newValue: number) =>
-    request<Investment>(`/update-value`, {
-      method: 'POST',
-      body: JSON.stringify({ id, newValue }),
-    }),
+  // Atualizações
+  updateValue: (id: number, newValue: number) =>
+    request<Investment>(`/update-value?id=${id}&newValue=${newValue}`, { method: 'GET' }),
 
-  updateInvestmentQuantity: (id: number, newQuantity: number) =>
-    request<Investment>(`/update-quantity`, {
-      method: 'POST',
-      body: JSON.stringify({ id, newQuantity }),
-    }),
+  updateQuantity: (id: number, newQuantity: number) =>
+    request<Investment>(`/update-quantity?id=${id}&newQuantity=${newQuantity}`, { method: 'GET' }),
 
-  updateInvestmentActionName: (id: number, newActionName: string) =>
-    request<Investment>(`/update-action-name`, {
-      method: 'POST',
-      body: JSON.stringify({ id, newActionName }),
-    }),
+  updateActionName: (id: number, newActionName: string) =>
+    request<Investment>(`/update-action-name?id=${id}&newActionName=${encodeURIComponent(newActionName)}`, { method: 'GET' }),
 
-  addToInvestmentQuantity: (id: number, amount: number) =>
-    request<Investment>(`/add-to-quantity`, {
-      method: 'POST',
-      body: JSON.stringify({ id, amount }),
-    }),
+  // Alterações de quantidade
+  addToQuantity: (id: number, amount: number) =>
+    request<Investment>(`/add-to-quantity?id=${id}&amount=${amount}`, { method: 'GET' }),
 
-  subtractFromInvestmentQuantity: (id: number, amount: number) =>
-    request<Investment>(`/subtract-from-quantity`, {
-      method: 'POST',
-      body: JSON.stringify({ id, amount }),
-    }),
+  subtractFromQuantity: (id: number, amount: number) =>
+    request<Investment>(`/subtract-from-quantity?id=${id}&amount=${amount}`, { method: 'GET' }),
 
+  // Remoção
   deleteByActionName: (actionName: string) =>
-    request<void>(`/delete-by-action-name`, {
-      method: 'POST',
-      body: JSON.stringify(actionName),
-    }),
+    request<void>(`/delete-by-action-name?actionName=${encodeURIComponent(actionName)}`, { method: 'GET' }),
 
-  getTotalInvestmentValueByUserId: (userId: number) =>
-    request<number>(`/total-value-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+  // Cálculos por usuário
+  getTotalValueByUserId: (userId: number) =>
+    request<number>(`/total-value-by-user?userId=${userId}`, { method: 'GET' }),
 
   getTotalQuantityByUserId: (userId: number) =>
-    request<number>(`/total-quantity-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+    request<number>(`/total-quantity-by-user?userId=${userId}`, { method: 'GET' }),
 
   getMaxValueByUserId: (userId: number) =>
-    request<number>(`/max-value-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+    request<number>(`/max-value-by-user?userId=${userId}`, { method: 'GET' }),
 
   getMinValueByUserId: (userId: number) =>
-    request<number>(`/min-value-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+    request<number>(`/min-value-by-user?userId=${userId}`, { method: 'GET' }),
 
   getMaxQuantityByUserId: (userId: number) =>
-    request<number>(`/max-quantity-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+    request<number>(`/max-quantity-by-user?userId=${userId}`, { method: 'GET' }),
 
   getMinQuantityByUserId: (userId: number) =>
-    request<number>(`/min-quantity-by-user`, {
-      method: 'POST',
-      body: JSON.stringify(userId),
-    }),
+    request<number>(`/min-quantity-by-user?userId=${userId}`, { method: 'GET' }),
+
+  // Criptografia (opcional)
+  encrypt: (data: string) =>
+    request<string>('/encrypt', { method: 'POST', body: JSON.stringify(data) }),
+
+  decrypt: (data: string) =>
+    request<string>('/decrypt', { method: 'POST', body: JSON.stringify(data) }),
 };

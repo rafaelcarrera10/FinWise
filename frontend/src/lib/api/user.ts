@@ -1,165 +1,132 @@
 // src/lib/api/user.ts
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/users";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + "/users";
 
-// Tipos de usuário
-export type UserLogin = {
-    email: string;
-    password: string;
+export type User = {
+  id?: number;
+  name: string;
+  email: string;
+  password?: string;
+  description?: string;
+  photo?: string;
 };
 
-export type UserCreate = {
-    name: string;
-    email: string;
-    password: string;
-    [key: string]: any; // para outros campos opcionais
-};
-
+// Tipos auxiliares
+export type UserLogin = { email: string; password: string };
+export type UserCreate = Omit<User, "id">;
 export type UserUpdateName = { id: number; newName: string };
 export type UserUpdateEmail = { id: number; newEmail: string };
 export type UserUpdatePassword = { id: number; newPassword: string };
 export type UserUpdatePhoto = { id: number; photo: string };
 export type UserUpdateDescription = { id: number; description: string };
 
+// Função utilitária genérica para requisições
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T | null> {
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Erro ${response.status}: ${text}`);
+    }
+
+    const text = await response.text();
+    return text ? (JSON.parse(text) as T) : null;
+  } catch (err) {
+    console.error("Erro ao chamar backend:", err);
+    throw err;
+  }
+}
+
 export const UserAPI = {
-    // Criar usuário
-    create: async (user: UserCreate) => {
-        const res = await fetch(`${API_BASE_URL}/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(user),
-        });
-        return res.json();
-    },
+  // Criptografia
+  encrypt: (data: string) => request<string>("/encrypt", { method: "POST", body: JSON.stringify(data) }),
+  decrypt: (data: string) => request<string>("/decrypt", { method: "POST", body: JSON.stringify(data) }),
 
-    // Login
-    login: async (email: string, password: string) => {
-        const res = await fetch(`${API_BASE_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-        });
-        return res.ok ? res.json() : null;
-    },
+  // Criar usuário
+  create: (user: UserCreate) => request<User>("/create", { method: "POST", body: JSON.stringify(user) }),
 
-    // Buscar usuário por email
-    getByEmail: async (email: string) => {
-        const res = await fetch(`${API_BASE_URL}/by-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(email),
-        });
-        return res.ok ? res.json() : null;
-    },
+  // Login
+  login: ({ email, password }: UserLogin) =>
+    request<User>("/login", { method: "POST", body: JSON.stringify({ email, password }) }),
 
-    // Buscar por nome (parcial)
-    getByNameContaining: async (name: string) => {
-        const res = await fetch(`${API_BASE_URL}/name-containing`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(name),
-        });
-        return res.json();
-    },
+  // Buscar por e-mail
+  getByEmail: (email: string) => request<User>(`/by-email?email=${encodeURIComponent(email)}`, { method: "GET" }),
 
-    // Verificar existência por email
-    existsByEmail: async (email: string) => {
-        const res = await fetch(`${API_BASE_URL}/exists-by-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(email),
-        });
-        return res.json();
-    },
+  // Buscar por nome (parcial)
+  getByNameContaining: (name: string) =>
+    request<User[]>(`/name-containing?name=${encodeURIComponent(name)}`, { method: "GET" }),
 
-    // Contar usuários
-    count: async (): Promise<number> => {
-        const res = await fetch(`${API_BASE_URL}/count`);
-        return res.json();
-    },
+  // Verificar existência por email
+  existsByEmail: (email: string) =>
+    request<boolean>(`/exists-by-email?email=${encodeURIComponent(email)}`, { method: "GET" }),
 
-    // Atualizações
-    updateName: async ({ id, newName }: UserUpdateName) => {
-        const res = await fetch(`${API_BASE_URL}/update-name`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, newName }),
-        });
-        return res.ok;
-    },
+  // Contar usuários
+  count: () => request<number>("/count", { method: "GET" }),
 
-    updateEmail: async ({ id, newEmail }: UserUpdateEmail) => {
-        const res = await fetch(`${API_BASE_URL}/update-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, newEmail }),
-        });
-        return res.ok;
-    },
+  // Buscar por nome exato
+  getByName: (name: string) => request<User[]>(`/by-name?name=${encodeURIComponent(name)}`, { method: "GET" }),
 
-    updatePassword: async ({ id, newPassword }: UserUpdatePassword) => {
-        const res = await fetch(`${API_BASE_URL}/update-password`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, newPassword }),
-        });
-        return res.ok;
-    },
+  // Buscar por prefixo
+  getByNameStartingWith: (prefix: string) =>
+    request<User[]>(`/name-starting-with?prefix=${encodeURIComponent(prefix)}`, { method: "GET" }),
 
-    updatePhoto: async ({ id, photo }: UserUpdatePhoto) => {
-        const res = await fetch(`${API_BASE_URL}/update-photo`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, photo }),
-        });
-        return res.ok;
-    },
+  // Ordenações
+  getAllOrderByNameAsc: () => request<User[]>("/all-order-by-name-asc", { method: "GET" }),
+  getAllOrderByIdDesc: () => request<User[]>("/all-order-by-id-desc", { method: "GET" }),
 
-    updateDescription: async ({ id, description }: UserUpdateDescription) => {
-        const res = await fetch(`${API_BASE_URL}/update-description`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, description }),
-        });
-        return res.ok;
-    },
+  // Paginação
+  getWithPagination: (offset: number, limit: number) =>
+    request<User[]>(`/with-pagination?offset=${offset}&limit=${limit}`, { method: "GET" }),
 
-    // Deletar
-    deleteByEmail: async (email: string) => {
-        const res = await fetch(`${API_BASE_URL}/delete-by-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(email),
-        });
-        return res.ok;
-    },
+  // Buscar múltiplos IDs
+  getByIds: (ids: number[]) =>
+    request<User[]>(`/by-ids?${ids.map((id) => `ids=${id}`).join("&")}`, { method: "GET" }),
 
-    deleteByName: async (name: string) => {
-        const res = await fetch(`${API_BASE_URL}/delete-by-name`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(name),
-        });
-        return res.ok;
-    },
+  // Buscar e-mail parcial
+  getByEmailContaining: (emailPart: string) =>
+    request<User[]>(`/email-containing?emailPart=${encodeURIComponent(emailPart)}`, { method: "GET" }),
 
-    // Remover foto e descrição
-    removePhoto: async (id: number) => {
-        const res = await fetch(`${API_BASE_URL}/remove-photo`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(id),
-        });
-        return res.ok;
-    },
+  // Buscar nome ou email
+  getByNameOrEmailContaining: (searchText: string) =>
+    request<User[]>(`/name-or-email-containing?searchText=${encodeURIComponent(searchText)}`, { method: "GET" }),
 
-    removeDescription: async (id: number) => {
-        const res = await fetch(`${API_BASE_URL}/remove-description`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(id),
-        });
-        return res.ok;
-    },
+  // Buscar foto
+  getPhotoByUserId: (id: number) =>
+    request<string>(`/photo-by-user-id?id=${id}`, { method: "GET" }),
 
-    // Outros métodos podem receber tipagem semelhante
+  // Buscar descrição
+  getDescriptionByUserId: (id: number) =>
+    request<string>(`/description-by-user-id?id=${id}`, { method: "GET" }),
+
+  // Atualizações
+  updateName: (id: number, newName: string) =>
+    request<void>(`/update-name?id=${id}&newName=${encodeURIComponent(newName)}`, { method: "POST" }),
+
+  updateEmail: (id: number, newEmail: string) =>
+    request<void>(`/update-email?id=${id}&newEmail=${encodeURIComponent(newEmail)}`, { method: "POST" }),
+
+  updatePassword: (id: number, newPassword: string) =>
+    request<void>(`/update-password?id=${id}&newPassword=${encodeURIComponent(newPassword)}`, { method: "POST" }),
+
+  updatePhoto: (id: number, photo: string) =>
+    request<void>(`/update-photo?id=${id}`, { method: "POST", body: JSON.stringify({ photo }) }),
+
+  updateDescription: (id: number, description: string) =>
+    request<void>(`/update-description?id=${id}&description=${encodeURIComponent(description)}`, {
+      method: "POST",
+    }),
+
+  // Deletar
+  deleteByEmail: (email: string) =>
+    request<void>(`/delete-by-email?email=${encodeURIComponent(email)}`, { method: "POST" }),
+
+  deleteByName: (name: string) =>
+    request<void>(`/delete-by-name?name=${encodeURIComponent(name)}`, { method: "POST" }),
+
+  // Remover foto e descrição
+  removePhoto: (id: number) => request<void>(`/remove-photo?id=${id}`, { method: "POST" }),
+  removeDescription: (id: number) => request<void>(`/remove-description?id=${id}`, { method: "POST" }),
 };
