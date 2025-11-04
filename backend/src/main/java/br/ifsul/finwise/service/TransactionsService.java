@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,13 +19,9 @@ import br.ifsul.finwise.repository.TransactionsRepository;
 public class TransactionsService {
 
     private final TransactionsRepository transactionsRepository;
-    private final EncryptionService encryptionService;
-
     // ÚNICO construtor que inicializa todos os campos final
-    @Autowired
     public TransactionsService(TransactionsRepository transactionsRepository, EncryptionService encryptionService) {
         this.transactionsRepository = transactionsRepository;
-        this.encryptionService = encryptionService;
     }
 
     // Salvar transação

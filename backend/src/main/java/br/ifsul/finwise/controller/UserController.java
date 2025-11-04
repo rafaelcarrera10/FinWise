@@ -1,7 +1,6 @@
 package br.ifsul.finwise.controller;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import br.ifsul.finwise.model.UserModel;
@@ -13,22 +12,18 @@ import br.ifsul.finwise.service.EncryptionService;
 public class UserController {
 
     private final UserService userService;
-    private final EncryptionService encryptionService;
-
-    @Autowired
     public UserController(UserService userService, EncryptionService encryptionService) {
         this.userService = userService;
-        this.encryptionService = encryptionService;
     }
 
     @PostMapping("/encrypt")
     public String encryptUserData(@RequestBody String data) {
-        return encryptionService.encrypt(data); // chave usada automaticamente
+        return EncryptionService.encrypt(data); // chave usada automaticamente
     }
 
     @PostMapping("/decrypt")
     public String decryptUserData(@RequestBody String data) {
-        return encryptionService.decrypt(data); // chave usada automaticamente
+        return EncryptionService.decrypt(data); // chave usada automaticamente
     }
 
     // Salvar usuário
@@ -41,7 +36,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserModel> loginUser(@RequestBody UserModel userRequest) {
         try {
-            String encryptedPassword = encryptionService.encrypt(userRequest.getPassword());
+            String encryptedPassword = EncryptionService.encrypt(userRequest.getPassword());
             return userService.login(userRequest.getEmail(), encryptedPassword)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.status(401).build());

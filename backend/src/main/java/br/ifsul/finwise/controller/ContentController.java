@@ -2,7 +2,6 @@ package br.ifsul.finwise.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import br.ifsul.finwise.model.ContentModel;
@@ -14,23 +13,19 @@ import br.ifsul.finwise.service.EncryptionService;
 public class ContentController {
 
     private final ContentService service;
-    private final EncryptionService encryptionService;
-
     // ÚNICO construtor com ambos os serviços
-    @Autowired
     public ContentController(ContentService service, EncryptionService encryptionService) {
         this.service = service;
-        this.encryptionService = encryptionService;
     }
 
     @PostMapping("/encrypt")
     public String encryptUserData(@RequestBody String data) {
-        return encryptionService.encrypt(data); // chave usada automaticamente
+        return EncryptionService.encrypt(data); // chave usada automaticamente
     }
 
     @PostMapping("/decrypt")
     public String decryptUserData(@RequestBody String data) {
-        return encryptionService.decrypt(data); // chave usada automaticamente
+        return EncryptionService.decrypt(data); // chave usada automaticamente
     }
 
     @PostMapping("/create")

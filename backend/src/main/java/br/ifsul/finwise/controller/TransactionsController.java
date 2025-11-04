@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,23 +16,19 @@ import br.ifsul.finwise.service.EncryptionService;
 public class TransactionsController {
 
     private final TransactionsService transactionsService;
-    private final EncryptionService encryptionService;
-
     // ÚNICO construtor com ambos os serviços
-    @Autowired
     public TransactionsController(TransactionsService transactionsService, EncryptionService encryptionService) {
         this.transactionsService = transactionsService;
-        this.encryptionService = encryptionService;
     }
 
     @PostMapping("/encrypt")
     public String encryptUserData(@RequestBody String data) {
-        return encryptionService.encrypt(data);
+        return EncryptionService.encrypt(data);
     }
 
     @PostMapping("/decrypt")
     public String decryptUserData(@RequestBody String data) {
-        return encryptionService.decrypt(data);
+        return EncryptionService.decrypt(data);
     }
 
     // Salvar transação

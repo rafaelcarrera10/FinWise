@@ -4,7 +4,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import br.ifsul.finwise.model.ContentModel;
 import br.ifsul.finwise.repository.ContentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
