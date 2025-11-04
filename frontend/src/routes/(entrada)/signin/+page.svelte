@@ -8,7 +8,7 @@ let error = "";
 async function handleLogin() {
   error = "";
   try {
-    const user = await UserAPI.login(email, password);
+    const user = await UserAPI.login({email, password});
     if (user) {
       console.log("Usuário logado:", user);
       localStorage.setItem("user", JSON.stringify(user));
