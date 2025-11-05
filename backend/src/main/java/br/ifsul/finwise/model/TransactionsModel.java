@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "transactions")
 public class TransactionsModel {
 
-    //Variáveis
+    // Variáveis
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //ID da transação
