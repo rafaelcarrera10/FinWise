@@ -1,3 +1,8 @@
 {
-	"/": []
+	"/(entrada)": [],
+	"/": [],
+	"/(entrada)/forgetpassword": [],
+	"/home": [],
+	"/(entrada)/signin": [],
+	"/(entrada)/signup": []
 }

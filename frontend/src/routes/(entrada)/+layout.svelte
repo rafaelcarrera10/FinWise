@@ -5,7 +5,6 @@
       <!-- svelte-ignore element_invalid_self_closing_tag -->
       <div class="size-64 blur-2xl bg-gradient-to-r from-green-200 to-green-800 rounded-full" />
     </div>
-    {@render children?.()}
     <div class="h-full flex items-start">
       <!-- svelte-ignore element_invalid_self_closing_tag -->
       <div class="size-64 blur-2xl bg-gradient-to-r from-green-200 to-green-800 rounded-full" />
@@ -13,6 +12,7 @@
   </div>
 </div>
 
+{@render children?.()}
 <script lang="ts">
   const { children } = $props();
 </script>

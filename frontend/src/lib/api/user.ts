@@ -1,7 +1,9 @@
 // src/lib/api/user.ts
-const BASE_URL = import.meta.env.VITE_API_BASE_URL + "/users";
+let BASE_URL = 'http://localhost:8080/users';
+
 
 export type User = {
+  role: string;
   id?: number;
   name: string;
   email: string;
@@ -102,27 +104,34 @@ export const UserAPI = {
     request<string>(`/description-by-user-id?id=${id}`, { method: "GET" }),
 
   // Atualizações
+  // Atualizar nome
   updateName: (id: number, newName: string) =>
     request<void>(`/update-name?id=${id}&newName=${encodeURIComponent(newName)}`, { method: "POST" }),
 
+  // Atualizar email
   updateEmail: (id: number, newEmail: string) =>
     request<void>(`/update-email?id=${id}&newEmail=${encodeURIComponent(newEmail)}`, { method: "POST" }),
 
+  // Atualizar senha
   updatePassword: (id: number, newPassword: string) =>
     request<void>(`/update-password?id=${id}&newPassword=${encodeURIComponent(newPassword)}`, { method: "POST" }),
 
+  // Atualizar foto
   updatePhoto: (id: number, photo: string) =>
     request<void>(`/update-photo?id=${id}`, { method: "POST", body: JSON.stringify({ photo }) }),
 
+  // Atualizar descrição
   updateDescription: (id: number, description: string) =>
     request<void>(`/update-description?id=${id}&description=${encodeURIComponent(description)}`, {
       method: "POST",
     }),
 
   // Deletar
+  // Deletar email
   deleteByEmail: (email: string) =>
     request<void>(`/delete-by-email?email=${encodeURIComponent(email)}`, { method: "POST" }),
 
+  // Deletar nome
   deleteByName: (name: string) =>
     request<void>(`/delete-by-name?name=${encodeURIComponent(name)}`, { method: "POST" }),
 

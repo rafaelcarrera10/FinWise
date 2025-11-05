@@ -1,5 +1,5 @@
 // src/api/account.ts
-const BASE_URL = import.meta.env.VITE_API_BASE_URL + '/accounts';
+let BASE_URL = 'http://localhost:8080/accounts';
 
 // Tipos
 export type Account = {
