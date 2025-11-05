@@ -12,7 +12,7 @@ import java.util.Objects;
 @Table(name = "account")
 public class AccountModel {
 
-    // -------------------- Variáveis --------------------
+    // Variáveis
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // ID da conta
@@ -26,7 +26,7 @@ public class AccountModel {
     @DecimalMin("0.00")
     private BigDecimal balance; // Saldo da conta
 
-    // -------------------- Relacionamentos --------------------
+    // Relacionamentos
     @ManyToOne
     @JoinColumn(name = "user")
     private UserModel user; // Referência ao usuário
@@ -34,7 +34,7 @@ public class AccountModel {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TransactionsModel> transactions = new ArrayList<>();
 
-    // -------------------- Construtores --------------------
+    // Construtores
     public AccountModel() {}
 
     public AccountModel(@NotNull String number, BigDecimal balance) {
@@ -42,7 +42,7 @@ public class AccountModel {
         this.balance = balance;
     }
 
-    // -------------------- Getters e Setters --------------------
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -98,7 +98,7 @@ public class AccountModel {
         }
     }
 
-    // -------------------- ToString, HashCode e Equals --------------------
+    // ToString, HashCode e Equals
     @Override
     public String toString() {
         return "AccountModel: id=" + (id != null ? id : "null") + ", number=****, balance=****";
