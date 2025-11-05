@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "investment_account")
 public class InvestmentAccountModel {
 
-    // -------------------- VARIÁVEIS --------------------
+    // VARIÁVEIS
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,12 +22,12 @@ public class InvestmentAccountModel {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    // -------------------- RELACIONAMENTOS --------------------
+    // RELACIONAMENTOS
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false)
     private UserModel user;
 
-    // -------------------- CONSTRUTORES --------------------
+    // CONSTRUTORES
     public InvestmentAccountModel() {
     }
 
@@ -37,7 +37,7 @@ public class InvestmentAccountModel {
         this.quantity = quantity;
     }
 
-    // -------------------- GETTERS E SETTERS --------------------
+    // GETTERS E SETTERS
     public Long getId() {
         return id;
     }
@@ -78,7 +78,7 @@ public class InvestmentAccountModel {
         this.user = user;
     }
 
-    // -------------------- HASHCODE E EQUALS --------------------
+    // HASHCODE, EQUALS E TOSTRING
     @Override
     public int hashCode() {
         return Objects.hash(id);
@@ -91,8 +91,7 @@ public class InvestmentAccountModel {
         InvestmentAccountModel other = (InvestmentAccountModel) obj;
         return Objects.equals(id, other.id);
     }
-
-    // -------------------- TOSTRING --------------------
+    
     @Override
     public String toString() {
         return "InvestmentAccountModel: id=" + (id != null ? id : "null") +
