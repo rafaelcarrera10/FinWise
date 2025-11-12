@@ -1,24 +1,39 @@
 package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.AccountModel;
+import br.ifsul.finwise.model.UserModel;
 import br.ifsul.finwise.service.AccountService;
 import br.ifsul.finwise.service.EncryptionService;
+import br.ifsul.finwise.service.UserService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
+    private final UserService userService;
     private final AccountService service;
     // ÚNICO construtor com ambos os serviços
-    public AccountController(AccountService service, EncryptionService encryptionService) {
+    public AccountController(AccountService service, EncryptionService encryptionService, UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
+
+    @GetMapping("/by-userid")
+    public ResponseEntity<List<AccountModel>> getAccount(@RequestParam Long userId) {        
+        List<AccountModel> accounts = (List<AccountModel>) service.findByUserId(userId);
+        accounts.forEach(acc -> acc.setNumber(maskAccountNumber(acc.getSecureNumber())));
+        return ResponseEntity.ok(accounts);
+    }
+
+    
 
     @PostMapping("/encrypt")
     public String encryptUserData(@RequestBody String data) {
@@ -30,10 +45,35 @@ public class AccountController {
         return EncryptionService.decrypt(data); // chave usada automaticamente
     }
 
-    // Criar nova conta
+    // Criar nova conta (com vínculo ao usuário)
     @PostMapping("/create")
-    public AccountModel createAccount(@RequestBody AccountModel account) {
-        return service.save(account);
+    public ResponseEntity<?> createAccount(@RequestBody Map<String, Object> data) {
+        try {
+            // -------------------- Dados recebidos --------------------
+            Long userId = Long.valueOf(data.get("userId").toString());
+            String number = data.get("number").toString();
+            BigDecimal balance = new BigDecimal(data.get("balance").toString());
+
+            // -------------------- Buscar usuário --------------------
+            UserModel user = userService.findById(userId);
+            if (user == null) {
+                return ResponseEntity.badRequest().body("Usuário não encontrado");
+            }
+
+            // -------------------- Montar conta --------------------
+            AccountModel account = new AccountModel();
+            account.setNumber(number);
+            account.setBalance(balance);
+            account.setUser(user);
+
+            // -------------------- Salvar conta --------------------
+            AccountModel created = service.save(account);
+            return ResponseEntity.ok(created);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Erro ao criar conta");
+        }
     }
     
     // Buscar conta por número (com máscara)

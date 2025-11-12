@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import br.ifsul.finwise.model.AccountModel;
+import br.ifsul.finwise.model.UserModel;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +21,15 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
      * @return Optional contendo a conta se encontrada
      */
     Optional<AccountModel> findByNumber(String number);
+
+    /**
+     * Busca contas por usuário
+     * @param userId ID do usuário
+     * @return Lista de contas do usuário
+     */
+    @Query("SELECT u FROM UserModel u WHERE u.id = :userId")
+    UserModel findUserById(@Param("userId") Long userId);
+
     
     /**
      * Verifica se existe uma conta com o número especificado
@@ -172,5 +183,7 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
      */
     @Query("SELECT MAX(a.balance) FROM AccountModel a WHERE a.user.id = :Id")
     BigDecimal getMaxBalanceByUserId(@Param("Id") Long Id);
+
+    List<AccountModel> findByUserId(long userId);
     
 }

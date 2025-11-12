@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import br.ifsul.finwise.model.AccountModel;
+import br.ifsul.finwise.model.UserModel;
 import br.ifsul.finwise.repository.AccountRepository;
 
 @Service
@@ -30,6 +31,11 @@ public class AccountService {
     }
 
     // Buscar
+
+    public List<AccountModel> findByUserId(long userId){
+        return accountRepository.findByUserId(userId);
+    }
+
 
     // Buscar conta por número
     public Optional<AccountModel> findByNumber(String number) {

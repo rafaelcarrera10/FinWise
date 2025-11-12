@@ -1,19 +1,20 @@
-  <script lang="ts">
-	import '../../app.css';
-	import favicon from '$lib/assets/favicon.svg';  
-	let isCollapsed = false;
-	function toggleSidebar() {
-	  isCollapsed = !isCollapsed;
-	}
-  </script>
+<script lang="ts">
+  import '../../app.css'
+  import favicon from '$lib/assets/favicon.svg'
+  let isCollapsed = false
 
+  // alterna o estado da barra lateral
+  function toggleSidebar() {
+    isCollapsed = !isCollapsed
+  }
+</script>
 
 <svelte:head>
   <link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="flex h-screen overflow-hidden">
-  <!-- Sidebar -->
+<div class="flex h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-slate-600 to-gray-400">
+  <!-- barra lateral -->
   <aside
     class="fixed h-full bg-gray-950 text-white flex flex-col transition-all duration-300 ease-in-out shadow-lg overflow-hidden"
     class:w-64={!isCollapsed}
@@ -56,14 +57,13 @@
         {#if !isCollapsed}
           <h1 class="text-gray-400 text-xs uppercase mb-1">Financeiro</h1>
         {/if}
-        <a href="/investimentos" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}💰{:else}<span>Investimentos</span>{/if}</a>
-        <a href="/renda" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}📈{:else}<span>Renda</span>{/if}</a>
-        <a href="/carteira" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}💼{:else}<span>Carteira</span>{/if}</a>
+        <a href="/conta" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}💼{:else}<span>Conta</span>{/if}</a>
+        <a href="/investimentos" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}📈{:else}<span>Investimentos</span>{/if}</a>
       </div>
 
       <div>
         {#if !isCollapsed}
-          <h1 class="text-gray-400 text-xs uppercase mb-1">Área de Estudo</h1>
+          <h1 class="text-gray-400 text-xs uppercase mb-1">Área de estudo</h1>
         {/if}
         <a href="/modulos" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}📚{:else}<span>Módulos</span>{/if}</a>
         <a href="/favoritos" class="block px-4 py-2 rounded hover:bg-gray-700">{#if isCollapsed}⭐{:else}<span>Favoritados</span>{/if}</a>
@@ -75,13 +75,12 @@
     </div>
   </aside>
 
-  <!-- Conteúdo principal -->
+  <!-- conteúdo principal -->
   <main
-    class="flex-1 transition-all duration-300 ease-in-out overflow-y-auto"
+    class="flex-1 transition-all duration-300 ease-in-out overflow-y-auto p-6"
     class:ml-64={!isCollapsed}
     class:ml-20={isCollapsed}
   >
-     <!-- ✅ Aqui entra o conteúdo da página -->
-	<slot/>
+    <slot />
   </main>
 </div>

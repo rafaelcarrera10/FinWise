@@ -3,6 +3,8 @@ package br.ifsul.finwise.service;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+
+import br.ifsul.finwise.model.AccountModel;
 import br.ifsul.finwise.model.UserModel;
 import br.ifsul.finwise.repository.UserRepository;
 
@@ -147,5 +149,10 @@ public class UserService {
 
     public int removeTeacherDescriptionById(Long id) {
         return userRepository.removeTeacherDescriptionById(id);
+    }
+
+    public UserModel findById(Long userId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findById'");
     }
 }

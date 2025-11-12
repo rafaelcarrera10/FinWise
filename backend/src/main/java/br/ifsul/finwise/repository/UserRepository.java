@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
      * @return Optional contendo o usuário se encontrado
      */
     Optional<UserModel> findByEmail(String email);
-    
+
     /**
      * Busca usuário por nome (busca parcial, case insensitive)
      * @param name Nome ou parte do nome do usuário

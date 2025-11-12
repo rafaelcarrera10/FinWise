@@ -101,4 +101,8 @@ export const AccountAPI = {
 
   decrypt: (data: string) =>
     request<string>('/decrypt', { method: 'POST', body: JSON.stringify(data) }),
+
+  // buscar por usuário
+  getAccount: (userId: number) =>
+    request(`/by-userid?userId=${userId}`, { method: 'GET' }),
 };
