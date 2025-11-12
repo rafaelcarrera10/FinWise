@@ -159,10 +159,4 @@ public abstract class UserModel {
         UserModel other = (UserModel) obj;
         return Objects.equals(id, other.id);
     }
-
-    public static UserModel findById(Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
-    }
-
 }
