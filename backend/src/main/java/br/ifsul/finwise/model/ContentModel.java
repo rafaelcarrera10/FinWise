@@ -7,12 +7,12 @@ import java.util.Objects;
 @Table(name = "content")
 public class ContentModel {
 
-    // RELACIONAMENTO
+    // -------------------- RELACIONAMENTO --------------------
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor", nullable = false)
     private UserModel autor;
 
-    // VARIÁVEIS
+    // -------------------- VARIÁVEIS --------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +26,7 @@ public class ContentModel {
     @Column(name = "description", nullable = false)
     private String description;
 
-    // CONSTRUTORES
+    // -------------------- CONSTRUTORES --------------------
     public ContentModel() {
     }
 
@@ -36,7 +36,7 @@ public class ContentModel {
         this.description = description;
     }
 
-    // GETTERS E SETTERS
+    // -------------------- GETTERS E SETTERS --------------------
     public Long getId() {
         return id;
     }
@@ -77,7 +77,7 @@ public class ContentModel {
         this.description = description;
     }
 
-    // HASHCODE,EQUALS E TOSTRING
+    // -------------------- HASHCODE E EQUALS --------------------
     @Override
     public int hashCode() {
         return Objects.hash(id);
@@ -90,7 +90,8 @@ public class ContentModel {
         ContentModel other = (ContentModel) obj;
         return Objects.equals(id, other.id);
     }
-    
+
+    // -------------------- TOSTRING --------------------
     @Override
     public String toString() {
         return "ContentModel: id=" + (id != null ? id : "null") +

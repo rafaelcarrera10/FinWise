@@ -28,6 +28,7 @@
 declare module '$env/static/private' {
 	export const ACLOCAL_PATH: string;
 	export const ALLUSERSPROFILE: string;
+	export const AMDRMSDKPATH: string;
 	export const APPDATA: string;
 	export const ChocolateyInstall: string;
 	export const ChocolateyLastPathUpdate: string;
@@ -42,15 +43,8 @@ declare module '$env/static/private' {
 	export const DISPLAY: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_7540_1262719628: string;
-	export const EFC_7540_1592913036: string;
-	export const EFC_7540_2283032206: string;
-	export const EFC_7540_2775293581: string;
-	export const EFC_7540_344590478: string;
-	export const EFC_7540_3789132940: string;
+	export const EFC_6528_1592913036: string;
 	export const EXEPATH: string;
-	export const FPS_BROWSER_APP_PROFILE_STRING: string;
-	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const GIT_ASKPASS: string;
 	export const HOME: string;
 	export const HOMEDRIVE: string;
@@ -96,6 +90,7 @@ declare module '$env/static/private' {
 	export const NUMBER_OF_PROCESSORS: string;
 	export const OLDPWD: string;
 	export const OneDrive: string;
+	export const OneDriveConsumer: string;
 	export const ORIGINAL_PATH: string;
 	export const ORIGINAL_TEMP: string;
 	export const ORIGINAL_TMP: string;
@@ -174,6 +169,7 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		ACLOCAL_PATH: string;
 		ALLUSERSPROFILE: string;
+		AMDRMSDKPATH: string;
 		APPDATA: string;
 		ChocolateyInstall: string;
 		ChocolateyLastPathUpdate: string;
@@ -188,15 +184,8 @@ declare module '$env/dynamic/private' {
 		DISPLAY: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_7540_1262719628: string;
-		EFC_7540_1592913036: string;
-		EFC_7540_2283032206: string;
-		EFC_7540_2775293581: string;
-		EFC_7540_344590478: string;
-		EFC_7540_3789132940: string;
+		EFC_6528_1592913036: string;
 		EXEPATH: string;
-		FPS_BROWSER_APP_PROFILE_STRING: string;
-		FPS_BROWSER_USER_PROFILE_STRING: string;
 		GIT_ASKPASS: string;
 		HOME: string;
 		HOMEDRIVE: string;
@@ -242,6 +231,7 @@ declare module '$env/dynamic/private' {
 		NUMBER_OF_PROCESSORS: string;
 		OLDPWD: string;
 		OneDrive: string;
+		OneDriveConsumer: string;
 		ORIGINAL_PATH: string;
 		ORIGINAL_TEMP: string;
 		ORIGINAL_TMP: string;

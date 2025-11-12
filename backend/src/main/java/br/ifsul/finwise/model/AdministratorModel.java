@@ -7,7 +7,7 @@ import jakarta.persistence.Entity;
 @DiscriminatorValue("administrator")
 public class AdministratorModel extends UserModel {
 
-    // Construtores
+    // -------------------- Construtores --------------------
     public AdministratorModel() {
         super();
     }
@@ -16,7 +16,7 @@ public class AdministratorModel extends UserModel {
         super(name, email, password);
     }
 
-    // HashCode e Equals
+    // -------------------- HashCode e Equals --------------------
     @Override
     public int hashCode() {
         return java.util.Objects.hash(getId());
@@ -32,7 +32,7 @@ public class AdministratorModel extends UserModel {
         return java.util.Objects.equals(getId(), other.getId());
     }
 
-    // ToString
+    // -------------------- ToString --------------------
     @Override
     public String toString() {
         return "AdministratorModel: id=" + (getId() != null ? getId() : "null") +

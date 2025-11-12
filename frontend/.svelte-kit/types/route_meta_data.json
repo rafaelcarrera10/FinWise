@@ -1,8 +1,15 @@
 {
+	"/(in)": [],
 	"/(entrada)": [],
 	"/": [],
+	"/(in)/carteira": [],
+	"/(in)/favoritos": [],
 	"/(entrada)/forgetpassword": [],
-	"/home": [],
+	"/(in)/home": [],
+	"/(in)/investimentos": [],
+	"/(in)/modulos": [],
+	"/(in)/perfil": [],
+	"/(in)/renda": [],
 	"/(entrada)/signin": [],
 	"/(entrada)/signup": []
 }

@@ -43,7 +43,7 @@ async function signin() {
   <div class="bg-white/90 p-16 rounded-2xl shadow-md w-[400px] h-[400px] flex flex-col justify-center items-center">
     <h1 class="text-2xl mb-10 text-center font-bold">CADASTRO</h1>
 
-    <div class="flex justify-center gap-4">
+    <div class="flex justify-center gap-4 mb-5">
       <h2>Tipo da conta</h2>
     <label>
       <input type="radio" name="role" value="aluno" bind:group={role} />

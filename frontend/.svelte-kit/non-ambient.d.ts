@@ -27,19 +27,26 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/(entrada)" | "/" | "/(entrada)/forgetpassword" | "/home" | "/(entrada)/signin" | "/(entrada)/signup";
+		RouteId(): "/(in)" | "/(entrada)" | "/" | "/(in)/carteira" | "/(in)/favoritos" | "/(entrada)/forgetpassword" | "/(in)/home" | "/(in)/investimentos" | "/(in)/modulos" | "/(in)/perfil" | "/(in)/renda" | "/(entrada)/signin" | "/(entrada)/signup";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
+			"/(in)": Record<string, never>;
 			"/(entrada)": Record<string, never>;
 			"/": Record<string, never>;
+			"/(in)/carteira": Record<string, never>;
+			"/(in)/favoritos": Record<string, never>;
 			"/(entrada)/forgetpassword": Record<string, never>;
-			"/home": Record<string, never>;
+			"/(in)/home": Record<string, never>;
+			"/(in)/investimentos": Record<string, never>;
+			"/(in)/modulos": Record<string, never>;
+			"/(in)/perfil": Record<string, never>;
+			"/(in)/renda": Record<string, never>;
 			"/(entrada)/signin": Record<string, never>;
 			"/(entrada)/signup": Record<string, never>
 		};
-		Pathname(): "/" | "/forgetpassword" | "/forgetpassword/" | "/home" | "/home/" | "/signin" | "/signin/" | "/signup" | "/signup/";
+		Pathname(): "/" | "/carteira" | "/carteira/" | "/favoritos" | "/favoritos/" | "/forgetpassword" | "/forgetpassword/" | "/home" | "/home/" | "/investimentos" | "/investimentos/" | "/modulos" | "/modulos/" | "/perfil" | "/perfil/" | "/renda" | "/renda/" | "/signin" | "/signin/" | "/signup" | "/signup/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/robots.txt" | string & {};
 	}

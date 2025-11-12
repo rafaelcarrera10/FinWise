@@ -2,9 +2,7 @@ package br.ifsul.finwise.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
-
 import br.ifsul.finwise.model.UserModel;
 import br.ifsul.finwise.repository.UserRepository;
 
@@ -17,16 +15,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    // -------------------- Encrypt / Decrypt --------------------
+    // Encrypt / decrypt
     public String encryptUserPassword(String password) {
-        return EncryptionService.encrypt(password); // método estático
+        return EncryptionService.encrypt(password);
     }
 
     public String decryptUserPassword(String encrypted) {
-        return EncryptionService.decrypt(encrypted); // método estático
+        return EncryptionService.decrypt(encrypted);
     }
 
-    // -------------------- Create --------------------
+    // Create
     public UserModel save(UserModel user) {
         try {
             String encryptedPassword = EncryptionService.encrypt(user.getPassword());
@@ -37,14 +35,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // -------------------- Login --------------------
+    // Login
     public Optional<UserModel> login(String email, String rawPassword) {
-        // Busca o usuário e verifica a senha usando método de verificação no model
         return userRepository.findByEmail(email)
-                             .filter(user -> user.verifyPassword(rawPassword));
+                .filter(user -> {
+                    try {
+                        String decrypted = EncryptionService.decrypt(user.getPassword());
+                        return decrypted.equals(rawPassword);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                });
     }
 
-    // -------------------- Read --------------------
+    // Read
     public Optional<UserModel> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -101,7 +106,7 @@ public class UserService {
         return userRepository.findDescriptionByUserId(id);
     }
 
-    // -------------------- Update --------------------
+    // Update
     public int updateUserNameById(Long id, String newName) {
         return userRepository.updateUserNameById(id, newName);
     }
@@ -127,7 +132,7 @@ public class UserService {
         return userRepository.updateTeacherDescriptionById(id, description);
     }
 
-    // -------------------- Delete --------------------
+    // Delete
     public int deleteByEmail(String email) {
         return userRepository.deleteByEmail(email);
     }

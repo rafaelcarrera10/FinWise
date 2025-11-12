@@ -8,6 +8,19 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 import br.ifsul.finwise.service.ValidationService;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "role" // campo no JSON que indica o tipo
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = StudentModel.class, name = "aluno"),
+    @JsonSubTypes.Type(value = TeacherModel.class, name = "professor"),
+    @JsonSubTypes.Type(value = AdministratorModel.class, name = "admin")
+})
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -54,7 +67,7 @@ public abstract class UserModel {
         }
         this.name = name;
         this.email = email;
-        this.password = password; // sem criptografia
+        this.password = password;
     }
 
     // Getters e Setters
@@ -77,7 +90,7 @@ public abstract class UserModel {
         this.email = email;
     }
 
-    public String getPassword() { return "**********"; } // nunca expõe
+    public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
     public List<AccountModel> getAccount() { return account; }
@@ -131,7 +144,7 @@ public abstract class UserModel {
     // ToString, hashCode, equals
     @Override
     public String toString() {
-        return "UserModel: id=" + id + ", name=" + name + ", email=" + email + ", password=**********";
+        return "UserModel: id=" + id + ", name=" + name + ", email=" + email + ", password=" + password;
     }
 
     @Override

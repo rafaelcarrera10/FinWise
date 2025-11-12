@@ -8,7 +8,7 @@ import java.util.Objects;
 @Table(name = "transactions")
 public class TransactionsModel {
 
-    // Variáveis
+    //Variáveis
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //ID da transação
@@ -47,7 +47,7 @@ public class TransactionsModel {
     }
 
     public BigDecimal getValue() {
-        return null; // Por segurança, não expõe o valor diretamente
+        return value; // Por segurança, não expõe o valor diretamente
     }
 
     public void setValue(BigDecimal value) {

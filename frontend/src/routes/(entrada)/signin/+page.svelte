@@ -1,6 +1,8 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
 import { UserAPI } from '$lib/api/user'; 
+import { StoreUser } from '$lib/stores/userStore';
+
 
 // svelte-ignore non_reactive_update
 let email = "";
@@ -43,6 +45,7 @@ async function handleLogin() {
     if (user) {
       console.log("Usuário logado:", user);
       localStorage.setItem("user", JSON.stringify(user));
+      StoreUser.set(user);
       goto('/home');
       
     } else {
@@ -52,6 +55,7 @@ async function handleLogin() {
     console.error(err);
     error = "Erro ao conectar ao servidor";
   }
+
 }
 
 async function signup() {
