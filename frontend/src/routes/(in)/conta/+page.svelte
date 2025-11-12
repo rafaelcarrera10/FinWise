@@ -1,69 +1,76 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { AccountAPI } from "$lib/api/account"
-  import { get } from 'svelte/store'
-  import { StoreUser } from "$lib/stores/userStore"
+  import { onMount } from 'svelte';
+  import { AccountAPI } from "$lib/api/account";
+  import { get } from 'svelte/store';
+  import { StoreUser } from "$lib/stores/userStore";
 
-  // -------------------- Variáveis de estado --------------------
-  let accounts: { id?: number; number?: string; balance?: number }[] = []
-  let error = ""
-  let creating = false
+  // -------------------- Tipagem --------------------
+  interface Account {
+    id?: number;
+    number?: string;
+    balance?: number;
+  }
+
+  // -------------------- Estado --------------------
+  let accounts: Account[] = [];
+  let error = "";
+  let creating = false;
 
   // Campos de criação
-  let number = ""
-  let balance: number | null = null
+  let number = "";
+  let balance: number | null = null;
 
   // -------------------- Busca de contas --------------------
   onMount(async () => {
     try {
-      const currentUser = get(StoreUser)
+      const currentUser = get(StoreUser);
       if (!currentUser?.id) {
-        error = "Usuário não encontrado. Faça login novamente."
-        return
+        error = "Usuário não encontrado. Faça login novamente.";
+        return;
       }
 
-      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id
-      const result = await AccountAPI.getAccount(userId)
+      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
+      const result = await AccountAPI.getAccount(userId);
 
       if (Array.isArray(result)) {
-        accounts = result
+        accounts = result;
       }
     } catch (err) {
-      console.error(err)
-      error = "Erro ao carregar contas do usuário."
+      console.error(err);
+      error = "Erro ao carregar contas do usuário.";
     }
-  })
+  });
 
   // -------------------- Formatação --------------------
   const formatCurrency = (value: number) =>
-    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   // -------------------- Criação de nova conta --------------------
   async function createAccount() {
     try {
-      const currentUser = get(StoreUser)
-      if (!currentUser?.id) return
+      const currentUser = get(StoreUser);
+      if (!currentUser?.id) return;
 
-      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id
+      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
 
       if (!number.trim() || balance === null || balance < 0) {
-        error = "Preencha todos os campos corretamente."
-        return
+        error = "Preencha todos os campos corretamente.";
+        return;
       }
 
-      const data = { userId, number, balance }
-      const created = await AccountAPI.create(data)
+      const data = { userId, number, balance };
+      const created: Account | null = await AccountAPI.create(data);
 
       if (created) {
-        accounts = [...accounts, created]
-        number = ""
-        balance = null
-        creating = false
-        error = ""
+        accounts = [...accounts, created];
+        number = "";
+        balance = null;
+        creating = false;
+        error = "";
       }
     } catch (err) {
-      console.error(err)
-      error = "Erro ao criar conta."
+      console.error(err);
+      error = "Erro ao criar conta.";
     }
   }
 </script>
@@ -122,7 +129,9 @@
 
             <p class="text-gray-300 text-sm mt-2">Saldo Atual</p>
             <p class="text-2xl font-bold text-yellow-400">
-              {account.balance ? formatCurrency(account.balance) : "R$ 0,00"}
+              {account.balance !== undefined && account.balance !== null
+                ? formatCurrency(account.balance)
+                : "R$ 0,00"}
             </p>
           </div>
         {/each}
