@@ -4,45 +4,106 @@
   import { get } from 'svelte/store'
   import { StoreUser } from "$lib/stores/userStore"
 
+  // -------------------- VARIÁVEIS --------------------
+  let accounts: { id: number; balance: number }[] = []
   let balance: number | null = null
+  let reservation: number | null = null
+  let leisure: number | null = null
+  let creditLimit: number | null = null
   let error = ""
-  let showModal = false
+
+  // -------------------- ESTADOS DE MODAIS --------------------
+  let showBalanceModal = false
+  let showOrganizationModal = false
+  let showAlertsModal = false
+  let showCreditModal = false
+
+  // -------------------- VALORES DE EDIÇÃO --------------------
   let newBalance: number | null = null
+  let newReservation: number | null = null
+  let newLeisure: number | null = null
+  let newCredit: number | null = null
 
-  // busca o saldo do usuário ao carregar a página
-  onMount(async () => {
-    try {
-      const currentUser = get(StoreUser) as { id?: string | number } | null
-
-      if (currentUser?.id) {
-        const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id
-        const result = await AccountAPI.getTotalBalance(userId)
-        balance = result ?? 0
-      } else {
-        error = "Usuário não encontrado. Faça login novamente."
-      }
-    } catch (err) {
-      console.error(err)
-      error = "Erro ao buscar saldo da conta."
-    }
-  })
-
-  // formata o valor para o formato de moeda brasileira
+  // -------------------- FUNÇÃO: FORMATAR MOEDA --------------------
   const formatCurrency = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-  // atualiza o saldo manualmente
+  // -------------------- CARREGAR CONTAS E SALDO TOTAL --------------------
+  onMount(async () => {
+    try {
+      const currentUser = get(StoreUser)
+      if (!currentUser?.id) {
+        error = "Usuário não encontrado. Faça login novamente."
+        return
+      }
+
+      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id
+
+      // Busca todas as contas do usuário
+      const result = await AccountAPI.getByUserId(userId)
+
+      if (result && Array.isArray(result)) {
+        (accounts as any) = result
+        // Soma de todos os saldos
+        balance = result.reduce((acc, c) => acc + (c.balance ?? 0), 0)
+      } else {
+        balance = 0
+      }
+    } catch (err) {
+      console.error(err)
+      error = "Erro ao carregar dados financeiros."
+    }
+  })
+
+  // -------------------- ATUALIZAR SALDO TOTAL --------------------
   async function updateBalance() {
     try {
       const currentUser = get(StoreUser)
-      if (!currentUser?.id) return
-
+      if (!currentUser?.id || newBalance === null || isNaN(newBalance)) return
       const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id
-      if (newBalance === null || isNaN(newBalance)) return
 
-      await AccountAPI.updateBalance(userId, newBalance)
-      balance = newBalance
-      showModal = false
+      // Recarrega as contas atuais
+      const result = await AccountAPI.getByUserId(userId)
+      if (!result || result.length === 0) {
+        error = "Nenhuma conta encontrada."
+        return
+      }
+
+      // Soma atual
+      const currentTotal = result.reduce((acc, c) => acc + (c.balance ?? 0), 0)
+      const difference = newBalance - currentTotal
+
+      // -------------------- CASO 1: ADIÇÃO DE SALDO --------------------
+      if (difference > 0) {
+        const last = result[result.length - 1]
+        const updatedBalance = last.balance + difference
+        await AccountAPI.updateBalance((last.id as any), updatedBalance)
+      }
+
+      // -------------------- CASO 2: RETIRADA DE SALDO --------------------
+      else if (difference < 0) {
+        let remaining = Math.abs(difference)
+        // Começa da última conta
+        for (let i = result.length - 1; i >= 0 && remaining > 0; i--) {
+          const acc = result[i]
+          const newAccBalance = acc.balance - remaining
+          if (newAccBalance >= 0) {
+            await AccountAPI.updateBalance((acc.id as any), newAccBalance)
+            remaining = 0
+          } else {
+            await AccountAPI.updateBalance((acc.id as any), 0)
+            remaining = Math.abs(newAccBalance)
+          }
+        }
+      }
+
+      // Atualiza exibição
+      const updatedAccounts = await AccountAPI.getByUserId(userId)
+      accounts = (updatedAccounts ?? [] as any)
+      balance = accounts.reduce((acc, c) => acc + (c.balance ?? 0), 0)
+      showBalanceModal = false
+      newBalance = null
+      error = ""
     } catch (err) {
       console.error(err)
       error = "Erro ao atualizar saldo."
@@ -50,10 +111,12 @@
   }
 </script>
 
+
+<!-- ===================== Layout principal ===================== -->
 <div class="flex flex-col items-center">
   <div class="w-full max-w-7xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-5 text-white">
 
-    <!-- seção de renda -->
+    <!-- Seção de renda -->
     <section class="flex flex-col lg:flex-row justify-between items-center gap-8 bg-gradient-to-br from-slate-900/60 to-slate-800/50 rounded-2xl p-6 shadow-inner">
       <div class="flex flex-col items-center">
         <h2 class="text-white font-semibold text-lg mb-2">Renda</h2>
@@ -61,10 +124,11 @@
       </div>
 
       <div class="grid grid-cols-2 gap-4 text-sm text-gray-900 font-semibold">
-        <!-- saldo em conta -->
+
+        <!-- Saldo -->
         <button
-          on:click={() => (showModal = true)}
-          class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all"
+          on:click={() => (showBalanceModal = true)}
+          class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
         >
           Saldo em conta<br />
           <span class="font-normal text-gray-800">
@@ -78,27 +142,49 @@
           </span>
         </button>
 
-        <!-- organização mensal -->
-        <a href="/organizacao" class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        <!-- Organização mensal -->
+        <button
+          on:click={() => (showOrganizationModal = true)}
+          class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
+        >
           Organização mensal<br />
-          <span class="font-normal">Reserva: R$500<br />Lazer: R$800</span>
-        </a>
+          <span class="font-normal">
+            {#if reservation !== null && leisure !== null}
+              Reserva: {formatCurrency(reservation)}<br />
+              Lazer: {formatCurrency(leisure)}
+            {:else}
+              <span class="text-gray-500 animate-pulse">Carregando...</span>
+            {/if}
+          </span>
+        </button>
 
-        <!-- alertas -->
-        <a href="/alertas" class="bg-purple-500/80 text-white p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        <!-- Alertas -->
+        <button
+          on:click={() => (showAlertsModal = true)}
+          class="bg-purple-500/80 text-white p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
+        >
           Alertas<br />
           <span class="font-normal text-gray-200">Nenhum alerta</span>
-        </a>
+        </button>
 
-        <!-- cartão de crédito -->
-        <a href="/cartao" class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        <!-- Cartão -->
+        <button
+          on:click={() => (showCreditModal = true)}
+          class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
+        >
           Cartão de crédito<br />
-          <span class="font-normal">Limite: R$500</span>
-        </a>
+          <span class="font-normal">
+            {#if creditLimit === null}
+              <span class="text-gray-500 animate-pulse">Carregando...</span>
+            {:else}
+              Limite: {formatCurrency(creditLimit)}
+            {/if}
+          </span>
+        </button>
       </div>
     </section>
 
-    <!-- seção de investimentos -->
+    <!-- Seção de investimentos -->
     <section class="flex flex-col lg:flex-row justify-between items-center gap-8 bg-gradient-to-br from-slate-900/60 to-slate-800/50 rounded-2xl p-6 shadow-inner">
       <div class="flex flex-col items-center">
         <h2 class="text-white font-semibold text-lg mb-2">Investimentos</h2>
@@ -106,28 +192,30 @@
       </div>
 
       <div class="grid grid-cols-2 gap-4 text-sm text-gray-900 font-semibold">
-        <a href="/investimentos/alertas" class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        <button class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all">
           Alertas<br />
           <span class="font-normal text-gray-800">Sem alertas agendados</span>
-        </a>
-        <a href="/investimentos/compras" class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        </button>
+        <button class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all">
           Compras programadas<br />
           <span class="font-normal">LIGT3: R$500<br />IFCM3: R$800</span>
-        </a>
-        <a href="/investimentos/acoes" class="bg-fuchsia-500/80 text-white p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        </button>
+        <button class="bg-fuchsia-500/80 text-white p-4 rounded-xl shadow-md hover:brightness-95 transition-all">
           Ações<br />
           <span class="font-normal text-gray-200">BBAS3, PETR4...</span>
-        </a>
-        <a href="/investimentos/vendas" class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md block hover:brightness-95 transition-all">
+        </button>
+        <button class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all">
           Vendas programadas<br />
           <span class="font-normal">VALE3: R$500</span>
-        </a>
+        </button>
       </div>
     </section>
   </div>
 
-  <!-- modal de edição de saldo -->
-  {#if showModal}
+  <!-- ===================== Modais ===================== -->
+
+  <!-- Editar Saldo -->
+  {#if showBalanceModal}
     <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div class="bg-white rounded-xl shadow-xl p-6 w-80 text-black">
         <h3 class="text-lg font-semibold mb-4">Editar saldo</h3>
@@ -138,18 +226,62 @@
           class="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div class="flex justify-end gap-3">
-          <button
-            class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400 transition"
-            on:click={() => (showModal = false)}
-          >
-            Cancelar
-          </button>
-          <button
-            class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition"
-            on:click={updateBalance}
-          >
-            Salvar
-          </button>
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showBalanceModal = false)}>Cancelar</button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700" on:click={updateBalance}>Salvar</button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Editar Organização (Reserva/Lazer) -->
+  {#if showOrganizationModal}
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl p-6 w-96 text-black">
+        <h3 class="text-lg font-semibold mb-4">Editar Organização Mensal</h3>
+        <div class="flex flex-col gap-3">
+          <!-- svelte-ignore a11y_label_has_associated_control -->
+          <label>Reserva:</label>
+          <input type="number" bind:value={newReservation} placeholder="Novo valor da reserva" class="border border-gray-300 rounded-lg p-2" />
+          <!-- svelte-ignore a11y_label_has_associated_control -->
+          <label>Lazer:</label>
+          <input type="number" bind:value={newLeisure} placeholder="Novo valor de lazer" class="border border-gray-300 rounded-lg p-2" />
+        </div>
+        <div class="flex justify-end gap-3 mt-4">
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showOrganizationModal = false)}>Cancelar</button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Editar Avisos -->
+  {#if showAlertsModal}
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl p-6 w-96 text-black">
+        <h3 class="text-lg font-semibold mb-4">Gerenciar Alertas</h3>
+        <textarea placeholder="Escreva um novo alerta..." class="w-full border border-gray-300 rounded-lg p-2 h-24"></textarea>
+        <div class="flex justify-end gap-3 mt-4">
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showAlertsModal = false)}>Fechar</button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Editar Cartão -->
+  {#if showCreditModal}
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl p-6 w-80 text-black">
+        <h3 class="text-lg font-semibold mb-4">Editar Limite de Crédito</h3>
+        <input
+          type="number"
+          bind:value={newCredit}
+          placeholder="Digite o novo limite"
+          class="w-full border border-gray-300 rounded-lg p-2 mb-4"
+        />
+        <div class="flex justify-end gap-3">
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showCreditModal = false)}>Cancelar</button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
         </div>
       </div>
     </div>

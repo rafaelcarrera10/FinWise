@@ -99,7 +99,7 @@ public class InvestmentAccountService {
     // Buscar investimentos com paginação
     public Page<InvestmentAccountModel> findAllInvestmentsPage(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return investmentRepository.findAllInvestments(pageable);
+        return investmentRepository.findAll(pageable);
     }
     
     // Buscar investimentos agrupados por ação

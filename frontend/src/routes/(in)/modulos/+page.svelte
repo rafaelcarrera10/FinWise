@@ -1,6 +1,6 @@
 <script>
   // @ts-ignore
-  import {apiAccount} from "$lib/api/account"
+  import {AccountAPI} from "$lib/api/account"
 
   
 

@@ -1,71 +1,67 @@
 <script lang="ts">
-import { goto } from '$app/navigation';
-import { UserAPI } from '$lib/api/user'; 
-import { StoreUser } from '$lib/stores/userStore';
+  import { goto } from '$app/navigation';
+  import { UserAPI } from '$lib/api/user';
+  import { StoreUser } from '$lib/stores/userStore';
 
+  let email = "";
+  let password = "";
+  let role = "";
+  let error = "";
 
-// svelte-ignore non_reactive_update
-let email = "";
-let password = $state("");
-let role = '';
-// svelte-ignore non_reactive_update
-let error = "";
-
-async function findRoleByEmail() {
-  try {
-    const response = await UserAPI.getByEmail(email);
-    if (response) {
-      role = response.role; // exemplo: "aluno" | "professor" | "admin"
-    }
-  } catch (err) {
-    console.error(err);
-    error = 'Não foi possível identificar o tipo da conta';
-  }
-}
-
-async function handleLogin() {
-  error = "";
-  try {
-    if (!role) {
-      await findRoleByEmail();
-      if (!role) {
-        error = "Não foi possível identificar o tipo da conta";
-        return;
+  async function findRoleByEmail() {
+    try {
+      const response = await UserAPI.getByEmail(email);
+      if (response?.role) {
+        role = response.role; // "aluno", "professor" ou "admin"
+      } else {
+        error = "Tipo de conta não encontrado";
       }
+    } catch (err) {
+      console.error("Erro ao buscar tipo de conta:", err);
+      error = "Erro ao identificar o tipo da conta";
     }
-
-    const loginData = {
-      email,
-      password,
-      role
-    };
-
-    const user = await UserAPI.login(loginData);
-
-    if (user) {
-      console.log("Usuário logado:", user);
-      localStorage.setItem("user", JSON.stringify(user));
-      StoreUser.set(user);
-      goto('/home');
-      
-    } else {
-      error = "Email ou senha inválidos";
-    }
-  } catch (err) {
-    console.error(err);
-    error = "Erro ao conectar ao servidor";
   }
 
-}
+  async function handleLogin() {
+    error = "";
 
-async function signup() {
-  goto("/signup")
-}
-async function forgetpassword() {
-  goto("/forgetpassword")
-}
- $inspect(password)
+    if (!email || !password) {
+      error = "Preencha todos os campos";
+      return;
+    }
+
+    try {
+      if (!role) {
+        await findRoleByEmail();
+        if (!role) return; // sai se não encontrou o papel do usuário
+      }
+
+      const loginData = { email, password, role };
+      const user = await UserAPI.login(loginData);
+
+      if (user) {
+        console.log("Usuário logado:", user);
+        StoreUser.set(user); // já salva no localStorage automaticamente
+        goto("/home");
+      } else {
+        error = "Email ou senha inválidos";
+      }
+
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
+      error = "Erro ao conectar ao servidor";
+    }
+  }
+
+  function signup() {
+    goto("/signup");
+  }
+
+  function forgetpassword() {
+    goto("/forgetpassword");
+  }
 </script>
+
 
 <div class="absolute z-10 w-screen h-screen flex justify-center items-center">
   <div class="bg-white/90 p-16 rounded-2xl shadow-md w-[400px] h-[400px] flex flex-col justify-center items-center">

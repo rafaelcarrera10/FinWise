@@ -103,7 +103,7 @@ public abstract class UserModel {
     public void removeAccount(AccountModel account) {
         if (this.account != null) {
             this.account.remove(account);
-            account.setUser(null);
+            account.setUser((UserModel) null);
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class UserModel {
     public void removeInvestment(InvestmentAccountModel investment) {
         if (investments != null) {
             investments.remove(investment);
-            investment.setUser(null);
+            investment.setUser((UserModel) null);
         }
     }
 

@@ -133,8 +133,8 @@ public class UserService {
         return userRepository.updateUserPhotoById(id, photo);
     }
 
-    public int updateTeacherDescriptionById(Long id, String description) {
-        return userRepository.updateTeacherDescriptionById(id, description);
+    public int updateUserDescriptionById(Long id, String description) {
+        return userRepository.updateUserDescriptionById(id, description);
     }
 
     // Delete
@@ -151,6 +151,6 @@ public class UserService {
     }
 
     public int removeTeacherDescriptionById(Long id) {
-        return userRepository.removeTeacherDescriptionById(id);
+        return userRepository.removeUserDescriptionById(id);
     }
 }

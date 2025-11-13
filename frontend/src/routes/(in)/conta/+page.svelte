@@ -1,99 +1,115 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { AccountAPI } from "$lib/api/account";
-  import { get } from 'svelte/store';
-  import { StoreUser } from "$lib/stores/userStore";
+  import { onMount } from 'svelte'
+  import { AccountAPI } from '$lib/api/account'
+  import { get } from 'svelte/store'
+  import { StoreUser } from '$lib/stores/userStore'
 
-  // -------------------- Tipagem --------------------
+  // -------------------- Tipagem do modelo --------------------
   interface Account {
-    id?: number;
-    number?: string;
-    balance?: number;
+    id?: number
+    number?: string
+    balance?: number
   }
 
-  // -------------------- Estado --------------------
-  let accounts: Account[] = [];
-  let error = "";
-  let creating = false;
+  // -------------------- Variáveis de estado --------------------
+  let accounts: Account[] = [] // Lista de contas do usuário
+  let error = ''               // Mensagem de erro
+  let creating = false         // Controle de exibição do formulário de criação
 
-  // Campos de criação
-  let number = "";
-  let balance: number | null = null;
+  // -------------------- Campos do formulário --------------------
+  let number = ''              // Número da nova conta
+  let balance: number | null = null // Saldo inicial da nova conta
 
-  // -------------------- Busca de contas --------------------
+  // -------------------- Busca todas as contas do usuário logado --------------------
   onMount(async () => {
     try {
-      const currentUser = get(StoreUser);
+      const currentUser = get(StoreUser)
       if (!currentUser?.id) {
-        error = "Usuário não encontrado. Faça login novamente.";
-        return;
+        error = 'Usuário não encontrado. Faça login novamente.'
+        return
       }
 
-      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
-      const result = await AccountAPI.getAccount(userId);
+      const userId =
+        typeof currentUser.id === 'string'
+          ? parseInt(currentUser.id, 10)
+          : currentUser.id
 
-      if (Array.isArray(result)) {
-        accounts = result;
-      }
+      const result = await AccountAPI.getByUserId(userId)
+      if (Array.isArray(result)) accounts = result
     } catch (err) {
-      console.error(err);
-      error = "Erro ao carregar contas do usuário.";
+      console.error(err)
+      error = 'Erro ao carregar contas do usuário.'
     }
-  });
+  })
 
-  // -------------------- Formatação --------------------
+  // -------------------- Formata valores em reais (R$) --------------------
   const formatCurrency = (value: number) =>
-    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-  // -------------------- Criação de nova conta --------------------
+  // -------------------- Cria uma nova conta --------------------
   async function createAccount() {
     try {
-      const currentUser = get(StoreUser);
-      if (!currentUser?.id) return;
+      const currentUser = get(StoreUser)
+      if (!currentUser?.id) return
 
-      const userId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
+      const userId =
+        typeof currentUser.id === 'string'
+          ? parseInt(currentUser.id, 10)
+          : currentUser.id
 
+      // Validação dos campos
       if (!number.trim() || balance === null || balance < 0) {
-        error = "Preencha todos os campos corretamente.";
-        return;
+        error = 'Preencha todos os campos corretamente.'
+        return
       }
 
-      const data = { userId, number, balance };
-      const created: Account | null = await AccountAPI.create(data);
+      // Dados a serem enviados à API
+
+    const data = {
+      number,
+      balance,
+      user: { id: currentUser.id, role: currentUser.role } 
+    };
+
+      const created: Account | null = await AccountAPI.create(data)
 
       if (created) {
-        accounts = [...accounts, created];
-        number = "";
-        balance = null;
-        creating = false;
-        error = "";
+        accounts = [...accounts, created]
+        number = ''
+        balance = null
+        creating = false
+        error = ''
       }
     } catch (err) {
-      console.error(err);
-      error = "Erro ao criar conta.";
+      console.error(err)
+      error = 'Erro ao criar conta.'
     }
   }
 </script>
 
-<!-- -------------------- Layout visual -------------------- -->
+<!-- -------------------- Estrutura da Página -------------------- -->
 <div class="min-h-screen flex flex-col items-center justify-center p-6 text-white">
-  <div class="w-full max-w-6xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-6">
+  <div
+    class="w-full max-w-6xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-6"
+  >
 
+    <!-- -------------------- Cabeçalho -------------------- -->
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-semibold">Minhas Contas</h1>
       <button
         on:click={() => (creating = !creating)}
         class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition"
       >
-        {creating ? "Cancelar" : "Adicionar Conta"}
+        {creating ? 'Cancelar' : 'Adicionar Conta'}
       </button>
     </div>
 
+    <!-- -------------------- Mensagem de Erro -------------------- -->
     {#if error}
       <p class="text-red-400 text-sm">{error}</p>
     {/if}
 
-    <!-- -------------------- Formulário de criação -------------------- -->
+    <!-- -------------------- Formulário de Criação de Conta -------------------- -->
     {#if creating}
       <div class="bg-slate-900/40 p-6 rounded-xl shadow-inner grid grid-cols-1 md:grid-cols-3 gap-4">
         <input
@@ -119,7 +135,7 @@
       </div>
     {/if}
 
-    <!-- -------------------- Lista de contas -------------------- -->
+    <!-- -------------------- Lista de Contas -------------------- -->
     {#if accounts.length > 0}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         {#each accounts as account}
@@ -131,7 +147,7 @@
             <p class="text-2xl font-bold text-yellow-400">
               {account.balance !== undefined && account.balance !== null
                 ? formatCurrency(account.balance)
-                : "R$ 0,00"}
+                : 'R$ 0,00'}
             </p>
           </div>
         {/each}
