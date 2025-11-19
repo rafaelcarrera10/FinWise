@@ -1,64 +1,324 @@
-<script>
-  // @ts-ignore
-  import {AccountAPI} from "$lib/api/account"
+<script lang="ts">
+  import { onMount } from 'svelte'
+  import { get } from 'svelte/store'
+  import { StoreUser } from '$lib/stores/userStore'
+  import { UserAPI } from '$lib/api/user'
+  import { Eye, EyeOff } from 'lucide-svelte'
 
-  
+  // -------------------- Estado --------------------
+  let user: any = null
 
+  // Campos editáveis
+  let name = ''
+  let email = ''
+
+  // Modal de editar perfil
+  let showEditModal = false
+
+  // Modal de alterar senha
+  let showPasswordModal = false
+
+  // Campos de senha
+  let oldPassword = ''
+  let newPassword = ''
+  let confirmPassword = ''
+
+  let passwordError = ''
+  let passwordSuccess = ''
+
+  // Estados de visibilidade da senha
+  let showOld = false
+  let showNew = false
+  let showConfirm = false
+
+  // -------------------- Carrega dados --------------------
+  onMount(() => {
+    const current = get(StoreUser)
+
+    if (current) {
+      user = current
+      name = current.name ?? ""
+      email = current.email ?? ""
+    }
+  })
+
+  // -------------------- Atualizar nome e email --------------------
+  async function saveChanges() {
+    try {
+      if (name !== user.name) {
+        await UserAPI.updateName(user.id, name)
+        user.name = name
+      }
+
+      if (email !== user.email) {
+        await UserAPI.updateEmail(user.id, email)
+        user.email = email
+      }
+
+      StoreUser.set(user)
+      showEditModal = false
+    } catch (err) {
+      alert("Erro ao atualizar perfil")
+    }
+  }
+
+  // -------------------- Alterar senha --------------------
+  async function changePassword() {
+    passwordError = ''
+    passwordSuccess = ''
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      passwordError = "Preencha todos os campos."
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      passwordError = "As senhas novas não coincidem."
+      return
+    }
+
+    try {
+      const result = await UserAPI.updatePassword({
+        userId: user.id,
+        oldPassword,
+        newPassword
+      })
+
+      passwordSuccess = "Senha alterada com sucesso!"
+      oldPassword = newPassword = confirmPassword = ""
+
+      setTimeout(() => {
+        showPasswordModal = false
+        passwordSuccess = ''
+      }, 1500)
+
+    } catch (err) {
+      passwordError = "Senha antiga incorreta."
+    }
+  }
 </script>
 
 
-<div class="min-h-screen bg-gradient-to-br from-gray-900 via-slate-600 to-gray-400 flex flex-col items-center p-6">
-  <div class="w-full max-w-7xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-5 text-white">
-    <section class="flex flex-col lg:flex-row justify-between items-center gap-8 bg-gradient-to-br from-slate-900/60 to-slate-800/50 rounded-2xl p-6 shadow-inner">
-      <div class="flex flex-col items-center">
-        <h2 class="text-white font-semibold text-lg mb-2">Renda</h2>
-        <div class="w-60 h-60 bg-slate-900/40 rounded-full flex items-center justify-center shadow-lg text-gray-300">(Gráfico)</div>
+<!-- ===================== Layout ===================== -->
+<div class="min-h-screen flex flex-col items-center p-6 text-white">
+
+  <div class="w-full max-w-4xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-8">
+
+    <!-- Título -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-3xl font-semibold">Perfil do Usuário</h1>
+
+      <button
+        onclick={() => (showEditModal = true)}
+        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition"
+      >
+        Editar Perfil
+      </button>
+    </div>
+
+
+    <!-- ===================== Dados do usuário ===================== -->
+    <div class="space-y-6">
+
+      <!-- Foto e nome -->
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-28 h-28 rounded-full bg-slate-700 flex items-center justify-center text-5xl shadow-inner">
+          {user?.name?.[0] ?? "?"}
+        </div>
+        <h2 class="text-2xl font-semibold">{user?.name ?? "Usuário"}</h2>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 text-sm text-gray-900 font-semibold">
-        <div class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md">
-          Alertas<br />
-          <span class="font-normal text-gray-800">Sem alertas agendados</span>
-        </div>
-        <div class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md">
-          Organização mensal<br />
-          <span class="font-normal">Reserva: R$500<br />Lazer: R$800</span>
-        </div>
-        <div class="bg-purple-500/80 text-white p-4 rounded-xl shadow-md">
-          Alertas<br />
-          <span class="font-normal text-gray-200">Nenhum alerta</span>
-        </div>
-        <div class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md">
-          Cartão de crédito<br />
-          <span class="font-normal">Limite: R$500</span>
-        </div>
-      </div>
-    </section>
+      <!-- Informações pessoais -->
+      <div class="bg-slate-900/40 p-6 rounded-xl shadow-inner">
+        <h3 class="text-xl font-semibold mb-4">Informações Pessoais</h3>
 
-    <section class="flex flex-col lg:flex-row justify-between items-center gap-8 bg-gradient-to-br from-slate-900/60 to-slate-800/50 rounded-2xl p-6 shadow-inner">
-      <div class="flex flex-col items-center">
-        <h2 class="text-white font-semibold text-lg mb-2">Investimentos</h2>
-        <div class="w-60 h-60 bg-slate-900/40 rounded-full flex items-center justify-center shadow-lg text-gray-300">(Gráfico)</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-gray-400 text-sm">Nome</p>
+            <p class="text-lg font-medium">{user?.name ?? "-"}</p>
+          </div>
+
+          <div>
+            <p class="text-gray-400 text-sm">E-mail</p>
+            <p class="text-lg font-medium">{user?.email ?? "-"}</p>
+          </div>
+
+          <div>
+            <p class="text-gray-400 text-sm">Cargo / Função</p>
+            <p class="text-lg font-medium">{user?.role ?? "Usuário"}</p>
+          </div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 text-sm text-gray-900 font-semibold">
-        <div class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md">
-          Alertas<br />
-          <span class="font-normal text-gray-800">Sem alertas agendados</span>
-        </div>
-        <div class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md">
-          Compras programadas<br />
-          <span class="font-normal">LIGT3: R$500<br />IFCM3: R$800</span>
-        </div>
-        <div class="bg-fuchsia-500/80 text-white p-4 rounded-xl shadow-md">
-          Ações<br />
-          <span class="font-normal text-gray-200">BBAS3, PETR4...</span>
-        </div>
-        <div class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md">
-          Vendas programadas<br />
-          <span class="font-normal">VALE3: R$500</span>
+      <!-- Segurança -->
+      <div class="bg-slate-900/40 p-6 rounded-xl shadow-inner">
+        <h3 class="text-xl font-semibold mb-4">Segurança</h3>
+
+        <div class="flex flex-col gap-4">
+          <button
+            class="bg-blue-600 hover:bg-blue-700 w-full py-3 rounded-lg transition"
+            onclick={() => (showPasswordModal = true)}
+          >
+            Alterar Senha
+          </button>
+
+          <button class="bg-red-600 hover:bg-red-700 w-full py-3 rounded-lg transition">
+            Encerrar Sessões Ativas
+          </button>
         </div>
       </div>
-    </section>
+
+    </div>
   </div>
+
+
+  <!-- ===================== Modal de edição ===================== -->
+  {#if showEditModal}
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+
+      <div class="bg-white text-black p-6 w-96 rounded-xl shadow-xl space-y-4">
+
+        <h2 class="text-xl font-semibold">Editar Perfil</h2>
+
+        <div class="flex flex-col gap-3">
+
+          <input
+            type="text"
+            bind:value={name}
+            placeholder="Nome completo"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-green-500"
+          />
+
+          <input
+            type="email"
+            bind:value={email}
+            placeholder="E-mail"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-green-500"
+          />
+
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            onclick={() => (showEditModal = false)}
+            class="px-3 py-1 rounded-lg bg-gray-300 hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+
+          <button
+            onclick={saveChanges}
+            class="px-3 py-1 rounded-lg bg-green-600 text-white hover:bg-green-700"
+          >
+            Salvar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  {/if}
+
+
+  <!-- ===================== Modal Alterar Senha ===================== -->
+  {#if showPasswordModal}
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+
+      <div class="bg-white text-black p-6 w-96 rounded-xl shadow-xl space-y-4">
+
+        <h2 class="text-xl font-semibold">Alterar Senha</h2>
+
+        <div class="flex flex-col gap-3">
+
+          <!-- Senha atual -->
+          <div class="relative">
+            <input
+              type={showOld ? "text" : "password"}
+              bind:value={oldPassword}
+              placeholder="Senha atual"
+              class="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              class="absolute right-2 top-2"
+              onclick={() => showOld = !showOld}
+            >
+              {#if showOld}
+                <EyeOff size="20" />
+              {:else}
+                <Eye size="20" />
+              {/if}
+            </button>
+          </div>
+
+          <!-- Nova senha -->
+          <div class="relative">
+            <input
+              type={showNew ? "text" : "password"}
+              bind:value={newPassword}
+              placeholder="Nova senha"
+              class="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              class="absolute right-2 top-2"
+              onclick={() => showNew = !showNew}
+            >
+              {#if showNew}
+                <EyeOff size="20" />
+              {:else}
+                <Eye size="20" />
+              {/if}
+            </button>
+          </div>
+
+          <!-- Confirmar nova senha -->
+          <div class="relative">
+            <input
+              type={showConfirm ? "text" : "password"}
+              bind:value={confirmPassword}
+              placeholder="Confirmar nova senha"
+              class="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              class="absolute right-2 top-2"
+              onclick={() => showConfirm = !showConfirm}
+            >
+              {#if showConfirm}
+                <EyeOff size="20" />
+              {:else}
+                <Eye size="20" />
+              {/if}
+            </button>
+          </div>
+
+          {#if passwordError}
+            <p class="text-red-600 text-sm">{passwordError}</p>
+          {/if}
+
+          {#if passwordSuccess}
+            <p class="text-green-600 text-sm">{passwordSuccess}</p>
+          {/if}
+
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            onclick={() => (showPasswordModal = false)}
+            class="px-3 py-1 rounded-lg bg-gray-300 hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+
+          <button
+            onclick={changePassword}
+            class="px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Alterar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  {/if}
 </div>

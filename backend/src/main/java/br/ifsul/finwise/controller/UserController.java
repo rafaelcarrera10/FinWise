@@ -59,6 +59,33 @@ public class UserController {
         }
     }
 
+    @PostMapping("/change-password")
+public ResponseEntity<?> changePassword(@RequestBody Map<String, String> data) {
+    try {
+        Long userId = Long.parseLong(data.get("userId"));
+        String oldPassword = data.get("oldPassword");
+        String newPassword = data.get("newPassword");
+        String confirmPassword = data.get("confirmPassword");
+
+        if (oldPassword == null || newPassword == null || confirmPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Campos obrigatórios não preenchidos"));
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "As senhas novas não coincidem"));
+        }
+
+        return userService.changePassword(userId, oldPassword, newPassword)
+                ? ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso"))
+                : ResponseEntity.status(400).body(Map.of("error", "Senha antiga incorreta"));
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body(Map.of("error", "Erro interno"));
+    }
+}
+
+
     // Buscar usuário por ID
     @GetMapping("/{id}")
     public ResponseEntity<UserModel> getById(@PathVariable Long id) {

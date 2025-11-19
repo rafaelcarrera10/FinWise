@@ -43,7 +43,7 @@ declare module '$env/static/private' {
 	export const DISPLAY: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_9244_1592913036: string;
+	export const EFC_8064_1592913036: string;
 	export const EXEPATH: string;
 	export const GIT_ASKPASS: string;
 	export const HOME: string;
@@ -138,6 +138,7 @@ declare module '$env/static/private' {
 	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const WINDIR: string;
 	export const _: string;
+	export const __COMPAT_LAYER: string;
 }
 
 /**
@@ -184,7 +185,7 @@ declare module '$env/dynamic/private' {
 		DISPLAY: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_9244_1592913036: string;
+		EFC_8064_1592913036: string;
 		EXEPATH: string;
 		GIT_ASKPASS: string;
 		HOME: string;
@@ -279,6 +280,7 @@ declare module '$env/dynamic/private' {
 		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		WINDIR: string;
 		_: string;
+		__COMPAT_LAYER: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

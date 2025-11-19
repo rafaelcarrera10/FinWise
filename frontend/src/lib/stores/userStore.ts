@@ -1,9 +1,9 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-// Cria a store de usuário com persistência local
+// Cria a store de usuário com persistência em sessionStorage
 function createUserStore() {
-  const storedUser = browser ? localStorage.getItem('user') : null;
+  const storedUser = browser ? sessionStorage.getItem('user') : null;
   const initialUser = storedUser ? JSON.parse(storedUser) : null;
 
   const { subscribe, set } = writable(initialUser);
@@ -11,9 +11,9 @@ function createUserStore() {
   if (browser) {
     subscribe((value) => {
       if (value) {
-        localStorage.setItem('user', JSON.stringify(value));
+        sessionStorage.setItem('user', JSON.stringify(value));
       } else {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
       }
     });
   }
@@ -27,8 +27,14 @@ function createUserStore() {
 
 export const StoreUser = createUserStore();
 
-// Função de login
+
+// =============================
+// FUNÇÃO LOGIN CORRIGIDA
+// =============================
+
 export async function login(email: string, password: string) {
+  if (!browser) return null; // evita erros no SSR
+
   try {
     const response = await fetch("http://localhost:8080/users/login", {
       method: "POST",
@@ -43,8 +49,9 @@ export async function login(email: string, password: string) {
     const userData = await response.json();
     console.log("Usuário logado:", userData.role);
 
-    // Salva o usuário na store
+    // Salva na store (e automaticamente no sessionStorage)
     StoreUser.set(userData);
+
     return userData;
 
   } catch (error) {

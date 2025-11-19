@@ -97,7 +97,7 @@
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-semibold">Minhas Contas</h1>
       <button
-        on:click={() => (creating = !creating)}
+        onclick={() => (creating = !creating)}
         class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition"
       >
         {creating ? 'Cancelar' : 'Adicionar Conta'}
@@ -127,7 +127,7 @@
           class="w-full border border-gray-300 rounded-lg p-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          on:click={createAccount}
+          onclick={createAccount}
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
         >
           Salvar Conta

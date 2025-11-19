@@ -50,6 +50,32 @@ public class UserService {
                 });
     }
 
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+    Optional<UserModel> opt = userRepository.findById(userId);
+
+    if (opt.isEmpty()) return false;
+
+    UserModel user = opt.get();
+
+    try {
+        String decrypted = EncryptionService.decrypt(user.getPassword());
+
+        if (!decrypted.equals(oldPassword)) {
+            return false; // senha antiga incorreta
+        }
+
+        String encryptedNew = EncryptionService.encrypt(newPassword);
+        userRepository.updateUserPasswordById(userId, encryptedNew);
+
+        return true;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
     // Read
     public Optional<UserModel> findById(Long userId){
         return userRepository.findById(userId);

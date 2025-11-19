@@ -3,6 +3,7 @@ package br.ifsul.finwise.model;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
+
 @Entity
 @DiscriminatorValue("administrator")
 public class AdministratorModel extends UserModel {
@@ -41,3 +42,4 @@ public class AdministratorModel extends UserModel {
                ", password=**********";
     }
 }
+

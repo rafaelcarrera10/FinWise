@@ -127,7 +127,7 @@
 
         <!-- Saldo -->
         <button
-          on:click={() => (showBalanceModal = true)}
+          onclick={() => (showBalanceModal = true)}
           class="bg-yellow-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
         >
           Saldo em conta<br />
@@ -144,7 +144,7 @@
 
         <!-- Organização mensal -->
         <button
-          on:click={() => (showOrganizationModal = true)}
+          onclick={() => (showOrganizationModal = true)}
           class="bg-cyan-400/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
         >
           Organização mensal<br />
@@ -160,7 +160,7 @@
 
         <!-- Alertas -->
         <button
-          on:click={() => (showAlertsModal = true)}
+          onclick={() => (showAlertsModal = true)}
           class="bg-purple-500/80 text-white p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
         >
           Alertas<br />
@@ -169,7 +169,7 @@
 
         <!-- Cartão -->
         <button
-          on:click={() => (showCreditModal = true)}
+          onclick={() => (showCreditModal = true)}
           class="bg-cyan-500/80 text-black p-4 rounded-xl shadow-md hover:brightness-95 transition-all"
         >
           Cartão de crédito<br />
@@ -226,8 +226,8 @@
           class="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div class="flex justify-end gap-3">
-          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showBalanceModal = false)}>Cancelar</button>
-          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700" on:click={updateBalance}>Salvar</button>
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" onclick={() => (showBalanceModal = false)}>Cancelar</button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700" onclick={updateBalance}>Salvar</button>
         </div>
       </div>
     </div>
@@ -247,7 +247,7 @@
           <input type="number" bind:value={newLeisure} placeholder="Novo valor de lazer" class="border border-gray-300 rounded-lg p-2" />
         </div>
         <div class="flex justify-end gap-3 mt-4">
-          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showOrganizationModal = false)}>Cancelar</button>
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" onclick={() => (showOrganizationModal = false)}>Cancelar</button>
           <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
         </div>
       </div>
@@ -261,7 +261,7 @@
         <h3 class="text-lg font-semibold mb-4">Gerenciar Alertas</h3>
         <textarea placeholder="Escreva um novo alerta..." class="w-full border border-gray-300 rounded-lg p-2 h-24"></textarea>
         <div class="flex justify-end gap-3 mt-4">
-          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showAlertsModal = false)}>Fechar</button>
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" onclick={() => (showAlertsModal = false)}>Fechar</button>
           <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
         </div>
       </div>
@@ -280,7 +280,7 @@
           class="w-full border border-gray-300 rounded-lg p-2 mb-4"
         />
         <div class="flex justify-end gap-3">
-          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" on:click={() => (showCreditModal = false)}>Cancelar</button>
+          <button class="bg-gray-300 px-3 py-1 rounded-lg hover:bg-gray-400" onclick={() => (showCreditModal = false)}>Cancelar</button>
           <button class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Salvar</button>
         </div>
       </div>
