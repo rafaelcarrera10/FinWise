@@ -2,6 +2,7 @@ package br.ifsul.finwise.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -55,7 +56,7 @@ public class ProfessorModelo extends UsuarioModelo {
 
     public ProfessorModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name,
             @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
-            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, List<FavoritoModelo> listaFavoritos,
+            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos,
             @NotNull(message = "Status não pode ser nulo") Boolean status,
             @NotNull(message = "Foto de perfil não pode ser nula") String fotoPerfil,
             @NotNull(message = "Biografia não pode ser nulo") String biografia, List<ConteudoModelo> listaConteudo,

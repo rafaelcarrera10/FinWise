@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
+import java.util.HashSet;
+
 // import br.ifsul.finwise.service.ValidationService;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -47,8 +50,8 @@ public abstract class UsuarioModelo {
     @OneToOne(mappedBy = "usuario")
     private ContaFinanceiraModelo conta;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<FavoritoModelo> listaFavoritos = new ArrayList<>();
+    @ManyToMany(mappedBy = "favoritoUsuario", fetch = FetchType.EAGER)
+    private Set<ConteudoModelo> listaFavoritos = new HashSet<>();
     
     // Construtores
     public UsuarioModelo() {}
@@ -62,7 +65,7 @@ public abstract class UsuarioModelo {
     }
     public UsuarioModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name,
             @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
-            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, List<FavoritoModelo> listaFavoritos) {
+            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos) {
         this.id = id;
         this.name = name;
         this.senha = senha;
@@ -87,7 +90,7 @@ public abstract class UsuarioModelo {
     public ContaFinanceiraModelo getConta() {
         return conta;
     }
-    public List<FavoritoModelo> getListaFavoritos() {
+    public Set<ConteudoModelo> getListaFavoritos() {
         return listaFavoritos;
     }
    
@@ -111,7 +114,7 @@ public abstract class UsuarioModelo {
     public void setConta(ContaFinanceiraModelo conta) {
         this.conta = conta;
     }
-    public void setListaFavoritos(List<FavoritoModelo> listaFavoritos) {
+    public void setListaFavoritos(Set<ConteudoModelo> listaFavoritos) {
         this.listaFavoritos = listaFavoritos;
     }
 
