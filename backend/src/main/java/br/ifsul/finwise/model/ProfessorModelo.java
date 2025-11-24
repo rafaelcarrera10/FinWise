@@ -29,6 +29,7 @@ public class ProfessorModelo extends UsuarioModelo {
     @Column(name = "biografia", nullable = false)
     @NotNull(message = "Biografia não pode ser nulo")
     private String biografia;
+    
 
     // Relacionamentos
 

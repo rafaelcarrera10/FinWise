@@ -90,6 +90,7 @@ public abstract class UsuarioModelo {
     public List<FavoritoModelo> getListaFavoritos() {
         return listaFavoritos;
     }
+    
    
     // Setters
 
