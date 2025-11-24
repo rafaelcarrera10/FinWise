@@ -17,11 +17,11 @@ public class TeacherModel extends UserModel {
     public TeacherModel() {
         super();
     }
-    public TeacherModel(String name, String email, String password, String description, byte[] photo) {
-        super(name, email, password);
-        this.description = description;
-        this.photo = photo;
-    }
+    // public TeacherModel(String name, String email, String password, String description, byte[] photo) {
+    //     super(name, email, password);
+    //     this.description = description;
+    //     this.photo = photo;
+    // }
     // Getters e Setters
     public String getDescription() {
         return description;

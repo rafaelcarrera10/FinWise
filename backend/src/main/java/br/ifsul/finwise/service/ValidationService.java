@@ -9,14 +9,10 @@ import java.util.HashSet;
 
 /**
  * Serviço para validação e autenticação de dados de entrada
- * Inclui validações de email, nome e filtros de conteúdo inadequado
+ * Inclui validações de nome e filtros de conteúdo inadequado
  */
 @Service
 public class ValidationService {
-    
-    // Regex para validação de email
-    private static final String EMAIL_REGEX = 
-        "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     
     // Regex para validação de nome (apenas letras, espaços, acentos e hífens)
     private static final String NAME_REGEX = 
@@ -26,7 +22,6 @@ public class ValidationService {
     private static final String RANDOM_WORDS_REGEX = 
         "\\b(arroz|feijão|batata|cenoura|tomate|cebola|alho|sal|açúcar|pão|leite|água|carne|frango|peixe|ovo|queijo|manteiga|óleo|vinagre|limão|laranja|maçã|banana|uva|morango|abacaxi|manga|pera|kiwi|melancia|melão|abacate|goiaba|maracujá|açaí|coco|castanha|amendoim|noz|avelã|amêndoa|pistache|macadâmia|pinhão|aipim|mandioca|inhame|batata-doce|abóbora|chuchu|berinjela|pimentão|alface|rúcula|agrião|espinafre|couve|repolho|brócolis|couve-flor|beterraba|rabanete|nabo|cenoura|salsinha|cebolinha|coentro|manjericão|orégano|tomilho|alecrim|sálvia|louro|canela|cravo|noz-moscada|pimenta|cominho|coentro|gengibre|açafrão|curry|páprica|mostarda|ketchup|maionese|catchup|molho|tempero|condimento)\\b";
     
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
     private static final Pattern NAME_PATTERN = Pattern.compile(NAME_REGEX);
     private static final Pattern RANDOM_WORDS_PATTERN = Pattern.compile(RANDOM_WORDS_REGEX, Pattern.CASE_INSENSITIVE);
     
@@ -74,44 +69,6 @@ public class ValidationService {
         "contato", "ligar", "telefone", "whatsapp", "telegram", "skype",
         "email", "mensagem", "sms", "notificação", "alerta", "lembrete"
     ));
-    
-    /**
-     * Valida se um email está em formato correto
-     * @param email Email para validar
-     * @return true se o email é válido, false caso contrário
-     */
-    public boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
-        
-        email = email.trim().toLowerCase();
-        
-        // Verifica formato básico
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
-            return false;
-        }
-        
-        // Verifica se não contém caracteres suspeitos
-        if (email.contains("..") || email.startsWith(".") || email.endsWith(".")) {
-            return false;
-        }
-        
-        // Verifica domínios suspeitos
-        String[] suspiciousDomains = {
-            "tempmail", "10minutemail", "guerrillamail", "mailinator",
-            "throwaway", "temp", "fake", "spam", "junk", "trash"
-        };
-        
-        for (String domain : suspiciousDomains) {
-            if (email.contains(domain)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
     /**
      * Valida se um nome está em formato correto e não contém conteúdo inadequado
      * @param name Nome para validar
@@ -251,20 +208,14 @@ public class ValidationService {
     /**
      * Valida dados completos de um usuário
      * @param name Nome do usuário
-     * @param email Email do usuário
      * @return ValidationResult com resultado da validação
      */
-    public ValidationResult validateUserData(String name, String email) {
+    public ValidationResult validateUserData(String name) {
         ValidationResult result = new ValidationResult();
         
         // Valida nome
         if (!isValidName(name)) {
             result.addError("Nome inválido: deve conter apenas letras, espaços, acentos e hífens. Não pode conter palavrões, palavras soltas ou caracteres inadequados.");
-        }
-        
-        // Valida email
-        if (!isValidEmail(email)) {
-            result.addError("Email inválido: formato incorreto ou domínio suspeito.");
         }
         
         return result;

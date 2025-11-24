@@ -1,6 +1,6 @@
 package br.ifsul.finwise.controller;
 
-import br.ifsul.finwise.service.ValidationService;
+// import br.ifsul.finwise.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class ValidationController {
     
     @Autowired
-    private ValidationService validationService;
+    // private ValidationService validationService;
     
     /**
      * Endpoint para testar validação de email
@@ -27,11 +27,11 @@ public class ValidationController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("email", email);
-        response.put("isValid", validationService.isValidEmail(email));
+        // response.put("isValid", validationService.isValidEmail(email));
         
-        if (!validationService.isValidEmail(email)) {
-            response.put("error", "Email inválido: formato incorreto ou domínio suspeito.");
-        }
+        // if (!validationService.isValidEmail(email)) {
+        //     response.put("error", "Email inválido: formato incorreto ou domínio suspeito.");
+        // }
         
         return ResponseEntity.ok(response);
     }
@@ -45,11 +45,11 @@ public class ValidationController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("name", name);
-        response.put("isValid", validationService.isValidName(name));
+        // response.put("isValid", validationService.isValidName(name));
         
-        if (!validationService.isValidName(name)) {
-            response.put("error", "Nome inválido: deve conter apenas letras, espaços, acentos e hífens. Não pode conter palavrões, palavras soltas ou caracteres inadequados.");
-        }
+        // if (!validationService.isValidName(name)) {
+        //     response.put("error", "Nome inválido: deve conter apenas letras, espaços, acentos e hífens. Não pode conter palavrões, palavras soltas ou caracteres inadequados.");
+        // }
         
         return ResponseEntity.ok(response);
     }
@@ -62,17 +62,17 @@ public class ValidationController {
         String name = request.get("name");
         String email = request.get("email");
         
-        ValidationService.ValidationResult result = validationService.validateUserData(name, email);
+        // ValidationService.ValidationResult result = validationService.validateUserData(name, email);
         
         Map<String, Object> response = new HashMap<>();
         response.put("name", name);
         response.put("email", email);
-        response.put("isValid", result.isValid());
+        // response.put("isValid", result.isValid());
         
-        if (!result.isValid()) {
-            response.put("errors", result.getErrors());
-            response.put("errorMessage", result.getErrorMessage());
-        }
+        // if (!result.isValid()) {
+        //     response.put("errors", result.getErrors());
+        //     response.put("errorMessage", result.getErrorMessage());
+        // }
         
         return ResponseEntity.ok(response);
     }
@@ -86,9 +86,9 @@ public class ValidationController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("text", text);
-        response.put("containsProfanity", validationService.containsProfanity(text));
-        response.put("containsRandomWords", validationService.containsRandomWords(text));
-        response.put("containsSpam", validationService.containsSpam(text));
+        // response.put("containsProfanity", validationService.containsProfanity(text));
+        // response.put("containsRandomWords", validationService.containsRandomWords(text));
+        // response.put("containsSpam", validationService.containsSpam(text));
         
         return ResponseEntity.ok(response);
     }

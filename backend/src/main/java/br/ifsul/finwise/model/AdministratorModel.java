@@ -13,9 +13,9 @@ public class AdministratorModel extends UserModel {
         super();
     }
 
-    public AdministratorModel(String name, String email, String password) {
-        super(name, email, password);
-    }
+    // public AdministratorModel(String name, String email, String password) {
+    //     super(name, email, password);
+    // }
 
     // -------------------- HashCode e Equals --------------------
     @Override

@@ -13,9 +13,9 @@ public class StudentModel extends UserModel {
     public StudentModel() { 
         super();
     }
-    public StudentModel(String name, String email, String password) {
-        super(name, email, password);
-    }   
+    // public StudentModel(String name, String email, String password) {
+    //     super(name, email, password);
+    // }   
     
     // Metodos HashCode, Equals e ToString
     @Override

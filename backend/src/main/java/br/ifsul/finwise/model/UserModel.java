@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
-import br.ifsul.finwise.service.ValidationService;
+// import br.ifsul.finwise.service.ValidationService;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -60,15 +60,15 @@ public abstract class UserModel {
     // Construtores
     public UserModel() {}
 
-    public UserModel(String name, String email, String password) {
-        ValidationService.ValidationResult validation = validateUserData(name, email);
-        if (!validation.isValid()) {
-            throw new IllegalArgumentException("Dados inválidos: " + validation.getErrorMessage());
-        }
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
+    // public UserModel(String name, String email, String password) {
+    //     ValidationService.ValidationResult validation = validateUserData(name, email);
+    //     if (!validation.isValid()) {
+    //         throw new IllegalArgumentException("Dados inválidos: " + validation.getErrorMessage());
+    //     }
+    //     this.name = name;
+    //     this.email = email;
+    //     this.password = password;
+    // }
 
     // Getters e Setters
     public Long getId() { return id; }
@@ -76,19 +76,19 @@ public abstract class UserModel {
 
     public String getName() { return name; }
     public void setName(String name) {
-        if (!isValidName(name)) {
-            throw new IllegalArgumentException("Nome inválido");
-        }
+        // if (!isValidName(name)) {
+        //     throw new IllegalArgumentException("Nome inválido");
+        // }
         this.name = name;
     }
 
     public String getEmail() { return email; }
-    public void setEmail(String email) {
-        if (!isValidEmail(email)) {
-            throw new IllegalArgumentException("Email inválido");
-        }
-        this.email = email;
-    }
+    // public void setEmail(String email) {
+    //     if (!isValidEmail(email)) {
+    //         throw new IllegalArgumentException("Email inválido");
+    //     }
+    //     this.email = email;
+    // }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
@@ -126,20 +126,20 @@ public abstract class UserModel {
     }
 
     // Validações
-    private ValidationService.ValidationResult validateUserData(String name, String email) {
-        ValidationService validationService = new ValidationService();
-        return validationService.validateUserData(name, email);
-    }
+    // private ValidationService.ValidationResult validateUserData(String name, String email) {
+    //     ValidationService validationService = new ValidationService();
+    //     return validationService.validateUserData(name, email);
+    // }
 
-    private boolean isValidName(String name) {
-        ValidationService validationService = new ValidationService();
-        return validationService.isValidName(name);
-    }
+    // private boolean isValidName(String name) {
+    //     ValidationService validationService = new ValidationService();
+    //     return validationService.isValidName(name);
+    // }
 
-    private boolean isValidEmail(String email) {
-        ValidationService validationService = new ValidationService();
-        return validationService.isValidEmail(email);
-    }
+    // private boolean isValidEmail(String email) {
+    //     ValidationService validationService = new ValidationService();
+    //     return validationService.isValidEmail(email);
+    // }
 
     // ToString, hashCode, equals
     @Override
