@@ -1,7 +1,6 @@
 package br.ifsul.finwise.model;
 
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;

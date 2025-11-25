@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import br.ifsul.finwise.model.ConteudoModelo;
+import br.ifsul.finwise.model.ProfessorModelo;
 
 import java.util.List;
 import java.util.Optional;

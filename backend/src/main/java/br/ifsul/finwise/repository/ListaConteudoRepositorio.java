@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import br.ifsul.finwise.model.ListaConteudoModelo;
 import br.ifsul.finwise.model.TagEnum;
+import jakarta.transaction.Transactional;
 
 @Repository
 public interface ListaConteudoRepositorio extends JpaRepository<ListaConteudoModelo, Integer> {
@@ -36,6 +38,9 @@ public interface ListaConteudoRepositorio extends JpaRepository<ListaConteudoMod
     List<ListaConteudoModelo> findByConteudoId(@Param("conteudoId") Integer conteudoId);
 
     // Deletar lista 
-    @Query("DELETE FROM ListaConteudoModel c WHERE c.id =:id")
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ListaConteudoModel c WHERE c.id = :id")
     void deleteById(@Param("id") Integer id);
+
 }
