@@ -1,30 +1,31 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { UserAPI } from '$lib/api/user';
-  import { Eye, EyeOff } from 'lucide-svelte';
+  import { UsuarioAPI } from '$lib/api/usuario';  // <-- Correto agora
+  import Eye from 'lucide-svelte/icons/eye';
+  import EyeOff from 'lucide-svelte/icons/eye-off';
 
-  // Estados reativos
+  // Campos do formulário
   let name = "";
   let email = "";
   let password = "";
   let role: "aluno" | "professor" = "aluno";
   let error = "";
 
-  // Controle de visibilidade da senha
+  // Controle do olho da senha
   let showPassword = false;
 
-  // Função para criar conta
+  // Criar conta
   async function createAccount() {
     error = "";
     try {
         const newUser = {
-            role,
-            name,
+            nome: name,
             email,
-            password
+            senha: password,
+            role: role
         };
 
-        const createdUser = await UserAPI.create(newUser);
+        const createdUser = await UsuarioAPI.create(newUser); // <-- Correto
         if (createdUser) {
             goto('/signin');
         }
@@ -34,10 +35,12 @@
     }
   }
 
+  // Navegar para login
   function signin() {
-    goto("/signin")
+    goto("/signin");
   }
 </script>
+
 
 <div class="absolute z-10 w-screen h-screen flex justify-center items-center">
   <div class="bg-white/90 p-16 rounded-2xl shadow-md w-[400px] flex flex-col justify-center items-center">
