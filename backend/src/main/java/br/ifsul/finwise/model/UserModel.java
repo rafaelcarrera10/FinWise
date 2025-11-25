@@ -107,19 +107,19 @@ public abstract class UserModel {
         }
     }
 
-    public List<InvestmentAccountModel> getInvestments() { return investments; }
-    public void setInvestments(List<InvestmentAccountModel> investments) { this.investments = investments; }
-    public void addInvestment(InvestmentAccountModel investment) {
-        if (investments == null) investments = new ArrayList<>();
-        investments.add(investment);
-        investment.setUser(this);
-    }
-    public void removeInvestment(InvestmentAccountModel investment) {
-        if (investments != null) {
-            investments.remove(investment);
-            investment.setUser((UserModel) null);
-        }
-    }
+    // public List<InvestmentAccountModel> getInvestments() { return investments; }
+    // public void setInvestments(List<InvestmentAccountModel> investments) { this.investments = investments; }
+    // public void addInvestment(InvestmentAccountModel investment) {
+    //     if (investments == null) investments = new ArrayList<>();
+    //     investments.add(investment);
+    //     investment.setUser(this);
+    // }
+    // public void removeInvestment(InvestmentAccountModel investment) {
+    //     if (investments != null) {
+    //         investments.remove(investment);
+    //         investment.setUser((UserModel) null);
+    //     }
+    // }
 
     public boolean verifyPassword(String rawPassword) {
         return rawPassword.equals(this.password);

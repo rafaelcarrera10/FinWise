@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "Transacao")
+@Table(name = "Despesa")
 public class DespesaModelo extends TransacaoModelo {
     
     // Atributos
