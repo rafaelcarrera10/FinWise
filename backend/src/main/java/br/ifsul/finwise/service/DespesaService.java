@@ -16,30 +16,20 @@ public class DespesaService {
         this.repositorio = repositorio;
     }
 
-    // Salvar despesa
-    public DespesaModelo salvar(DespesaModelo despesa) {
+    // Criar despesa
+    public DespesaModelo criar(DespesaModelo despesa) {
 
-        // Regra: valida se a transação é válida
+        // Validar limite de 30 despesas por conta
+        List<DespesaModelo> despesasConta = repositorio.findByContaId(despesa.getConta().getId());
+        if (despesasConta.size() >= 30) {
+            throw new IllegalArgumentException("Limite de 30 despesas por conta atingido.");
+        }
+
         if (!despesa.isValida()) {
-            throw new IllegalArgumentException("Despesa inválida");
+            throw new IllegalArgumentException("Despesa inválida.");
         }
 
         return repositorio.save(despesa);
-    }
-
-    // Buscar todos
-    public List<DespesaModelo> buscarTodos() {
-        return repositorio.findAll();
-    }
-
-    // Buscar por conta
-    public List<DespesaModelo> buscarPorConta(Integer contaId) {
-        return repositorio.findByContaId(contaId);
-    }
-
-    // Buscar por categoria
-    public List<DespesaModelo> buscarPorCategoria(Integer categoriaId) {
-        return repositorio.findByCategoriaId(categoriaId);
     }
 
     // Buscar por ID
@@ -47,22 +37,36 @@ public class DespesaService {
         return repositorio.findById(id);
     }
 
-    // Listar despesas de uma conta
-    public List<DespesaModelo> listarPorConta(Integer contaId) {
+    // Listar todas as despesas de uma conta
+    public List<DespesaModelo> buscarPorConta(Integer contaId) {
         return repositorio.findByContaId(contaId);
     }
 
     // Listar despesas por categoria
-    public List<DespesaModelo> listarPorCategoria(Integer categoriaId) {
+    public List<DespesaModelo> buscarPorCategoria(Integer categoriaId) {
         return repositorio.findByCategoriaId(categoriaId);
     }
 
-    // Atualizar despesa
+    // Atualizar despesa parcialmente
     public DespesaModelo editar(Integer id, DespesaModelo despesa) {
-        return repositorio.save(despesa);
+        DespesaModelo existente = repositorio.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Despesa não encontrada."));
+
+        if (despesa.getValor() != null) existente.setValor(despesa.getValor());
+        if (despesa.getDataInicial() != null) existente.setDataInicial(despesa.getDataInicial());
+        if (despesa.getDataFinal() != null) existente.setDataFinal(despesa.getDataFinal());
+        if (despesa.getDescricao() != null) existente.setDescricao(despesa.getDescricao());
+        if (despesa.getObservacao() != null) existente.setObservacao(despesa.getObservacao());
+        if (despesa.getRepeticao() != null) existente.setRepeticao(despesa.getRepeticao());
+        if (despesa.getCategoria() != null) existente.setCategoria(despesa.getCategoria());
+        if (despesa.getConta() != null) existente.setConta(despesa.getConta());
+        if (despesa.getStatus() != null) existente.setStatus(despesa.getStatus());
+        if (despesa.getCartao() != null) existente.setCartao(despesa.getCartao());
+
+        return repositorio.save(existente);
     }
 
-    // Deletar por ID
+    // Deletar despesa
     public void deletar(Integer id) {
         repositorio.deleteById(id);
     }

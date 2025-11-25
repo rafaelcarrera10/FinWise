@@ -1,75 +1,87 @@
 package br.ifsul.finwise.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.ifsul.finwise.model.ProfessorModelo;
-import br.ifsul.finwise.model.UsuarioModelo;
 import java.util.List;
 
 @Repository
 public interface ProfessorRepositorio extends JpaRepository<ProfessorModelo, Integer> {
 
-    // Busca usuários contendo parte do nome (ignora maiúsculas/minúsculas)
-    List<UsuarioModelo> findByNameContainingIgnoreCase(String name);
+    // Busca professores pelo nome (contendo, ignorando maiúsculas/minúsculas)
+    List<ProfessorModelo> findByNameContainingIgnoreCase(String name);
 
-    // Busca usuários por nome exato (ignora maiúsculas/minúsculas)
-    List<UsuarioModelo> findByNameIgnoreCase(String name);
+    // Busca professores pelo nome exato (ignorando maiúsculas/minúsculas)
+    List<ProfessorModelo> findByNameIgnoreCase(String name);
 
-    // Busca usuários cujo nome começa com o prefixo informado
-    List<UsuarioModelo> findByNameStartingWithIgnoreCase(String prefix);
+    // Busca professores cujo nome começa com prefixo
+    List<ProfessorModelo> findByNameStartingWithIgnoreCase(String prefix);
 
     // Buscar status do professor por id
-    @Query("SELECT p FROM ProfessorModelo WHERE p.id = id")
-    List<ProfessorModelo> findStatusById(@Param("id") Integer id);
+    @Query("SELECT p.status FROM ProfessorModelo p WHERE p.id = :id")
+    Boolean findStatusById(@Param("id") Integer id);
 
-    // Lista usuários em ordem alfabética
-    @Query("SELECT u FROM UsuarioModelo u ORDER BY u.name ASC")
-    List<UsuarioModelo> findAllOrderByNameAsc();
+    // Lista professores em ordem alfabética
+    @Query("SELECT p FROM ProfessorModelo p ORDER BY p.name ASC")
+    List<ProfessorModelo> findAllOrderByNameAsc();
 
-    // Lista usuários por ID decrescente (mais recentes primeiro)
-    @Query("SELECT u FROM UsuarioModelo u ORDER BY u.id DESC")
-    List<UsuarioModelo> findAllOrderByIdDesc();
+    // Lista professores em ordem decrescente pelo ID
+    @Query("SELECT p FROM ProfessorModelo p ORDER BY p.id DESC")
+    List<ProfessorModelo> findAllOrderByIdDesc();
 
-    // Busca usuários por múltiplos IDs
-    @Query("SELECT u FROM UsuarioModelo u WHERE u.id IN :ids")
-    List<UsuarioModelo> findByIds(@Param("ids") List<Integer> ids);
+    // Busca professores por múltiplos IDs
+    @Query("SELECT p FROM ProfessorModelo p WHERE p.id IN :ids")
+    List<ProfessorModelo> findByIds(@Param("ids") List<Integer> ids);
 
-     // Busca foto de perfil do usuário por ID
-    @Query("SELECT u.fotoPerfil FROM ProfessorModelo u WHERE u.id = :id")
-    byte[] findfotoPerfilByUserId(@Param("id") Integer id);
+    // Foto de perfil
+    @Query("SELECT p.fotoPerfil FROM ProfessorModelo p WHERE p.id = :id")
+    byte[] findFotoPerfilById(@Param("id") Integer id);
 
-    // Busca biografia do usuário por ID
-    @Query("SELECT u.biografia FROM ProfessorModelo u WHERE u.id = :id")
-    String findbiografiaByUserId(@Param("id") Integer id);
+    // Biografia
+    @Query("SELECT p.biografia FROM ProfessorModelo p WHERE p.id = :id")
+    String findBiografiaById(@Param("id") Integer id);
 
-    // Atualiza nome do usuário
-    @Query("UPDATE UsuarioModelo u SET u.name = :newName WHERE u.id = :id")
-    int updateUserNameById(@Param("id") Integer id, @Param("newName") String newName);
+    // Atualizações
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.name = :newName WHERE p.id = :id")
+    int updateNameById(@Param("id") Integer id, @Param("newName") String newName);
 
-    // Atualiza senha do usuário
-    @Query("UPDATE UsuarioModelo u SET u.password = :newPassword WHERE u.id = :id")
-    int updateUserPasswordById(@Param("id") Integer id, @Param("newPassword") String newPassword);
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.password = :newPassword WHERE p.id = :id")
+    int updatePasswordById(@Param("id") Integer id, @Param("newPassword") String newPassword);
 
-    // Atualiza foto de perfil do usuário
-    @Query("UPDATE ProfessorModelo u SET u.fotoPerfil = :fotoPerfil WHERE u.id = :id")
-    int updateUserfotoPerfilById(@Param("id") Integer id, @Param("fotoPerfil") byte[] fotoPerfil);
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.fotoPerfil = :fotoPerfil WHERE p.id = :id")
+    int updateFotoPerfilById(@Param("id") Integer id, @Param("fotoPerfil") byte[] fotoPerfil);
 
-    // Atualiza biografia do usuário
-    @Query("UPDATE ProfessorModelo u SET u.biografia = :biografia WHERE u.id = :id")
-    int updateUserbiografiaById(@Param("id") Integer id, @Param("biografia") String biografia);
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.biografia = :biografia WHERE p.id = :id")
+    int updateBiografiaById(@Param("id") Integer id, @Param("biografia") String biografia);
 
-    // Exclui usuários pelo nome
-    @Query("DELETE FROM UsuarioModelo u WHERE u.name = :name")
+    // Remove campos
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.fotoPerfil = null WHERE p.id = :id")
+    int removeFotoPerfilById(@Param("id") Integer id);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProfessorModelo p SET p.biografia = null WHERE p.id = :id")
+    int removeBiografiaById(@Param("id") Integer id);
+
+    // Deletar por nome
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ProfessorModelo p WHERE p.name = :name")
     int deleteByName(@Param("name") String name);
-
-    // Remove foto de perfil do usuário
-    @Query("UPDATE ProfessorModelo u SET u.fotoPerfil = null WHERE u.id = :id")
-    int removeUserfotoPerfilById(@Param("id") Integer id);
-
-    // Remove descrição do usuário
-    @Query("UPDATE ProfessorModelo u SET u.biografia = null WHERE u.id = :id")
-    int removeUserbiografiaById(@Param("id") Integer id);
 }
+

@@ -1,12 +1,9 @@
 package br.ifsul.finwise.repository;
 
-import java.sql.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import org.springframework.stereotype.Repository;
 
 import br.ifsul.finwise.model.TransacaoModelo;
@@ -26,16 +23,10 @@ public interface TransacaoRepositorio extends JpaRepository<TransacaoModelo, Int
 
     // Buscar transações em um intervalo de datas
     @Query("SELECT t FROM TransacaoModelo t WHERE t.dataInicial >= :inicio AND t.dataInicial <= :fim")
-    List<TransacaoModelo> findByPeriodo(
-        @Param("inicio") Date inicio,
-        @Param("fim") Date fim
-    );
+    List<TransacaoModelo> findByPeriodo(java.sql.Date inicio, java.sql.Date fim);
 
     // Buscar transações ativas (dataFinal >= hoje OU dataFinal=null)
-    @Query("""
-        SELECT t FROM TransacaoModelo t
-        WHERE t.dataFinal IS NULL OR t.dataFinal >= CURRENT_DATE
-    """)
+    @Query("SELECT t FROM TransacaoModelo t WHERE t.dataFinal IS NULL OR t.dataFinal >= CURRENT_DATE")
     List<TransacaoModelo> findAtivas();
 
     // Buscar transações contendo texto na descrição
@@ -49,5 +40,4 @@ public interface TransacaoRepositorio extends JpaRepository<TransacaoModelo, Int
 
     // Buscar transações entre valores
     List<TransacaoModelo> findByValorBetween(Double min, Double max);
-
 }

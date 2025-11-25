@@ -14,17 +14,18 @@ import br.ifsul.finwise.model.UsuarioModelo;
 @Repository
 public interface UsuarioRepositorio extends JpaRepository<UsuarioModelo, Integer> {
 
-    // Buscas simples
-    Optional<UsuarioModelo> findByNameAndSenha(String name, String senha); // raramente usado diretamente (ex.: para autenticação)
+    // Busca usuário por nome exato (case-sensitive ou insensitive)
     Optional<UsuarioModelo> findByName(String name);
     Optional<UsuarioModelo> findByNameIgnoreCase(String name);
-    boolean existsByName(String name);
 
-    // Buscas por fragmento de nome
+    // Fragmentos de nome
     List<UsuarioModelo> findByNameContainingIgnoreCase(String fragment);
     List<UsuarioModelo> findByNameStartingWithIgnoreCase(String prefix);
 
-    // Atualizações via JPQL: precisam de @Modifying e chamada dentro de @Transactional
+    // Verificação de existência
+    boolean existsByName(String name);
+
+    // Atualizações via JPQL
     @Modifying
     @Query("UPDATE UsuarioModelo u SET u.name = :newName WHERE u.id = :id")
     int updateUserNameById(@Param("id") Integer id, @Param("newName") String newName);
@@ -33,10 +34,10 @@ public interface UsuarioRepositorio extends JpaRepository<UsuarioModelo, Integer
     @Query("UPDATE UsuarioModelo u SET u.senha = :newPassword WHERE u.id = :id")
     int updateUserPasswordById(@Param("id") Integer id, @Param("newPassword") String newPassword);
 
-    // Exemplos de métodos auxiliares que você pode querer
+    // Listagens ordenadas
     List<UsuarioModelo> findAllByOrderByNameAsc();
     List<UsuarioModelo> findAllByOrderByIdDesc();
 
-    // Exemplo de busca por lista de ids (Spring Data cria automaticamente se seguir a convenção)
+    // Buscar por lista de ids
     List<UsuarioModelo> findByIdIn(List<Integer> ids);
 }

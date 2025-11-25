@@ -19,6 +19,7 @@ public class ListaConteudoService {
 
     // Salvar lista
     public ListaConteudoModelo salvar(ListaConteudoModelo lista) {
+        // Aqui você pode adicionar regras de validação da lista, se necessário
         return repositorio.save(lista);
     }
 
@@ -27,12 +28,17 @@ public class ListaConteudoService {
         return repositorio.findById(id);
     }
 
-    // Buscar todos do professor
+    // Listar todas
+    public List<ListaConteudoModelo> listarTodas() {
+        return repositorio.findAll();
+    }
+
+    // Buscar por professor
     public List<ListaConteudoModelo> buscarPorProfessor(Integer professorId) {
         return repositorio.findByProfessorId(professorId);
     }
 
-    // Buscar listas que contenham uma tag específica
+    // Buscar por tag
     public List<ListaConteudoModelo> buscarPorTag(String tag) {
         return repositorio.findByTag(TagEnum.valueOf(tag.toUpperCase()));
     }
@@ -40,6 +46,13 @@ public class ListaConteudoService {
     // Buscar por nome
     public List<ListaConteudoModelo> buscarPorNome(String nome) {
         return repositorio.findByNomeContainingIgnoreCase(nome);
+    }
+
+    // Atualizar lista
+    public ListaConteudoModelo editar(Integer id, ListaConteudoModelo lista) {
+        // Aqui você pode mesclar os campos que quiser atualizar
+        lista.setId(id);
+        return repositorio.save(lista);
     }
 
     // Deletar por ID
