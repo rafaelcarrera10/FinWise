@@ -3,6 +3,7 @@ package br.ifsul.finwise.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import br.ifsul.finwise.model.ConteudoModelo;
+import br.ifsul.finwise.model.ProfessorModelo;
 
 import java.util.List;
 import java.util.Optional;

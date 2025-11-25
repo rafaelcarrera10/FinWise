@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -38,6 +39,10 @@ public class CategoriaModelo {
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TransacaoModelo> listaTransacao = new ArrayList<>();
 
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @JoinColumn(name = "Orcamento_id")
+    private OrcamentoModelo orcamento;
+
     public CategoriaModelo() {
     }
 
@@ -47,11 +52,12 @@ public class CategoriaModelo {
     }
 
     public CategoriaModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name, UsuarioModelo usuario,
-            List<TransacaoModelo> listaTransacao) {
+            List<TransacaoModelo> listaTransacao, OrcamentoModelo orcamento) {
         this.id = id;
         this.name = name;
         this.usuario = usuario;
         this.listaTransacao = listaTransacao;
+        this.orcamento = orcamento;
     }
 
     public Integer getId() {
@@ -70,6 +76,10 @@ public class CategoriaModelo {
         return listaTransacao;
     }
 
+    public OrcamentoModelo getOrcamento() {
+        return orcamento;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -86,10 +96,14 @@ public class CategoriaModelo {
         this.listaTransacao = listaTransacao;
     }
 
+    public void setOrcamento(OrcamentoModelo orcamento) {
+        this.orcamento = orcamento;
+    }
+
     @Override
     public String toString() {
         return "CategoriaModelo [id=" + id + ", name=" + name + ", usuario=" + usuario + ", listaTransacao="
-                + listaTransacao + "]";
+                + listaTransacao + ", orcamento=" + orcamento + "]";
     }
 
     @Override
@@ -100,6 +114,7 @@ public class CategoriaModelo {
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((usuario == null) ? 0 : usuario.hashCode());
         result = prime * result + ((listaTransacao == null) ? 0 : listaTransacao.hashCode());
+        result = prime * result + ((orcamento == null) ? 0 : orcamento.hashCode());
         return result;
     }
 
@@ -132,9 +147,15 @@ public class CategoriaModelo {
                 return false;
         } else if (!listaTransacao.equals(other.listaTransacao))
             return false;
+        if (orcamento == null) {
+            if (other.orcamento != null)
+                return false;
+        } else if (!orcamento.equals(other.orcamento))
+            return false;
         return true;
     }
 
+    
     
 
 }

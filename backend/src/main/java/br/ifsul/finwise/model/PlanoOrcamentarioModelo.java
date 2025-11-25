@@ -14,6 +14,8 @@ public class PlanoOrcamentarioModelo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    
+
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     @JoinColumn(name = "contaFinanceira_id")
     private ContaFinanceiraModelo conta;
