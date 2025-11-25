@@ -24,6 +24,7 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "listaConteudo")
 public class ListaConteudoModelo {
     
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

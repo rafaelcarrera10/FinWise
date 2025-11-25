@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "publicação")
 public class PublicacaoModelo extends ConteudoModelo{
+    
 
     // Atributos
    @ElementCollection

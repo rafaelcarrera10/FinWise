@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 @Table(name = "contaFinanceira")
 public class ContaFinanceiraModelo {
     
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

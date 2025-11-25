@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "Transacao")
 public abstract class TransacaoModelo {
+    
 
     // Atributos
 

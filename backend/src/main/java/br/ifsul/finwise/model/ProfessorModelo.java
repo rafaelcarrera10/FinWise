@@ -17,6 +17,7 @@ import jakarta.validation.constraints.Size;
 @Table(name = "professor")
 public class ProfessorModelo extends UsuarioModelo {
     
+    
     // Atributos
 
     @Column(name = "status", nullable = false)
