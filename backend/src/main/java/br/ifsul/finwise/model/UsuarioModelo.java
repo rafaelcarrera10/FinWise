@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "role" // campo no JSON que indica o tipo
+    property = "role"
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = AlunoModelo.class, name = "aluno"),
@@ -35,7 +35,7 @@ public abstract class UsuarioModelo {
     @NotNull(message = "Nome não pode ser nulo")
     private String name;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "senha", nullable = false)
     @NotNull(message = "Senha não pode ser nula")
     @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
     private String senha;
@@ -47,9 +47,12 @@ public abstract class UsuarioModelo {
     @OneToOne(mappedBy = "usuario")
     private ContaFinanceiraModelo conta;
 
-    // Correção: mappedBy deve apontar para o Set 'usuariosFavoritos' em ConteudoModelo
     @ManyToMany(mappedBy = "usuariosFavoritos", fetch = FetchType.EAGER)
     private Set<ConteudoModelo> listaFavoritos = new HashSet<>();
+
+    // NOVO RELACIONAMENTO: um usuário tem muitos investimentos
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<InvestmentAccountModel> listaInvestimentos = new ArrayList<>();
 
     // Construtores
     public UsuarioModelo() {}
@@ -59,77 +62,53 @@ public abstract class UsuarioModelo {
         this.senha = senha;
     }
 
-    public UsuarioModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name,
-                         @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
-                         List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos) {
+    public UsuarioModelo(Integer id, String name, String senha,
+                         List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta,
+                         Set<ConteudoModelo> listaFavoritos, List<InvestmentAccountModel> listaInvestimentos) {
         this.id = id;
         this.name = name;
         this.senha = senha;
         this.listaCategoria = listaCategoria;
         this.conta = conta;
         this.listaFavoritos = listaFavoritos;
+        this.listaInvestimentos = listaInvestimentos;
     }
 
-    // Getters
-    public Integer getId() {
-        return id;
-    }
+    // Getters e Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getSenha() {
-        return senha;
-    }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
 
-    public List<CategoriaModelo> getListaCategoria() {
-        return listaCategoria;
-    }
+    public List<CategoriaModelo> getListaCategoria() { return listaCategoria; }
+    public void setListaCategoria(List<CategoriaModelo> listaCategoria) { this.listaCategoria = listaCategoria; }
 
-    public ContaFinanceiraModelo getConta() {
-        return conta;
-    }
+    public ContaFinanceiraModelo getConta() { return conta; }
+    public void setConta(ContaFinanceiraModelo conta) { this.conta = conta; }
 
-    public Set<ConteudoModelo> getListaFavoritos() {
-        return listaFavoritos;
-    }
+    public Set<ConteudoModelo> getListaFavoritos() { return listaFavoritos; }
+    public void setListaFavoritos(Set<ConteudoModelo> listaFavoritos) { this.listaFavoritos = listaFavoritos; }
 
-    // Setters
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public List<InvestmentAccountModel> getListaInvestimentos() { return listaInvestimentos; }
+    public void setListaInvestimentos(List<InvestmentAccountModel> listaInvestimentos) { this.listaInvestimentos = listaInvestimentos; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public void setListaCategoria(List<CategoriaModelo> listaCategoria) {
-        this.listaCategoria = listaCategoria;
-    }
-
-    public void setConta(ContaFinanceiraModelo conta) {
-        this.conta = conta;
-    }
-
-    public void setListaFavoritos(Set<ConteudoModelo> listaFavoritos) {
-        this.listaFavoritos = listaFavoritos;
-    }
-
-    // Métodos
+    // Método auxiliar para verificar senha
     public boolean verifyPassword(String rawPassword) {
         return rawPassword.equals(this.senha);
     }
 
-    // toString, hashCode, equals
+    // toString, hashCode e equals (atualizados para incluir investimentos)
     @Override
     public String toString() {
-        return "UsuarioModelo [id=" + id + ", name=" + name + ", senha=" + senha + ", listaCategoria=" + listaCategoria
-                + ", conta=" + conta + ", listaFavoritos=" + listaFavoritos + "]";
+        return "UsuarioModelo [id=" + id + ", name=" + name + ", senha=" + senha
+                + ", listaCategoria=" + listaCategoria
+                + ", conta=" + conta
+                + ", listaFavoritos=" + listaFavoritos
+                + ", listaInvestimentos=" + listaInvestimentos + "]";
     }
 
     @Override
@@ -142,6 +121,7 @@ public abstract class UsuarioModelo {
         result = prime * result + ((listaCategoria == null) ? 0 : listaCategoria.hashCode());
         result = prime * result + ((conta == null) ? 0 : conta.hashCode());
         result = prime * result + ((listaFavoritos == null) ? 0 : listaFavoritos.hashCode());
+        result = prime * result + ((listaInvestimentos == null) ? 0 : listaInvestimentos.hashCode());
         return result;
     }
 
@@ -154,36 +134,20 @@ public abstract class UsuarioModelo {
         if (getClass() != obj.getClass())
             return false;
         UsuarioModelo other = (UsuarioModelo) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (senha == null) {
-            if (other.senha != null)
-                return false;
-        } else if (!senha.equals(other.senha))
-            return false;
-        if (listaCategoria == null) {
-            if (other.listaCategoria != null)
-                return false;
-        } else if (!listaCategoria.equals(other.listaCategoria))
-            return false;
-        if (conta == null) {
-            if (other.conta != null)
-                return false;
-        } else if (!conta.equals(other.conta))
-            return false;
-        if (listaFavoritos == null) {
-            if (other.listaFavoritos != null)
-                return false;
-        } else if (!listaFavoritos.equals(other.listaFavoritos))
-            return false;
+        if (id == null) { if (other.id != null) return false; }
+        else if (!id.equals(other.id)) return false;
+        if (name == null) { if (other.name != null) return false; }
+        else if (!name.equals(other.name)) return false;
+        if (senha == null) { if (other.senha != null) return false; }
+        else if (!senha.equals(other.senha)) return false;
+        if (listaCategoria == null) { if (other.listaCategoria != null) return false; }
+        else if (!listaCategoria.equals(other.listaCategoria)) return false;
+        if (conta == null) { if (other.conta != null) return false; }
+        else if (!conta.equals(other.conta)) return false;
+        if (listaFavoritos == null) { if (other.listaFavoritos != null) return false; }
+        else if (!listaFavoritos.equals(other.listaFavoritos)) return false;
+        if (listaInvestimentos == null) { if (other.listaInvestimentos != null) return false; }
+        else if (!listaInvestimentos.equals(other.listaInvestimentos)) return false;
         return true;
     }
 

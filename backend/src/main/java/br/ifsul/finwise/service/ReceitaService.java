@@ -1,13 +1,13 @@
-package main.java.br.ifsul.finwise.service;
+package br.ifsul.finwise.service;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.ifsul.finwise.model.ReceitaModelo;
 import br.ifsul.finwise.repository.ReceitaRepository;
-import jakarta.transaction.Transactional;
 
 @Service
 public class ReceitaService {
@@ -20,36 +20,29 @@ public class ReceitaService {
 
     // ------------------ CREATE ------------------
     @Transactional
-    public ReceitaModelo salvar(ReceitaModelo receita) {
+    public ReceitaModelo criar(ReceitaModelo receita) {
         if (!receita.isValida()) {
             throw new IllegalArgumentException("Receita inválida.");
         }
-
         return receitaRepository.save(receita);
     }
 
     // ------------------ READ ------------------
-    public List<ReceitaModelo> listarTodas() {
-        return receitaRepository.findAll();
+    public Optional<ReceitaModelo> buscarPorId(Integer id) {
+        return receitaRepository.findById(id);
     }
 
-    public ReceitaModelo buscarPorId(Integer id) {
-        Optional<ReceitaModelo> receita = receitaRepository.findById(id);
-        return receita.orElse(null);
-    }
-
-    public List<ReceitaModelo> buscarPorConta(Integer contaId) {
+    public List<ReceitaModelo> listarPorConta(Integer contaId) {
         return receitaRepository.findByContaId(contaId);
     }
 
-    public List<ReceitaModelo> buscarPorCategoria(Integer categoriaId) {
+    public List<ReceitaModelo> listarPorCategoria(Integer categoriaId) {
         return receitaRepository.findByCategoriaId(categoriaId);
     }
 
     // ------------------ UPDATE ------------------
     @Transactional
     public ReceitaModelo atualizar(Integer id, ReceitaModelo novaReceita) {
-
         ReceitaModelo existente = receitaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada."));
 

@@ -11,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "professor")
@@ -56,14 +55,14 @@ public class ProfessorModelo extends UsuarioModelo {
         this.biografia = biografia;
     }
 
-    public ProfessorModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name,
-            @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
-            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos,
+   public ProfessorModelo(Integer id, String name, String senha, List<CategoriaModelo> listaCategoria,
+            ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos,
+            List<InvestmentAccountModel> listaInvestimentos,
             @NotNull(message = "Status não pode ser nulo") Boolean status,
             @NotNull(message = "Foto de perfil não pode ser nula") String fotoPerfil,
             @NotNull(message = "Biografia não pode ser nulo") String biografia, List<ConteudoModelo> listaConteudo,
             List<ListaConteudoModelo> colecaoListaConteudo) {
-        super(id, name, senha, listaCategoria, conta, listaFavoritos);
+        super(id, name, senha, listaCategoria, conta, listaFavoritos, listaInvestimentos);
         this.status = status;
         this.fotoPerfil = fotoPerfil;
         this.biografia = biografia;
@@ -71,8 +70,10 @@ public class ProfessorModelo extends UsuarioModelo {
         this.colecaoListaConteudo = colecaoListaConteudo;
     }
 
+
     // Getters
 
+    
     public Boolean getStatus() {
         return status;
     }

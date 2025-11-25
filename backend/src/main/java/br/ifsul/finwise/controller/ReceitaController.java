@@ -1,4 +1,4 @@
-package main.java.br.ifsul.finwise.controller;
+package br.ifsul.finwise.controller;
 
 import java.util.List;
 import java.util.Optional;

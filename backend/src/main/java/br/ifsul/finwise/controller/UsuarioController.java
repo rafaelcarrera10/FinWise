@@ -1,6 +1,8 @@
 package br.ifsul.finwise.controller;
 
+import br.ifsul.finwise.model.InvestmentAccountModel;
 import br.ifsul.finwise.model.UsuarioModelo;
+import br.ifsul.finwise.service.InvestmentAccountService;
 import br.ifsul.finwise.service.UsuarioService;
 import br.ifsul.finwise.service.EncryptionService;
 
@@ -21,9 +23,12 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Autowired
+    private InvestmentAccountService investmentService;
+
+    @Autowired
     private EncryptionService encryptService;
 
-    // Criptografia / Descriptografia
+    // -------------------- Criptografia / Descriptografia --------------------
     @PostMapping("/encrypt")
     public ResponseEntity<String> encrypt(@RequestBody String data) {
         return ResponseEntity.ok(encryptService.encrypt(data));
@@ -38,7 +43,7 @@ public class UsuarioController {
         }
     }
 
-    // Criar usuário
+    // -------------------- Usuário CRUD --------------------
     @PostMapping("/create")
     public ResponseEntity<UsuarioModelo> create(@RequestBody UsuarioModelo user) {
         try {
@@ -49,19 +54,15 @@ public class UsuarioController {
         }
     }
 
-    // Login
     @PostMapping("/login")
     public ResponseEntity<UsuarioModelo> login(@RequestBody Map<String, Object> body) {
         String name = (String) body.get("name");
         String password = (String) body.get("password");
-
         Optional<UsuarioModelo> usuario = usuarioService.login(name, password);
-
         return usuario.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
-    // Buscar usuário por ID
     @GetMapping("/by-id")
     public ResponseEntity<UsuarioModelo> getById(@RequestParam Integer id) {
         Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(id);
@@ -69,7 +70,6 @@ public class UsuarioController {
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Buscar usuário por nome
     @GetMapping("/by-name")
     public ResponseEntity<UsuarioModelo> getByName(@RequestParam String name) {
         Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorNome(name);
@@ -77,14 +77,12 @@ public class UsuarioController {
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Buscar por fragmento de nome
     @GetMapping("/search")
     public ResponseEntity<List<UsuarioModelo>> searchByFragment(@RequestParam String q) {
         List<UsuarioModelo> usuarios = usuarioService.buscarPorFragmentoNome(q);
         return ResponseEntity.ok(usuarios);
     }
 
-    // Atualizar nome
     @PostMapping("/update-name")
     public ResponseEntity<Void> updateName(@RequestBody Map<String, Object> body) {
         try {
@@ -97,7 +95,6 @@ public class UsuarioController {
         }
     }
 
-    // Atualizar senha
     @PostMapping("/update-password")
     public ResponseEntity<Void> updatePassword(@RequestBody Map<String, Object> body) {
         try {
@@ -111,10 +108,41 @@ public class UsuarioController {
         }
     }
 
-    // Deletar usuário
     @PostMapping("/delete-by-id")
     public ResponseEntity<Void> deleteById(@RequestParam Integer id) {
         usuarioService.deletarUsuario(id);
         return ResponseEntity.ok().build();
+    }
+
+    // -------------------- Investimentos do Usuário --------------------
+
+    // Listar todos os investimentos de um usuário
+    @GetMapping("/{userId}/investments")
+    public ResponseEntity<List<InvestmentAccountModel>> getInvestments(@PathVariable Integer userId) {
+        Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(userId);
+        return usuario.map(u -> ResponseEntity.ok(u.getListaInvestimentos()))
+                      .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Adicionar um investimento para um usuário
+    @PostMapping("/{userId}/investments")
+    public ResponseEntity<InvestmentAccountModel> addInvestment(
+            @PathVariable Integer userId,
+            @RequestBody InvestmentAccountModel investment) {
+
+        Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(userId);
+        if (usuario.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Vincula o investimento ao usuário
+        investment.setUsuario(usuario.get());
+        InvestmentAccountModel saved = investmentService.save(investment);
+
+        // Adiciona à lista do usuário
+        usuario.get().getListaInvestimentos().add(saved);
+        usuarioService.criarUsuario(usuario.get()); // Atualiza o usuário com novo investimento
+
+        return ResponseEntity.ok(saved);
     }
 }

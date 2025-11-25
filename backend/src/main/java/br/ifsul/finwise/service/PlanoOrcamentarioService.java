@@ -17,8 +17,18 @@ public class PlanoOrcamentarioService {
         this.planoRepository = planoRepository;
     }
 
-    // CREATE / UPDATE
+    // CREATE
     public PlanoOrcamentarioModelo save(PlanoOrcamentarioModelo plano) {
+        return planoRepository.save(plano);
+    }
+
+    // UPDATE
+    public PlanoOrcamentarioModelo update(Integer id, PlanoOrcamentarioModelo plano) {
+        Optional<PlanoOrcamentarioModelo> existing = planoRepository.findById(id);
+        if (existing.isEmpty()) {
+            return null;
+        }
+        plano.setId(id); // garante que atualiza o mesmo ID
         return planoRepository.save(plano);
     }
 
@@ -32,24 +42,26 @@ public class PlanoOrcamentarioService {
         return planoRepository.findById(id);
     }
 
-    // READ BY NOME
+    // DELETE
+    public boolean delete(Integer id) {
+        Optional<PlanoOrcamentarioModelo> existing = planoRepository.findById(id);
+        if (existing.isEmpty()) {
+            return false;
+        }
+        planoRepository.deleteById(id);
+        return true;
+    }
+
+    // MÉTODOS OPCIONAIS
     public List<PlanoOrcamentarioModelo> findByNome(String nome) {
         return planoRepository.findByNome(nome);
     }
 
-    // READ BY CONTA
     public List<PlanoOrcamentarioModelo> findByContaId(Integer contaFinanceira) {
         return planoRepository.findByContaId(contaFinanceira);
     }
 
-    // READ BY CONDICAO
     public List<PlanoOrcamentarioModelo> findByCondicao(Boolean condicao) {
         return planoRepository.findByCondicao(condicao);
     }
-
-    // DELETE
-    public void deleteById(Integer id) {
-        planoRepository.deleteById(id);
-    }
 }
-
