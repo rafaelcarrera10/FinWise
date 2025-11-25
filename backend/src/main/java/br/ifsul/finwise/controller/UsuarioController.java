@@ -2,7 +2,7 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.InvestmentAccountModel;
 import br.ifsul.finwise.model.UsuarioModelo;
-import br.ifsul.finwise.service.InvestmentAccountService;
+import br.ifsul.finwise.service.ContaInvestimentoService;
 import br.ifsul.finwise.service.UsuarioService;
 import br.ifsul.finwise.service.EncryptionService;
 
@@ -23,7 +23,7 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private InvestmentAccountService investmentService;
+    private ContaInvestimentoService investmentService;
 
     @Autowired
     private EncryptionService encryptService;
