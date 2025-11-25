@@ -24,8 +24,8 @@ public class InvestmentAccountModel {
 
     // -------------------- RELACIONAMENTOS --------------------
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false)
-    private UserModel user;
+    @JoinColumn(name = "usuario", nullable = false)
+    private UsuarioModelo usuario;
 
     // -------------------- CONSTRUTORES --------------------
     public InvestmentAccountModel() {
@@ -70,12 +70,12 @@ public class InvestmentAccountModel {
         this.quantity = quantity;
     }
 
-    public UserModel getUser() {
-        return user;
+    public UsuarioModelo getUsuario() {
+        return usuario;
     }
 
-    public void setUser(UserModel user) {
-        this.user = user;
+    public void setUsuario(UsuarioModelo usuario) {
+        this.usuario = usuario;
     }
 
     // -------------------- HASHCODE E EQUALS --------------------

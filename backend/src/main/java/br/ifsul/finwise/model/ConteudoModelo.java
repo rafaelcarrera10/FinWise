@@ -22,7 +22,7 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "conteudo")
-public abstract class ConteudoModelo implements Favoritavel {
+public abstract class ConteudoModelo{
     
     // Atributos
 
@@ -56,7 +56,16 @@ public abstract class ConteudoModelo implements Favoritavel {
     joinColumns = @JoinColumn(name = "conteudo_id"),
     inverseJoinColumns = @JoinColumn(name = "listaConteudo_id")
 )
-    private Set<ConteudoModelo> autores = new HashSet<>();
+    private Set<ConteudoModelo> conteudoLista = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(
+    name = "favoritos",
+    joinColumns = @JoinColumn(name = "conteudo_id"),
+    inverseJoinColumns = @JoinColumn(name = "usuario_id")
+)
+    private Set<UsuarioModelo> favoritoUsuario = new HashSet<>();
+
 
     // Construtores
 
@@ -75,13 +84,14 @@ public abstract class ConteudoModelo implements Favoritavel {
     public ConteudoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
             @NotNull(message = "tag não pode ser nulo") TagEnum tag,
             @NotNull(message = "titulo não pode ser nulo") String titulo, ProfessorModelo professor,
-            Set<ConteudoModelo> autores) {
+            Set<ConteudoModelo> conteudoLista, Set<UsuarioModelo> favoritoUsuario) {
         this.id = id;
         this.descricao = descricao;
         this.tag = tag;
         this.titulo = titulo;
         this.professor = professor;
-        this.autores = autores;
+        this.conteudoLista = conteudoLista;
+        this.favoritoUsuario = favoritoUsuario;
     }
 
     // Getters
@@ -106,8 +116,12 @@ public abstract class ConteudoModelo implements Favoritavel {
         return professor;
     }
 
-    public Set<ConteudoModelo> getAutores() {
-        return autores;
+    public Set<ConteudoModelo> getconteudoLista() {
+        return conteudoLista;
+    }
+
+    public Set<UsuarioModelo> favoritoUsuario() {
+        return favoritoUsuario;
     }
 
     // Setters
@@ -132,16 +146,19 @@ public abstract class ConteudoModelo implements Favoritavel {
         this.professor = professor;
     }
 
-    public void setAutores(Set<ConteudoModelo> autores) {
-        this.autores = autores;
+    public void setconteudoLista(Set<ConteudoModelo> conteudoLista) {
+        this.conteudoLista = conteudoLista;
     }
 
+    public void setFavoritoUsuario(Set<UsuarioModelo> favoritoUsuario) {
+        this.favoritoUsuario = favoritoUsuario;
+    }
     // ToString, hashCode, equals
 
     @Override
     public String toString() {
         return "ConteudoModelo [id=" + id + ", descricao=" + descricao + ", tag=" + tag + ", titulo=" + titulo
-                + ", professor=" + professor + ", autores=" + autores + "]";
+                + ", professor=" + professor + ", conteudoLista=" + conteudoLista + "favoritoUsuario= "+favoritoUsuario+"]";
     }
 
     @Override
@@ -153,7 +170,8 @@ public abstract class ConteudoModelo implements Favoritavel {
         result = prime * result + ((tag == null) ? 0 : tag.hashCode());
         result = prime * result + ((titulo == null) ? 0 : titulo.hashCode());
         result = prime * result + ((professor == null) ? 0 : professor.hashCode());
-        result = prime * result + ((autores == null) ? 0 : autores.hashCode());
+        result = prime * result + ((conteudoLista == null) ? 0 : conteudoLista.hashCode());
+        result = prime * result + ((favoritoUsuario == null) ? 0 : favoritoUsuario.hashCode());
         return result;
     }
 
@@ -188,14 +206,18 @@ public abstract class ConteudoModelo implements Favoritavel {
                 return false;
         } else if (!professor.equals(other.professor))
             return false;
-        if (autores == null) {
-            if (other.autores != null)
+        if (conteudoLista == null) {
+            if (other.conteudoLista != null)
                 return false;
-        } else if (!autores.equals(other.autores))
+        } else if (!conteudoLista.equals(other.conteudoLista))
+            return false;
+        if (favoritoUsuario == null) {
+            if (other.favoritoUsuario != null)
+                return false;
+        } else if (!favoritoUsuario.equals(other.favoritoUsuario))
             return false;
         return true;
     }
-
 
     
 }

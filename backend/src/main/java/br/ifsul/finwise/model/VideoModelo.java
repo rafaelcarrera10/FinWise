@@ -30,11 +30,12 @@ public class VideoModelo extends ConteudoModelo {
         this.video = video;
     }
 
-    public VideoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
+     public VideoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
             @NotNull(message = "tag não pode ser nulo") TagEnum tag,
             @NotNull(message = "titulo não pode ser nulo") String titulo, ProfessorModelo professor,
-            Set<ConteudoModelo> autores, @NotNull(message = "video não pode ser nulo") String video) {
-        super(id, descricao, tag, titulo, professor, autores);
+            Set<ConteudoModelo> conteudoLista, Set<UsuarioModelo> favoritoUsuario,
+            @NotNull(message = "video não pode ser nulo") String video) {
+        super(id, descricao, tag, titulo, professor, conteudoLista, favoritoUsuario);
         this.video = video;
     }
 
