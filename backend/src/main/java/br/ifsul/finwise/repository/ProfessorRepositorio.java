@@ -54,8 +54,8 @@ public interface ProfessorRepositorio extends JpaRepository<ProfessorModelo, Int
 
     @Modifying
     @Transactional
-    @Query("UPDATE ProfessorModelo p SET p.password = :newPassword WHERE p.id = :id")
-    int updatePasswordById(@Param("id") Integer id, @Param("newPassword") String newPassword);
+    @Query("UPDATE ProfessorModelo p SET p.senha = :novaSenha WHERE p.id = :id")
+    int updatePasswordById(@Param("id") Integer id, @Param("novaSenha") String novaSenha);
 
     @Modifying
     @Transactional

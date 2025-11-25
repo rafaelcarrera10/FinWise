@@ -12,20 +12,17 @@ import jakarta.validation.constraints.NotNull;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "role" // campo no JSON que indica o tipo
+    property = "role"
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = VideoModelo.class, name = "video"),
-    @JsonSubTypes.Type(value = PublicacaoModelo.class, name = "publicacao"),
+    @JsonSubTypes.Type(value = PublicacaoModelo.class, name = "publicacao")
 })
-
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "conteudo")
-public abstract class ConteudoModelo{
+public abstract class ConteudoModelo {
     
-    // Atributos
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -42,123 +39,70 @@ public abstract class ConteudoModelo{
     @Column(name = "titulo", nullable = false)
     @NotNull(message = "titulo não pode ser nulo")
     private String titulo;
-    
 
     // Relacionamentos
-
     @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
     private ProfessorModelo professor;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
-    name = "colecao_conteudoLista",
-    joinColumns = @JoinColumn(name = "conteudo_id"),
-    inverseJoinColumns = @JoinColumn(name = "listaConteudo_id")
-)
-    private Set<ConteudoModelo> conteudoLista = new HashSet<>();
+        name = "colecao_conteudo_lista",
+        joinColumns = @JoinColumn(name = "conteudo_id"),
+        inverseJoinColumns = @JoinColumn(name = "lista_conteudo_id")
+    )
+    private Set<ListaConteudoModelo> conteudoListas = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
-    name = "favoritos",
-    joinColumns = @JoinColumn(name = "conteudo_id"),
-    inverseJoinColumns = @JoinColumn(name = "usuario_id")
-)
-    private Set<UsuarioModelo> favoritoUsuario = new HashSet<>();
-
+        name = "favoritos",
+        joinColumns = @JoinColumn(name = "conteudo_id"),
+        inverseJoinColumns = @JoinColumn(name = "usuario_id")
+    )
+    private Set<UsuarioModelo> usuariosFavoritos = new HashSet<>();
 
     // Construtores
+    public ConteudoModelo() {}
 
-    public ConteudoModelo() {
-    }
-
-    public ConteudoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo) {
+    public ConteudoModelo(Integer id, String descricao, TagEnum tag, String titulo) {
         this.id = id;
         this.descricao = descricao;
         this.tag = tag;
         this.titulo = titulo;
     }
 
-    public ConteudoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo, ProfessorModelo professor,
-            Set<ConteudoModelo> conteudoLista, Set<UsuarioModelo> favoritoUsuario) {
+    public ConteudoModelo(Integer id, String descricao, TagEnum tag, String titulo, ProfessorModelo professor,
+                          Set<ListaConteudoModelo> conteudoListas, Set<UsuarioModelo> usuariosFavoritos) {
         this.id = id;
         this.descricao = descricao;
         this.tag = tag;
         this.titulo = titulo;
         this.professor = professor;
-        this.conteudoLista = conteudoLista;
-        this.favoritoUsuario = favoritoUsuario;
+        this.conteudoListas = (conteudoListas != null) ? conteudoListas : new HashSet<>();
+        this.usuariosFavoritos = (usuariosFavoritos != null) ? usuariosFavoritos : new HashSet<>();
     }
 
-    // Getters
+    // Getters e Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public TagEnum getTag() { return tag; }
+    public void setTag(TagEnum tag) { this.tag = tag; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public ProfessorModelo getProfessor() { return professor; }
+    public void setProfessor(ProfessorModelo professor) { this.professor = professor; }
+    public Set<ListaConteudoModelo> getConteudoListas() { return conteudoListas; }
+    public void setConteudoListas(Set<ListaConteudoModelo> conteudoListas) { this.conteudoListas = conteudoListas; }
+    public Set<UsuarioModelo> getUsuariosFavoritos() { return usuariosFavoritos; }
+    public void setUsuariosFavoritos(Set<UsuarioModelo> usuariosFavoritos) { this.usuariosFavoritos = usuariosFavoritos; }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public TagEnum getTag() {
-        return tag;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public ProfessorModelo getProfessor() {
-        return professor;
-    }
-
-    public Set<ConteudoModelo> getconteudoLista() {
-        return conteudoLista;
-    }
-
-    public Set<UsuarioModelo> favoritoUsuario() {
-        return favoritoUsuario;
-    }
-
-    // Setters
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public void setTag(TagEnum tag) {
-        this.tag = tag;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public void setProfessor(ProfessorModelo professor) {
-        this.professor = professor;
-    }
-
-    public void setconteudoLista(Set<ConteudoModelo> conteudoLista) {
-        this.conteudoLista = conteudoLista;
-    }
-
-    public void setFavoritoUsuario(Set<UsuarioModelo> favoritoUsuario) {
-        this.favoritoUsuario = favoritoUsuario;
-    }
-    // ToString, hashCode, equals
-
+    // toString, hashCode, equals
     @Override
     public String toString() {
         return "ConteudoModelo [id=" + id + ", descricao=" + descricao + ", tag=" + tag + ", titulo=" + titulo
-                + ", professor=" + professor + ", conteudoLista=" + conteudoLista + "favoritoUsuario= "+favoritoUsuario+"]";
+                + ", professor=" + professor + ", conteudoListas=" + conteudoListas + ", usuariosFavoritos=" + usuariosFavoritos + "]";
     }
 
     @Override
@@ -170,54 +114,16 @@ public abstract class ConteudoModelo{
         result = prime * result + ((tag == null) ? 0 : tag.hashCode());
         result = prime * result + ((titulo == null) ? 0 : titulo.hashCode());
         result = prime * result + ((professor == null) ? 0 : professor.hashCode());
-        result = prime * result + ((conteudoLista == null) ? 0 : conteudoLista.hashCode());
-        result = prime * result + ((favoritoUsuario == null) ? 0 : favoritoUsuario.hashCode());
+        result = prime * result + ((conteudoListas == null) ? 0 : conteudoListas.hashCode());
+        result = prime * result + ((usuariosFavoritos == null) ? 0 : usuariosFavoritos.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         ConteudoModelo other = (ConteudoModelo) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (descricao == null) {
-            if (other.descricao != null)
-                return false;
-        } else if (!descricao.equals(other.descricao))
-            return false;
-        if (tag != other.tag)
-            return false;
-        if (titulo == null) {
-            if (other.titulo != null)
-                return false;
-        } else if (!titulo.equals(other.titulo))
-            return false;
-        if (professor == null) {
-            if (other.professor != null)
-                return false;
-        } else if (!professor.equals(other.professor))
-            return false;
-        if (conteudoLista == null) {
-            if (other.conteudoLista != null)
-                return false;
-        } else if (!conteudoLista.equals(other.conteudoLista))
-            return false;
-        if (favoritoUsuario == null) {
-            if (other.favoritoUsuario != null)
-                return false;
-        } else if (!favoritoUsuario.equals(other.favoritoUsuario))
-            return false;
-        return true;
+        return id.equals(other.id);
     }
-
-    
 }

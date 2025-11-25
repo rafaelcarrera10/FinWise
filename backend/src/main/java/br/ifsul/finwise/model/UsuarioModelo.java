@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-// import br.ifsul.finwise.service.ValidationService;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -28,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public abstract class UsuarioModelo {
 
     // Atributos
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -43,29 +41,27 @@ public abstract class UsuarioModelo {
     private String senha;
 
     // Relacionamentos
-
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CategoriaModelo> listaCategoria = new ArrayList<>();
 
     @OneToOne(mappedBy = "usuario")
     private ContaFinanceiraModelo conta;
 
-    @ManyToMany(mappedBy = "favoritoUsuario", fetch = FetchType.EAGER)
+    // Correção: mappedBy deve apontar para o Set 'usuariosFavoritos' em ConteudoModelo
+    @ManyToMany(mappedBy = "usuariosFavoritos", fetch = FetchType.EAGER)
     private Set<ConteudoModelo> listaFavoritos = new HashSet<>();
-    
+
     // Construtores
     public UsuarioModelo() {}
+
     public UsuarioModelo(String name, String senha) {
-        // ValidationService.ValidationResult validation = validateUserData(name);
-        // if (!validation.isValid()) {
-        //     throw new IllegalArgumentException("Dados inválidos: " + validation.getErrorMessage());
-        // }
         this.name = name;
         this.senha = senha;
     }
+
     public UsuarioModelo(Integer id, @NotNull(message = "Nome não pode ser nulo") String name,
-            @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
-            List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos) {
+                         @NotNull(message = "Senha não pode ser nula") @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres") String senha,
+                         List<CategoriaModelo> listaCategoria, ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos) {
         this.id = id;
         this.name = name;
         this.senha = senha;
@@ -73,75 +69,69 @@ public abstract class UsuarioModelo {
         this.conta = conta;
         this.listaFavoritos = listaFavoritos;
     }
-    
+
     // Getters
     public Integer getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public String getSenha() {
         return senha;
     }
+
     public List<CategoriaModelo> getListaCategoria() {
         return listaCategoria;
     }
+
     public ContaFinanceiraModelo getConta() {
         return conta;
     }
+
     public Set<ConteudoModelo> getListaFavoritos() {
         return listaFavoritos;
     }
-    
-   
-    // Setters
 
+    // Setters
     public void setId(Integer id) {
         this.id = id;
     }
+
     public void setName(String name) {
-        // if (!isValidName(name)) {
-        //     throw new IllegalArgumentException("Nome inválido");
-        // }
         this.name = name;
     }
+
     public void setSenha(String senha) {
         this.senha = senha;
     }
+
     public void setListaCategoria(List<CategoriaModelo> listaCategoria) {
         this.listaCategoria = listaCategoria;
     }
+
     public void setConta(ContaFinanceiraModelo conta) {
         this.conta = conta;
     }
+
     public void setListaFavoritos(Set<ConteudoModelo> listaFavoritos) {
         this.listaFavoritos = listaFavoritos;
     }
 
-    // Métodos 
-
+    // Métodos
     public boolean verifyPassword(String rawPassword) {
-    return rawPassword.equals(this.senha);
+        return rawPassword.equals(this.senha);
     }
 
-    // private ValidationService.ValidationResult validateUserData(String name) {
-    //     ValidationService validationService = new ValidationService();
-    //     return validationService.validateUserData(name);
-    // }
-
-    // private boolean isValidName(String name) {
-    //     ValidationService validationService = new ValidationService();
-    //     return validationService.isValidName(name);
-    // }
-
-    // ToString, hashCode, equals
-
+    // toString, hashCode, equals
     @Override
     public String toString() {
         return "UsuarioModelo [id=" + id + ", name=" + name + ", senha=" + senha + ", listaCategoria=" + listaCategoria
                 + ", conta=" + conta + ", listaFavoritos=" + listaFavoritos + "]";
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -154,6 +144,7 @@ public abstract class UsuarioModelo {
         result = prime * result + ((listaFavoritos == null) ? 0 : listaFavoritos.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Repository
@@ -20,7 +20,8 @@ public interface DespesaRepositorio extends JpaRepository<DespesaModelo, Integer
 
     List<DespesaModelo> findByStatus(Boolean status);
 
-    List<DespesaModelo> findByCartaoId(Integer cartaoId);
+    // Corrigido para acessar o id do CartaoCreditoModelo
+    List<DespesaModelo> findByCartaoCredito_Id(Integer cartaoId);
 
     List<DespesaModelo> findByDataInicial(Date dataInicial);
 
@@ -32,7 +33,8 @@ public interface DespesaRepositorio extends JpaRepository<DespesaModelo, Integer
 
     List<DespesaModelo> findByObservacao(String observacao);
 
-    List<DespesaModelo> findByCategoriaIdAndCartaoId(Integer categoriaId, Integer cartaoId);
+    // Corrigido para acessar o id do CartaoCreditoModelo
+    List<DespesaModelo> findByCategoriaIdAndCartaoCredito_Id(Integer categoriaId, Integer cartaoId);
 
     @Modifying
     @Transactional

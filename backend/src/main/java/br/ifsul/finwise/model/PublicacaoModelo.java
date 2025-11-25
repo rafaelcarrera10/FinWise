@@ -12,98 +12,94 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "publicação")
-public class PublicacaoModelo extends ConteudoModelo{
-    
+@Table(name = "publicacao")
+public class PublicacaoModelo extends ConteudoModelo {
 
-    // Atributos
-   @ElementCollection
+    // Atributos específicos
+    @ElementCollection
     @CollectionTable(
-    name = "publicacao_fotos",
-    joinColumns = @JoinColumn(name = "publicacao_id")
-)
-    @Column(name = "foto")
-    @NotNull(message = "texto não pode ser nulo")
-    private List<String> foto;
+        name = "publicacao_fotos",
+        joinColumns = @JoinColumn(name = "publicacao_id")
+    )
+    @Column(name = "foto", nullable = false)
+    @NotNull(message = "foto não pode ser nulo")
+    private List<String> fotos;
 
     @Column(name = "texto", nullable = false)
     @NotNull(message = "texto não pode ser nulo")
     private String texto;
 
     // Construtores
-    
-    public PublicacaoModelo() {
-    }
+    public PublicacaoModelo() {}
 
-    public PublicacaoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo,
-            @NotNull(message = "texto não pode ser nulo") List<String> foto,
-            @NotNull(message = "texto não pode ser nulo") String texto) {
+    public PublicacaoModelo(Integer id,
+                            @NotNull(message = "descricao não pode ser nulo") String descricao,
+                            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
+                            @NotNull(message = "titulo não pode ser nulo") String titulo,
+                            @NotNull(message = "foto não pode ser nulo") List<String> fotos,
+                            @NotNull(message = "texto não pode ser nulo") String texto) {
         super(id, descricao, tag, titulo);
-        this.foto = foto;
+        this.fotos = fotos;
         this.texto = texto;
     }
 
-    public PublicacaoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo, ProfessorModelo professor,
-            Set<ConteudoModelo> conteudoLista, Set<UsuarioModelo> favoritoUsuario,
-            @NotNull(message = "texto não pode ser nulo") List<String> foto,
-            @NotNull(message = "texto não pode ser nulo") String texto) {
-        super(id, descricao, tag, titulo, professor, conteudoLista, favoritoUsuario);
-        this.foto = foto;
+    public PublicacaoModelo(Integer id,
+                            @NotNull(message = "descricao não pode ser nulo") String descricao,
+                            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
+                            @NotNull(message = "titulo não pode ser nulo") String titulo,
+                            ProfessorModelo professor,
+                            Set<ListaConteudoModelo> conteudoListas,
+                            Set<UsuarioModelo> usuariosFavoritos,
+                            @NotNull(message = "foto não pode ser nulo") List<String> fotos,
+                            @NotNull(message = "texto não pode ser nulo") String texto) {
+        super(id, descricao, tag, titulo, professor, conteudoListas, usuariosFavoritos);
+        this.fotos = fotos;
         this.texto = texto;
     }
-    // Getters
 
-    public List<String> getFoto() {
-        return foto;
+    // Getters e Setters
+    public List<String> getFotos() {
+        return fotos;
+    }
+
+    public void setFotos(List<String> fotos) {
+        this.fotos = fotos;
     }
 
     public String getTexto() {
         return texto;
     }
 
-    // Setters
-
-    public void setFoto(List<String> foto) {
-        this.foto = foto;
-    }
-
     public void setTexto(String texto) {
         this.texto = texto;
     }
 
-    // ToString, hashCode, equals
-
+    // toString, hashCode, equals
     @Override
     public String toString() {
-        return "PublicacaoModelo [foto=" + foto + ", texto=" + texto + ", toString()=" + super.toString() + "]";
+        return "PublicacaoModelo [fotos=" + fotos + ", texto=" + texto + ", " + super.toString() + "]";
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((foto == null) ? 0 : foto.hashCode());
+        result = prime * result + ((fotos == null) ? 0 : fotos.hashCode());
         result = prime * result + ((texto == null) ? 0 : texto.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
         if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
         PublicacaoModelo other = (PublicacaoModelo) obj;
-        if (foto == null) {
-            if (other.foto != null)
+        if (fotos == null) {
+            if (other.fotos != null)
                 return false;
-        } else if (!foto.equals(other.foto))
+        } else if (!fotos.equals(other.fotos))
             return false;
         if (texto == null) {
             if (other.texto != null)
@@ -112,6 +108,4 @@ public class PublicacaoModelo extends ConteudoModelo{
             return false;
         return true;
     }
-
-    
 }

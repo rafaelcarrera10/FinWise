@@ -10,52 +10,49 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "video")
 public class VideoModelo extends ConteudoModelo {
-    
-    // Atributos
 
-    @Column(name = "video", nullable = false)
+    // Atributo específico
+    @Column(name = "video_url", nullable = false)
     @NotNull(message = "video não pode ser nulo")
     private String video;
 
-    // Construtores 
+    // Construtores
+    public VideoModelo() {}
 
-    public VideoModelo() {
-    }
-
-    public VideoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo,
-            @NotNull(message = "video não pode ser nulo") String video) {
+    public VideoModelo(Integer id,
+                       @NotNull(message = "descricao não pode ser nulo") String descricao,
+                       @NotNull(message = "tag não pode ser nulo") TagEnum tag,
+                       @NotNull(message = "titulo não pode ser nulo") String titulo,
+                       @NotNull(message = "video não pode ser nulo") String video) {
         super(id, descricao, tag, titulo);
         this.video = video;
     }
 
-     public VideoModelo(Integer id, @NotNull(message = "descricao não pode ser nulo") String descricao,
-            @NotNull(message = "tag não pode ser nulo") TagEnum tag,
-            @NotNull(message = "titulo não pode ser nulo") String titulo, ProfessorModelo professor,
-            Set<ConteudoModelo> conteudoLista, Set<UsuarioModelo> favoritoUsuario,
-            @NotNull(message = "video não pode ser nulo") String video) {
-        super(id, descricao, tag, titulo, professor, conteudoLista, favoritoUsuario);
+    public VideoModelo(Integer id,
+                       @NotNull(message = "descricao não pode ser nulo") String descricao,
+                       @NotNull(message = "tag não pode ser nulo") TagEnum tag,
+                       @NotNull(message = "titulo não pode ser nulo") String titulo,
+                       ProfessorModelo professor,
+                       Set<ListaConteudoModelo> conteudoListas,
+                       Set<UsuarioModelo> usuariosFavoritos,
+                       @NotNull(message = "video não pode ser nulo") String video) {
+        super(id, descricao, tag, titulo, professor, conteudoListas, usuariosFavoritos);
         this.video = video;
     }
 
-    // Getters
-
+    // Getters e Setters
     public String getVideo() {
         return video;
     }
-
-    // Setters
 
     public void setVideo(String video) {
         this.video = video;
     }
 
-    // ToString, hashCode, equals
-    
+    // toString, hashCode, equals
     @Override
     public String toString() {
-        return "VideoModelo [video=" + video + ", toString()=" + super.toString() + "]";
+        return "VideoModelo [video=" + video + ", " + super.toString() + "]";
     }
 
     @Override
@@ -68,8 +65,6 @@ public class VideoModelo extends ConteudoModelo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
         if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
@@ -82,9 +77,4 @@ public class VideoModelo extends ConteudoModelo {
             return false;
         return true;
     }
-
-    
-
-    
 }
-

@@ -28,7 +28,7 @@ public class DespesaModelo extends TransacaoModelo {
     public DespesaModelo(Integer id, Double valor, Date dataInicial, Date dataFinal, String descricao,
                          String observacao, RepeticaoEnum repeticao, CategoriaModelo categoria,
                          ContaFinanceiraModelo conta, Boolean status, CartaoCreditoModelo cartaoCredito) {
-        super(id, valor, dataInicial, dataFinal, descricao, observacao, repeticao, categoria, conta);
+        super(id, valor, dataInicial, dataFinal, descricao, observacao, repeticao);
         this.status = status;
         this.cartaoCredito = cartaoCredito;
     }
