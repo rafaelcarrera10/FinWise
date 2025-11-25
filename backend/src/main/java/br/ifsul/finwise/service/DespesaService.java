@@ -61,7 +61,7 @@ public class DespesaService {
         if (despesa.getCategoria() != null) existente.setCategoria(despesa.getCategoria());
         if (despesa.getConta() != null) existente.setConta(despesa.getConta());
         if (despesa.getStatus() != null) existente.setStatus(despesa.getStatus());
-        if (despesa.getCartao() != null) existente.setCartao(despesa.getCartao());
+        if (despesa.getCartaoCredito() != null) existente.setCartaoCredito(despesa.getCartaoCredito());
 
         return repositorio.save(existente);
     }
