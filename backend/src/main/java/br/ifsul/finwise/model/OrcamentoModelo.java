@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +22,10 @@ public class OrcamentoModelo {
     @NotNull(message = "valor não pode ser nulo")
     private Double valor;
 
+    @ManyToOne
+    @JoinColumn(name = "planoOrcamentario_id", nullable = false)
+    private PlanoOrcamentarioModelo plano;
+
     @OneToOne(mappedBy = "Orcamento")
     private CategoriaModelo categoria;
 
@@ -32,9 +38,10 @@ public class OrcamentoModelo {
     }
 
     public OrcamentoModelo(Integer id, @NotNull(message = "valor não pode ser nulo") Double valor,
-            CategoriaModelo categoria) {
+            PlanoOrcamentarioModelo plano, CategoriaModelo categoria) {
         this.id = id;
         this.valor = valor;
+        this.plano = plano;
         this.categoria = categoria;
     }
 
@@ -44,6 +51,10 @@ public class OrcamentoModelo {
 
     public Double getValor() {
         return valor;
+    }
+
+    public PlanoOrcamentarioModelo getPlano() {
+        return plano;
     }
 
     public CategoriaModelo getCategoria() {
@@ -58,8 +69,17 @@ public class OrcamentoModelo {
         this.valor = valor;
     }
 
+    public void setPlano(PlanoOrcamentarioModelo plano) {
+        this.plano = plano;
+    }
+
     public void setCategoria(CategoriaModelo categoria) {
         this.categoria = categoria;
+    }
+
+    @Override
+    public String toString() {
+        return "OrcamentoModelo [id=" + id + ", valor=" + valor + ", plano=" + plano + ", categoria=" + categoria + "]";
     }
 
     @Override
@@ -68,6 +88,7 @@ public class OrcamentoModelo {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((valor == null) ? 0 : valor.hashCode());
+        result = prime * result + ((plano == null) ? 0 : plano.hashCode());
         result = prime * result + ((categoria == null) ? 0 : categoria.hashCode());
         return result;
     }
@@ -91,6 +112,11 @@ public class OrcamentoModelo {
                 return false;
         } else if (!valor.equals(other.valor))
             return false;
+        if (plano == null) {
+            if (other.plano != null)
+                return false;
+        } else if (!plano.equals(other.plano))
+            return false;
         if (categoria == null) {
             if (other.categoria != null)
                 return false;
@@ -99,10 +125,6 @@ public class OrcamentoModelo {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "OrcamentoModelo [id=" + id + ", valor=" + valor + ", categoria=" + categoria + "]";
-    }
-
+    
     
 }
