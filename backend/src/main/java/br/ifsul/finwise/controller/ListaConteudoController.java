@@ -22,7 +22,7 @@ public class ListaConteudoController {
 
     // Busca lista por id
     @GetMapping("/{id}")
-    public ListaConteudoModelo buscarPorId(@PathVariable Long id) {
+    public ListaConteudoModelo buscarPorId(@PathVariable Integer id) {
         return service.buscarPorId(id);
     }
 
@@ -34,19 +34,19 @@ public class ListaConteudoController {
 
     // Lista conteúdo criado por um professor
     @GetMapping("/professor/{idProf}")
-    public List<ListaConteudoModelo> listarPorProfessor(@PathVariable Long idProf) {
+    public List<ListaConteudoModelo> listarPorProfessor(@PathVariable Integer idProf) {
         return service.listarPorProfessor(idProf);
     }
 
     // Atualiza lista
     @PutMapping("/{id}")
-    public ListaConteudoModelo atualizar(@PathVariable Long id, @RequestBody ListaConteudoModelo lista) {
+    public ListaConteudoModelo atualizar(@PathVariable Integer id, @RequestBody ListaConteudoModelo lista) {
         return service.editar(id, lista);
     }
 
     // Deleta lista
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
+    public void deletar(@PathVariable Integer id) {
         service.deletar(id);
     }
 }

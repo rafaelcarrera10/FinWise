@@ -2,6 +2,9 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.ContaFinanceiraModelo;
 import br.ifsul.finwise.service.ContaFinanceiraService;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +23,7 @@ public class ContaFinanceiraController {
 
     // Busca conta pelo id do usuário
     @GetMapping("/usuario/{userId}")
-    public ContaFinanceiraModelo buscarPorUsuario(@PathVariable Long userId) {
+    public Optional<ContaFinanceiraModelo> buscarPorUsuario(@PathVariable Integer userId) {
         return service.buscarPorUsuario(userId);
     }
 

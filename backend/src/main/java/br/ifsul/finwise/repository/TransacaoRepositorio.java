@@ -19,7 +19,7 @@ public interface TransacaoRepositorio extends JpaRepository<TransacaoModelo, Int
     List<TransacaoModelo> findByContaId(Integer contaId);
 
     // Buscar transações por categoria
-    List<TransacaoModelo> findByCategoriaId(Long categoriaId);
+    List<TransacaoModelo> findByCategoriaId(Integer categoriaId);
 
     // Buscar por repetição (UNICA, SEMANAL, MENSAL, ANUAL)
     List<TransacaoModelo> findByRepeticao(RepeticaoEnum repeticao);

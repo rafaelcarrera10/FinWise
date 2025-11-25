@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import br.ifsul.finwise.model.ProfessorModelo;
+import br.ifsul.finwise.model.UsuarioModelo;
 import br.ifsul.finwise.repository.ProfessorRepositorio;
 
 import java.util.List;
@@ -26,78 +27,78 @@ public class ProfessorService {
     }
 
     // Busca um professor pelo ID
-    public Optional<ProfessorModelo> findById(Long id) {
+    public Optional<ProfessorModelo> findById(Integer id) {
         return professorRepositorio.findById(id);
     }
 
     // Exclui um professor pelo ID
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         professorRepositorio.deleteById(id);
     }
 
     // Busca professores cujo nome contém a string fornecida (ignora maiúsculas/minúsculas)
-    public List<ProfessorModelo> findByNameContaining(String name) {
+    public List<UsuarioModelo> findByNameContaining(String name) {
         return professorRepositorio.findByNameContainingIgnoreCase(name);
     }
 
     // Busca professores com nome exatamente igual ao fornecido (ignora maiúsculas/minúsculas)
-    public List<ProfessorModelo> findByNameExact(String name) {
+    public List<UsuarioModelo> findByNameExact(String name) {
         return professorRepositorio.findByNameIgnoreCase(name);
     }
 
     // Busca professores cujo nome começa com o prefixo informado
-    public List<ProfessorModelo> findByNamePrefix(String prefix) {
+    public List<UsuarioModelo> findByNamePrefix(String prefix) {
         return professorRepositorio.findByNameStartingWithIgnoreCase(prefix);
     }
 
     // Lista todos os professores em ordem alfabética pelo nome
-    public List<ProfessorModelo> findAllOrderByName() {
+    public List<UsuarioModelo> findAllOrderByName() {
         return professorRepositorio.findAllOrderByNameAsc();
     }
 
     // Lista todos os professores em ordem decrescente pelo ID (mais recentes primeiro)
-    public List<ProfessorModelo> findAllOrderByIdDesc() {
+    public List<UsuarioModelo> findAllOrderByIdDesc() {
         return professorRepositorio.findAllOrderByIdDesc();
     }
 
     // Busca múltiplos professores pelos IDs fornecidos
-    public List<ProfessorModelo> findByIds(List<Long> ids) {
+    public List<UsuarioModelo> findByIds(List<Integer> ids) {
         return professorRepositorio.findByIds(ids);
     }
 
     // Atualiza o nome de um professor pelo ID
     @Transactional
-    public int updateName(Long id, String newName) {
+    public int updateName(Integer id, String newName) {
         return professorRepositorio.updateUserNameById(id, newName);
     }
 
     // Atualiza a senha de um professor pelo ID
     @Transactional
-    public int updatePassword(Long id, String newPassword) {
+    public int updatePassword(Integer id, String newPassword) {
         return professorRepositorio.updateUserPasswordById(id, newPassword);
     }
 
     // Atualiza a foto de perfil do professor pelo ID
     @Transactional
-    public int updateFotoPerfil(Long id, byte[] fotoPerfil) {
+    public int updateFotoPerfil(Integer id, byte[] fotoPerfil) {
         return professorRepositorio.updateUserfotoPerfilById(id, fotoPerfil);
     }
 
     // Atualiza a biografia do professor pelo ID
     @Transactional
-    public int updateBiografia(Long id, String biografia) {
+    public int updateBiografia(Integer id, String biografia) {
         return professorRepositorio.updateUserbiografiaById(id, biografia);
     }
 
     // Remove a foto de perfil de um professor pelo ID
     @Transactional
-    public int removeFotoPerfil(Long id) {
+    public int removeFotoPerfil(Integer id) {
         return professorRepositorio.removeUserfotoPerfilById(id);
     }
 
     // Remove a biografia de um professor pelo ID
     @Transactional
-    public int removeBiografia(Long id) {
+    public int removeBiografia(Integer id) {
         return professorRepositorio.removeUserbiografiaById(id);
     }
 
@@ -108,17 +109,17 @@ public class ProfessorService {
     }
 
     // Recupera a foto de perfil de um professor pelo ID
-    public byte[] getFotoPerfil(Long id) {
+    public byte[] getFotoPerfil(Integer id) {
         return professorRepositorio.findfotoPerfilByUserId(id);
     }
 
     // Recupera a biografia de um professor pelo ID
-    public String getBiografia(Long id) {
+    public String getBiografia(Integer id) {
         return professorRepositorio.findbiografiaByUserId(id);
     }
 
     // Busca o status de um professor pelo ID
-    public List<ProfessorModelo> findStatusById(Long id) {
+    public List<ProfessorModelo> findStatusById(Integer id) {
         return professorRepositorio.findStatusById(id);
     }
 }

@@ -22,22 +22,22 @@ public class CategoriaService {
     }
 
     // Buscar por ID
-    public Optional<CategoriaModelo> buscarPorId(Long id) {
+    public Optional<CategoriaModelo> buscarPorId(Integer id) {
         return repositorio.findById(id);
     }
 
     // Buscar por nome exato
     public Optional<CategoriaModelo> buscarPorNome(String nome) {
-        return repositorio.findByCategoria(nome);
+        return repositorio.findByName(nome);
     }
 
     // Listar categorias de um usuário
-    public List<CategoriaModelo> listarPorUsuario(Long userId) {
+    public List<CategoriaModelo> listarPorUsuario(Integer userId) {
         return repositorio.findByUsuarioId(userId);
     }
 
     // Listar categorias de um usuário ordenadas pelo nome
-    public List<CategoriaModelo> listarPorUsuarioOrdenado(Long userId) {
+    public List<CategoriaModelo> listarPorUsuarioOrdenado(Integer userId) {
         return repositorio.findByUsuarioIdOrderByNameAsc(userId);
     }
 
@@ -47,7 +47,7 @@ public class CategoriaService {
     }
 
     // Deletar por ID
-    public void deletarPorId(Long id) {
+    public void deletarPorId(Integer id) {
         repositorio.deleteById(id);
     }
 }

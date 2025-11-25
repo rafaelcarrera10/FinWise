@@ -26,7 +26,7 @@ public class ContaFinanceiraService {
     }
 
     // Buscar conta por usuário
-    public Optional<ContaFinanceiraModelo> buscarPorUsuario(Long usuarioId) {
+    public Optional<ContaFinanceiraModelo> buscarPorUsuario(Integer usuarioId) {
         return repositorio.findByUsuarioId(usuarioId);
     }
 
@@ -34,4 +34,16 @@ public class ContaFinanceiraService {
     public void deletar(Integer id) {
         repositorio.deleteById(id);
     }
+
+    // Atualizar conta
+    public ContaFinanceiraModelo editar(Integer id, ContaFinanceiraModelo conta) {
+        return repositorio.save(conta);
+    }
+
+    // Deletar por ID
+    public void deletarPorId(Integer id) {
+        repositorio.deleteById(id);
+    }
 }
+    
+

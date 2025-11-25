@@ -1,6 +1,7 @@
 package br.ifsul.finwise.service;
 
 import br.ifsul.finwise.model.ListaConteudoModelo;
+import br.ifsul.finwise.model.TagEnum;
 import br.ifsul.finwise.repository.ListaConteudoRepositorio;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +28,13 @@ public class ListaConteudoService {
     }
 
     // Buscar todos do professor
-    public List<ListaConteudoModelo> buscarPorProfessor(Long professorId) {
+    public List<ListaConteudoModelo> buscarPorProfessor(Integer professorId) {
         return repositorio.findByProfessorId(professorId);
     }
 
     // Buscar listas que contenham uma tag específica
     public List<ListaConteudoModelo> buscarPorTag(String tag) {
-        return repositorio.findByTag(tag);
+        return repositorio.findByTag(TagEnum.valueOf(tag.toUpperCase()));
     }
 
     // Buscar por nome

@@ -34,7 +34,7 @@ public class DespesaController {
 
     // Lista despesas por categoria
     @GetMapping("/categoria/{catId}")
-    public List<DespesaModelo> buscarPorCategoria(@PathVariable Long catId) {
+    public List<DespesaModelo> buscarPorCategoria(@PathVariable Integer catId) {
         return service.buscarPorCategoria(catId);
     }
 

@@ -27,6 +27,21 @@ public class DespesaService {
         return repositorio.save(despesa);
     }
 
+    // Buscar todos
+    public List<DespesaModelo> buscarTodos() {
+        return repositorio.findAll();
+    }
+
+    // Buscar por conta
+    public List<DespesaModelo> buscarPorConta(Integer contaId) {
+        return repositorio.findByContaId(contaId);
+    }
+
+    // Buscar por categoria
+    public List<DespesaModelo> buscarPorCategoria(Integer categoriaId) {
+        return repositorio.findByCategoriaId(categoriaId);
+    }
+
     // Buscar por ID
     public Optional<DespesaModelo> buscarPorId(Integer id) {
         return repositorio.findById(id);
@@ -38,8 +53,13 @@ public class DespesaService {
     }
 
     // Listar despesas por categoria
-    public List<DespesaModelo> listarPorCategoria(Long categoriaId) {
+    public List<DespesaModelo> listarPorCategoria(Integer categoriaId) {
         return repositorio.findByCategoriaId(categoriaId);
+    }
+
+    // Atualizar despesa
+    public DespesaModelo editar(Integer id, DespesaModelo despesa) {
+        return repositorio.save(despesa);
     }
 
     // Deletar por ID

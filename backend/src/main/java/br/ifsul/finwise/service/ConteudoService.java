@@ -40,8 +40,8 @@ public class ConteudoService {
     }
 
     // Buscar conteúdos de um professor
-    public List<ConteudoModelo> findByProfessor(ProfessorModelo professor) {
-        return conteudoRepositorio.findByProfessor(professor);
+    public List<ConteudoModelo> buscarPorProfessor(Integer professorId) {
+        return conteudoRepositorio.findByProfessorId(professorId);
     }
 
     // Deletar

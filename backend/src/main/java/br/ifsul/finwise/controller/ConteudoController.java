@@ -58,7 +58,7 @@ public class ConteudoController {
 
     // Busca conteúdos de um professor específico
     @GetMapping("/by-professor")
-    public ResponseEntity<List<ConteudoModelo>> getByProfessor(@RequestParam Long professorId) {
+    public ResponseEntity<List<ConteudoModelo>> getByProfessor(@RequestParam Integer professorId) {
         Optional<ProfessorModelo> professor = professorService.findById(professorId);
         if (professor.isEmpty()) {
             return ResponseEntity.notFound().build(); // Professor não encontrado

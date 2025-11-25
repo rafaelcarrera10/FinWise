@@ -2,207 +2,129 @@ package br.ifsul.finwise.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.ifsul.finwise.model.UsuarioModelo;
-import br.ifsul.finwise.repository.UserRepository;
-// Importações adicionadas
-import br.ifsul.finwise.service.ValidationService.ValidationResult;
-
-import java.util.List;
+import br.ifsul.finwise.repository.UsuarioRepositorio;
 import java.util.Optional;
 
 @Service
 public class UsuarioService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsuarioRepositorio usuarioRepositorio;
 
-    // Dependência injetada para validação
     @Autowired
-    private ValidationService validationService;
+    private EncryptionService Encrypt;
+
 
     /**
-     * Salva um novo usuário ou atualiza um existente.
-     * Valida o nome e criptografa a senha antes de salvar.
+     * Cadastro de usuário com criptografia SHA-256
      */
-    public UsuarioModelo save(UsuarioModelo usuario) {
-        
-        // 1. Validar o Nome
-        ValidationResult nameResult = validationService.validateUserData(usuario.getName());
-        if (!nameResult.isValid()) {
-            throw new IllegalArgumentException(nameResult.getErrorMessage());
-        }
+    public UsuarioModelo criarUsuario(UsuarioModelo usuario) {
 
-        // 2. Lógica para Criptografar Senha (Create vs Update)
-        if (usuario.getId() == null) {
-            // --- CRIAR NOVO USUÁRIO ---
-            if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-                throw new IllegalArgumentException("Senha é obrigatória para novos usuários.");
-            }
-            // Criptografa a nova senha
-            usuario.setPassword(EncryptionService.encrypt(usuario.getPassword()));
-            
-        } else {
-            // --- ATUALIZAR USUÁRIO EXISTENTE ---
-            // Verifica se a senha foi fornecida (ou seja, se o usuário quer alterá-la)
-            if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-                // Criptografa a nova senha
-                usuario.setPassword(EncryptionService.encrypt(usuario.getPassword()));
-            } else {
-                // Se a senha veio nula/vazia no DTO, significa que não é para alterar.
-                // Buscamos a senha antiga (já criptografada) do banco para mantê-la.
-                userRepository.findById(usuario.getId())
-                    .map(UsuarioModelo::getPassword) // Pega a senha antiga (criptografada)
-                    .ifPresent(usuario::setPassword); // Seta no objeto para não salvar nulo
-            }
-        }
+        // Criptografa a senha
+        String senhaCriptografada = Encrypt.encrypt(usuario.getSenha());
+        usuario.setSenha(senhaCriptografada);
 
-        // 3. Salvar no repositório
-        return userRepository.save(usuario);
-    }
-
-    // Retorna todos os usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findAll() {
-        List<UsuarioModelo> usuarios = userRepository.findAll();
-        usuarios.forEach(this::decryptPassword); // Descriptografa a senha de cada usuário
-        return usuarios;
-    }
-
-    // Busca um usuário pelo ID (com senha descriptografada)
-    public Optional<UsuarioModelo> findById(Long id) {
-        Optional<UsuarioModelo> usuarioOpt = userRepository.findById(id);
-        usuarioOpt.ifPresent(this::decryptPassword); // Descriptografa a senha se o usuário for encontrado
-        return usuarioOpt;
-    }
-
-    // Exclui um usuário pelo ID
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    // Busca usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findByNameContaining(String name) {
-        List<UsuarioModelo> usuarios = userRepository.findByNameContainingIgnoreCase(name);
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
-    }
-
-    // Busca usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findByNameExact(String name) {
-        List<UsuarioModelo> usuarios = userRepository.findByNameIgnoreCase(name);
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
-    }
-
-    // Busca usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findByNamePrefix(String prefix) {
-        List<UsuarioModelo> usuarios = userRepository.findByNameStartingWithIgnoreCase(prefix);
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
-    }
-
-    // Lista todos os usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findAllOrderByName() {
-        List<UsuarioModelo> usuarios = userRepository.findAllOrderByNameAsc();
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
-    }
-
-    // Lista todos os usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findAllOrderByIdDesc() {
-        List<UsuarioModelo> usuarios = userRepository.findAllOrderByIdDesc();
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
-    }
-
-    // Busca múltiplos usuários (com senhas descriptografadas)
-    public List<UsuarioModelo> findByIds(List<Long> ids) {
-        List<UsuarioModelo> usuarios = userRepository.findByIds(ids);
-        usuarios.forEach(this::decryptPassword);
-        return usuarios;
+        return usuarioRepositorio.save(usuario);
     }
 
     /**
-     * Atualiza o nome de um usuário, validando-o primeiro.
+     * Login usando a classe Encrypt
      */
-    @Transactional
-    public int updateName(Long id, String newName) {
-        // Valida o novo nome
-        ValidationResult nameResult = validationService.validateUserData(newName);
-        if (!nameResult.isValid()) {
-            throw new IllegalArgumentException(nameResult.getErrorMessage());
+    public UsuarioModelo login(String name, String senhaDigitada) {
+
+        // Busca usuário pelo nome
+        Optional<UsuarioModelo> usuarioOpt = usuarioRepositorio.findByName(name);
+
+        if (usuarioOpt.isEmpty()) return null;
+
+        UsuarioModelo usuario = usuarioOpt.get();
+
+        // Criptografa a senha digitada para comparar
+        String senhaCriptografada = Encrypt.encrypt(senhaDigitada);
+
+        if (usuario.getSenha().equals(senhaCriptografada)) {
+            return usuario; // Login OK
         }
-        return userRepository.updateUserNameById(id, newName);
+
+        return null; // Senha incorreta
     }
 
     /**
-     * Atualiza a senha de um usuário, criptografando-a primeiro.
+     * Editar usuário (com atualização de senha opcional)
      */
-    @Transactional
-    public int updatePassword(Long id, String newPassword) {
-        if (newPassword == null || newPassword.isEmpty()) {
-            throw new IllegalArgumentException("Nova senha não pode ser nula ou vazia.");
+    public UsuarioModelo atualizarUsuario(Integer id, UsuarioModelo novosDados) {
+
+        UsuarioModelo existente = usuarioRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        existente.setName(novosDados.getName());
+
+        // Atualiza senha somente se nova senha vier preenchida
+        if (novosDados.getSenha() != null && !novosDados.getSenha().isBlank()) {
+            existente.setSenha(Encrypt.encrypt(novosDados.getSenha()));
         }
-        // Criptografa a nova senha antes de atualizar
-        String encryptedPassword = EncryptionService.encrypt(newPassword);
-        return userRepository.updateUserPasswordById(id, encryptedPassword);
+
+        return usuarioRepositorio.save(existente);
     }
 
-    // --- Métodos restantes permanecem os mesmos, pois lidam com biografia/foto ---
-
-    @Transactional
-    public int updateFotoPerfil(Long id, byte[] fotoPerfil) {
-        return userRepository.updateUserfotoPerfilById(id, fotoPerfil);
+    // Deletar usuário
+    public void deletarUsuario(Integer id) {
+        usuarioRepositorio.deleteById(id);
     }
 
-    @Transactional
-    public int updateBiografia(Long id, String biografia) {
-        return userRepository.updateUserbiografiaById(id, biografia);
+    // Buscar usuário por ID
+    public Optional<UsuarioModelo> buscarUsuarioPorId(Integer id) {
+        return usuarioRepositorio.findById(id);
     }
 
-    @Transactional
-    public int removeFotoPerfil(Long id) {
-        return userRepository.removeUserfotoPerfilById(id);
+    // Buscar usuário por nome
+    public Optional<UsuarioModelo> buscarUsuarioPorNome(String name) {
+        return usuarioRepositorio.findByName(name);
     }
 
-    @Transactional
-    public int removeBiografia(Long id) {
-        return userRepository.removeUserbiografiaById(id);
+    // Buscar usuário por nome ignorando case
+    public Optional<UsuarioModelo> buscarUsuarioPorNomeIgnorandoCase(String name) {
+        return usuarioRepositorio.findByNameIgnoreCase(name);
     }
 
-    @Transactional
-    public int deleteByName(String name) {
-        return userRepository.deleteByName(name);
-    }
+    // Editar senha
+    public void AtualizaSenha(Integer userId, String oldPassword, String newPassword) {
 
-    public byte[] getFotoPerfil(Long id) {
-        return userRepository.findfotoPerfilByUserId(id);
-    }
-
-    public String getBiografia(Long id) {
-        return userRepository.findbiografiaByUserId(id);
-    }
-
-    // --- MÉTODO AUXILIAR ---
-
-    /**
-     * Método auxiliar para descriptografar a senha de um usuário.
-     * Lida com senhas nulas ou falhas na descriptografia.
-     */
-    private void decryptPassword(UsuarioModelo usuario) {
-        if (usuario == null || usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-            return;
+        UsuarioModelo usuario = usuarioRepositorio.findById(userId.intValue())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+    
+        // Descriptografa a senha atual do banco
+        String senhaAtualDescriptografada = Encrypt.decrypt(usuario.getSenha());
+    
+        // Verifica se a senha antiga informada está correta
+        if (!senhaAtualDescriptografada.equals(oldPassword)) {
+            throw new IllegalArgumentException("Senha atual incorreta");
         }
-        
-        try {
-            String decryptedPassword = EncryptionService.decrypt(usuario.getPassword());
-            usuario.setPassword(decryptedPassword);
-        } catch (Exception e) {
-            // Log de erro (idealmente)
-            System.err.println("Falha ao descriptografar senha do usuário " + usuario.getId() + ": " + e.getMessage());
-            // Define a senha como nula para não expor a string criptografada
-            usuario.setPassword(null); 
-        }
+    
+        // Criptografa a nova senha
+        String novaSenhaCriptografada = Encrypt.encrypt(newPassword);
+    
+        // Atualiza e salva
+        usuario.setSenha(novaSenhaCriptografada);
+        usuarioRepositorio.save(usuario);
     }
+
+    // Atualizar Nome
+    public void AtualizarNome(Integer id, String newName) {
+
+        UsuarioModelo usuario = usuarioRepositorio.findById(id.intValue())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+    
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nome não pode ser vazio");
+        }
+    
+        usuario.setName(newName.trim());
+        usuarioRepositorio.save(usuario);
+    }
+
+    
+
 }

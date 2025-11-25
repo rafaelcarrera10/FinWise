@@ -31,7 +31,7 @@ public class ProfessorController {
 
     // Busca um professor pelo ID
     @GetMapping("/by-id")
-    public ResponseEntity<ProfessorModelo> getById(@RequestParam Long id) {
+    public ResponseEntity<ProfessorModelo> getById(@RequestParam Integer id) {
         return professorService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -70,27 +70,27 @@ public class ProfessorController {
 
     // Busca por uma lista de IDs
     @GetMapping("/by-ids")
-    public ResponseEntity<List<ProfessorModelo>> getByIds(@RequestParam List<Long> ids) {
+    public ResponseEntity<List<ProfessorModelo>> getByIds(@RequestParam List<Integer> ids) {
         return ResponseEntity.ok(professorService.findByIds(ids));
     }
 
     // Recupera a foto do perfil (codificada em Base64)
     @GetMapping("/foto-perfil")
-    public ResponseEntity<String> getFotoPerfil(@RequestParam Long id) {
+    public ResponseEntity<String> getFotoPerfil(@RequestParam Integer id) {
         String photoBase64 = professorService.getFotoPerfilBase64(id); // Assumindo que você crie este método no Service
         return photoBase64 != null ? ResponseEntity.ok(photoBase64) : ResponseEntity.notFound().build();
     }
 
     // Recupera a biografia
     @GetMapping("/biografia")
-    public ResponseEntity<String> getBiografia(@RequestParam Long id) {
+    public ResponseEntity<String> getBiografia(@RequestParam Integer id) {
         String biografia = professorService.getBiografia(id);
         return biografia != null ? ResponseEntity.ok(biografia) : ResponseEntity.notFound().build();
     }
 
     // Busca status por ID
     @GetMapping("/status")
-    public ResponseEntity<List<ProfessorModelo>> getStatusById(@RequestParam Long id) {
+    public ResponseEntity<List<ProfessorModelo>> getStatusById(@RequestParam Integer id) {
         List<ProfessorModelo> statusList = professorService.findStatusById(id);
         return ResponseEntity.ok(statusList);
     }
@@ -99,7 +99,7 @@ public class ProfessorController {
 
     // Deleta um professor pelo ID
     @PostMapping("/delete")
-    public ResponseEntity<Void> delete(@RequestParam Long id) {
+    public ResponseEntity<Void> delete(@RequestParam Integer id) {
         professorService.deleteById(id);
         return ResponseEntity.ok().build();
     }
@@ -107,7 +107,7 @@ public class ProfessorController {
     // Atualiza o nome, recebendo id e newName via Map
     @PostMapping("/update-name")
     public ResponseEntity<Void> updateName(@RequestBody Map<String, Object> body) {
-        Long id = ((Number) body.get("id")).longValue();
+        Integer id = ((Number) body.get("id")).intValue();
         String newName = (String) body.get("newName");
         
         professorService.updateName(id, newName);
@@ -117,7 +117,7 @@ public class ProfessorController {
     // Atualiza a senha, recebendo id e newPassword via Map
     @PostMapping("/update-password")
     public ResponseEntity<Void> updatePassword(@RequestBody Map<String, Object> body) {
-        Long id = ((Number) body.get("id")).longValue();
+        Integer id = ((Number) body.get("id")).intValue();
         String newPassword = (String) body.get("newPassword");
 
         professorService.updatePassword(id, newPassword);
@@ -127,7 +127,7 @@ public class ProfessorController {
     // Atualiza a biografia, recebendo id e biografia via Map
     @PostMapping("/update-biografia")
     public ResponseEntity<Void> updateBiografia(@RequestBody Map<String, Object> body) {
-        Long id = ((Number) body.get("id")).longValue();
+        Integer id = ((Number) body.get("id")).intValue();
         String biografia = (String) body.get("biografia");
 
         professorService.updateBiografia(id, biografia);
@@ -138,10 +138,10 @@ public class ProfessorController {
     @PostMapping("/update-foto-perfil")
     public ResponseEntity<Void> updateFotoPerfil(@RequestBody Map<String, Object> body) {
         try {
-            Long id = ((Number) body.get("id")).longValue();
+            Integer id = ((Number) body.get("id")).intValue();
             String photoBase64 = (String) body.get("photo"); // Recebe a foto como uma string Base64
 
-            professorService.updateFotoPerfilBase64(id, photoBase64); // Assumindo que você crie este método no Service
+            professorService.(id, photoBase64); // Assumindo que você crie este método no Service
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -150,14 +150,14 @@ public class ProfessorController {
 
     // Remove a foto de perfil
     @PostMapping("/remove-foto-perfil")
-    public ResponseEntity<Void> removeFotoPerfil(@RequestParam Long id) {
+    public ResponseEntity<Void> removeFotoPerfil(@RequestParam Integer id) {
         professorService.removeFotoPerfil(id);
         return ResponseEntity.ok().build();
     }
 
     // Remove a biografia
     @PostMapping("/remove-biografia")
-    public ResponseEntity<Void> removeBiografia(@RequestParam Long id) {
+    public ResponseEntity<Void> removeBiografia(@RequestParam Integer id) {
         professorService.removeBiografia(id);
         return ResponseEntity.ok().build();
     }
