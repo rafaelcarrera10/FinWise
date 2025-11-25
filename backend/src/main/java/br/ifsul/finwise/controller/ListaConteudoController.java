@@ -2,51 +2,72 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.ListaConteudoModelo;
 import br.ifsul.finwise.service.ListaConteudoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/lista-conteudo")
+@RequestMapping("/listas-conteudo")
+@CrossOrigin(origins = "*")
 public class ListaConteudoController {
 
-    @Autowired
-    private ListaConteudoService service;
+    private final ListaConteudoService service;
 
-    // Cria lista de conteúdo
+    public ListaConteudoController(ListaConteudoService service) {
+        this.service = service;
+    }
+
+    // Criar lista de conteúdo
     @PostMapping
-    public ListaConteudoModelo criar(@RequestBody ListaConteudoModelo lista) {
-        return service.criar(lista);
+    public ResponseEntity<?> criar(@RequestBody ListaConteudoModelo lista) {
+        try {
+            ListaConteudoModelo criada = service.salvar(lista);
+            return ResponseEntity.ok(criada);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // Busca lista por id
+    // Buscar lista por ID
     @GetMapping("/{id}")
-    public ListaConteudoModelo buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404).body("Lista de conteúdo não encontrada"));
     }
 
-    // Lista todo conteúdo
+    // Listar todas as listas
     @GetMapping
-    public List<ListaConteudoModelo> listarTudo() {
-        return service.listarTodas();
+    public ResponseEntity<List<ListaConteudoModelo>> listarTudo() {
+        return ResponseEntity.ok(service.listarTodas());
     }
 
-    // Lista conteúdo criado por um professor
-    @GetMapping("/professor/{idProf}")
-    public List<ListaConteudoModelo> listarPorProfessor(@PathVariable Integer idProf) {
-        return service.listarPorProfessor(idProf);
+    // Listar listas por professor
+    @GetMapping("/professor/{professorId}")
+    public ResponseEntity<List<ListaConteudoModelo>> listarPorProfessor(@PathVariable Integer professorId) {
+        return ResponseEntity.ok(service.buscarPorProfessor(professorId));
     }
 
-    // Atualiza lista
+    // Atualizar lista
     @PutMapping("/{id}")
-    public ListaConteudoModelo atualizar(@PathVariable Integer id, @RequestBody ListaConteudoModelo lista) {
-        return service.editar(id, lista);
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody ListaConteudoModelo lista) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(existing -> {
+                    ListaConteudoModelo atualizada = service.editar(id, lista);
+                    return ResponseEntity.ok(atualizada);
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("Lista de conteúdo não encontrada"));
     }
 
-    // Deleta lista
+    // Deletar lista
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(existing -> {
+                    service.deletar(id);
+                    return ResponseEntity.ok("Lista de conteúdo deletada com sucesso!");
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("Lista de conteúdo não encontrada"));
     }
 }

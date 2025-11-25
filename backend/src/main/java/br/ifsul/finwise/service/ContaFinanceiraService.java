@@ -15,35 +15,23 @@ public class ContaFinanceiraService {
         this.repositorio = repositorio;
     }
 
-    // Salvar conta financeira
     public ContaFinanceiraModelo salvar(ContaFinanceiraModelo conta) {
         return repositorio.save(conta);
     }
 
-    // Buscar por ID
     public Optional<ContaFinanceiraModelo> buscarPorId(Integer id) {
         return repositorio.findById(id);
     }
 
-    // Buscar conta por usuário
     public Optional<ContaFinanceiraModelo> buscarPorUsuario(Integer usuarioId) {
         return repositorio.findByUsuarioId(usuarioId);
     }
 
-    // Deletar por ID
-    public void deletar(Integer id) {
-        repositorio.deleteById(id);
+    public boolean existeParaUsuario(Integer usuarioId) {
+        return repositorio.existsByUsuarioId(usuarioId);
     }
 
-    // Atualizar conta
-    public ContaFinanceiraModelo editar(Integer id, ContaFinanceiraModelo conta) {
-        return repositorio.save(conta);
-    }
-
-    // Deletar por ID
     public void deletarPorId(Integer id) {
         repositorio.deleteById(id);
     }
 }
-    
-

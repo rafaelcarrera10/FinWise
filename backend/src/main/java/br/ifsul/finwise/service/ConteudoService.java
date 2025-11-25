@@ -1,9 +1,9 @@
 package br.ifsul.finwise.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import br.ifsul.finwise.model.ConteudoModelo;
 import br.ifsul.finwise.repository.ConteudoRepositorio;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,38 +14,67 @@ public class ConteudoService {
     @Autowired
     private ConteudoRepositorio conteudoRepositorio;
 
-    // Criar ou atualizar conteúdo
+    /**
+     * Salva ou atualiza um conteúdo.
+     */
     public ConteudoModelo save(ConteudoModelo conteudo) {
+        validarCamposObrigatorios(conteudo);
         return conteudoRepositorio.save(conteudo);
     }
 
-    // Buscar todos
+    /**
+     * Retorna todos os conteúdos cadastrados.
+     */
     public List<ConteudoModelo> findAll() {
         return conteudoRepositorio.findAll();
     }
 
-    // Buscar por ID
+    /**
+     * Busca um conteúdo pelo ID.
+     */
     public Optional<ConteudoModelo> findById(Integer id) {
         return conteudoRepositorio.findById(id);
     }
 
-    // Buscar por título
-    public Optional<ConteudoModelo> findByTitulo(String titulo) {
-        return conteudoRepositorio.findByTitulo(titulo);
+    /**
+     * Remove um conteúdo pelo ID.
+     * Lança exceção se o ID não for encontrado.
+     */
+    public void deleteById(Integer id) {
+        if (!conteudoRepositorio.existsById(id)) {
+            throw new IllegalArgumentException("Conteúdo não encontrado para exclusão.");
+        }
+        conteudoRepositorio.deleteById(id);
     }
 
-    // Buscar por título parcialmente
-    public List<ConteudoModelo> searchByTitulo(String palavraChave) {
-        return conteudoRepositorio.findByTituloContainingIgnoreCase(palavraChave);
+    /**
+     * Busca conteúdos contendo parte do título.
+     */
+    public List<ConteudoModelo> searchByTitulo(String titulo) {
+        return conteudoRepositorio.findByTituloContainingIgnoreCase(titulo);
     }
 
-    // Buscar conteúdos de um professor
+    /**
+     * Busca conteúdos pertencentes a um professor.
+     */
     public List<ConteudoModelo> buscarPorProfessor(Integer professorId) {
         return conteudoRepositorio.findByProfessorId(professorId);
     }
 
-    // Deletar
-    public void deleteById(Integer id) {
-        conteudoRepositorio.deleteById(id);
+    /**
+     * Valida campos obrigatórios do conteúdo antes de salvar.
+     */
+    private void validarCamposObrigatorios(ConteudoModelo conteudo) {
+        if (conteudo.getTitulo() == null || conteudo.getTitulo().isBlank()) {
+            throw new IllegalArgumentException("Título é obrigatório.");
+        }
+
+        if (conteudo.getDescricao() == null || conteudo.getDescricao().isBlank()) {
+            throw new IllegalArgumentException("Descrição é obrigatória.");
+        }
+
+        if (conteudo.getProfessor() == null) {
+            throw new IllegalArgumentException("O conteúdo deve estar associado a um professor.");
+        }
     }
 }

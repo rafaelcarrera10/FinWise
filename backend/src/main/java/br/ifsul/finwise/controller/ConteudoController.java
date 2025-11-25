@@ -4,12 +4,12 @@ import br.ifsul.finwise.model.ConteudoModelo;
 import br.ifsul.finwise.model.ProfessorModelo;
 import br.ifsul.finwise.service.ConteudoService;
 import br.ifsul.finwise.service.ProfessorService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/conteudos")
@@ -20,56 +20,89 @@ public class ConteudoController {
     private ConteudoService conteudoService;
 
     @Autowired
-    private ProfessorService professorService; // Usado para buscar o professor
+    private ProfessorService professorService;
 
-    // Cria um novo conteúdo
-    @PostMapping("/create")
-    public ResponseEntity<ConteudoModelo> create(@RequestBody ConteudoModelo conteudo) {
-        return ResponseEntity.ok(conteudoService.save(conteudo));
+    // Criar conteúdo (valida se professor existe e está ativo)
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody ConteudoModelo conteudo) {
+
+        // Verifica professor
+        if (conteudo.getProfessor() == null || conteudo.getProfessor().getId() == null) {
+            return ResponseEntity.badRequest().body("Professor não informado.");
+        }
+
+        ProfessorModelo professor = professorService.findById(
+                conteudo.getProfessor().getId()
+        ).orElse(null);
+
+        if (professor == null) {
+            return ResponseEntity.badRequest().body("Professor não encontrado.");
+        }
+
+        if (!Boolean.TRUE.equals(professor.getStatus())) {
+            return ResponseEntity.status(403).body("Professor inativo.");
+        }
+
+        ConteudoModelo saved = conteudoService.save(conteudo);
+        return ResponseEntity.ok(saved);
     }
 
-    // Lista todos os conteúdos
-    @GetMapping("/all")
+    // Listar todos
+    @GetMapping
     public ResponseEntity<List<ConteudoModelo>> getAll() {
         return ResponseEntity.ok(conteudoService.findAll());
     }
 
-    // Busca conteúdo por ID
-    @GetMapping("/by-id")
-    public ResponseEntity<ConteudoModelo> getById(@RequestParam Integer id) {
+    // Buscar por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Integer id) {
         return conteudoService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Busca conteúdo por título exato
-    @GetMapping("/by-titulo")
-    public ResponseEntity<ConteudoModelo> getByTitulo(@RequestParam String titulo) {
-        return conteudoService.findByTitulo(titulo)
-                .map(ResponseEntity::ok)
+    // Atualizar conteúdo
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable Integer id,
+            @RequestBody ConteudoModelo conteudo) {
+
+        return conteudoService.findById(id)
+                .map(existing -> {
+                    conteudo.setId(id);
+                    ConteudoModelo updated = conteudoService.save(conteudo);
+                    return ResponseEntity.ok(updated);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Busca conteúdo por palavra-chave no título
-    @GetMapping("/search")
-    public ResponseEntity<List<ConteudoModelo>> searchByTitulo(@RequestParam("q") String palavraChave) {
-        return ResponseEntity.ok(conteudoService.searchByTitulo(palavraChave));
-    }
-
-    // Busca conteúdos de um professor específico
-    @GetMapping("/by-professor")
-    public ResponseEntity<List<ConteudoModelo>> getByProfessor(@RequestParam Integer professorId) {
-        Optional<ProfessorModelo> professor = professorService.findById(professorId);
-        if (professor.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Professor não encontrado
-        }
-        return ResponseEntity.ok(conteudoService.findByProfessor(professor.get()));
-    }
-
-    // Deleta um conteúdo pelo ID
-    @PostMapping("/delete")
-    public ResponseEntity<Void> delete(@RequestParam Integer id) {
+    // Deletar por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         conteudoService.deleteById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
+    }
+
+    // Buscar por título parcial
+    @GetMapping("/search")
+    public ResponseEntity<List<ConteudoModelo>> search(@RequestParam String titulo) {
+        return ResponseEntity.ok(conteudoService.searchByTitulo(titulo));
+    }
+
+    // Conteúdos por professor
+    @GetMapping("/professor/{professorId}")
+    public ResponseEntity<?> byProfessor(@PathVariable Integer professorId) {
+
+        ProfessorModelo professor = professorService.findById(professorId).orElse(null);
+
+        if (professor == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!Boolean.TRUE.equals(professor.getStatus())) {
+            return ResponseEntity.status(403).body("Professor inativo.");
+        }
+
+        return ResponseEntity.ok(conteudoService.buscarPorProfessor(professorId));
     }
 }

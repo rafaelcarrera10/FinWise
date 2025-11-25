@@ -2,9 +2,12 @@ package br.ifsul.finwise.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.ifsul.finwise.model.UsuarioModelo;
 import br.ifsul.finwise.repository.UsuarioRepositorio;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,59 +17,79 @@ public class UsuarioService {
     private UsuarioRepositorio usuarioRepositorio;
 
     @Autowired
-    private EncryptionService Encrypt;
+    private EncryptionService encryptService;
 
-
-    /**
-     * Cadastro de usuário com criptografia SHA-256
-     */
+    // Criação de usuário com criptografia
     public UsuarioModelo criarUsuario(UsuarioModelo usuario) {
+        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Senha não pode ser vazia");
+        }
 
-        // Criptografa a senha
-        String senhaCriptografada = Encrypt.encrypt(usuario.getSenha());
+        String senhaCriptografada = encryptService.encrypt(usuario.getSenha());
         usuario.setSenha(senhaCriptografada);
 
         return usuarioRepositorio.save(usuario);
     }
 
-    /**
-     * Login usando a classe Encrypt
-     */
-    public UsuarioModelo login(String name, String senhaDigitada) {
+    // Login
+    public Optional<UsuarioModelo> login(String emailOuNome, String senhaDigitada) {
+        Optional<UsuarioModelo> usuarioOpt = usuarioRepositorio.findByName(emailOuNome);
 
-        // Busca usuário pelo nome
-        Optional<UsuarioModelo> usuarioOpt = usuarioRepositorio.findByName(name);
-
-        if (usuarioOpt.isEmpty()) return null;
+        if (usuarioOpt.isEmpty()) return Optional.empty();
 
         UsuarioModelo usuario = usuarioOpt.get();
-
-        // Criptografa a senha digitada para comparar
-        String senhaCriptografada = Encrypt.encrypt(senhaDigitada);
+        String senhaCriptografada = encryptService.encrypt(senhaDigitada);
 
         if (usuario.getSenha().equals(senhaCriptografada)) {
-            return usuario; // Login OK
+            return Optional.of(usuario);
         }
-
-        return null; // Senha incorreta
+        return Optional.empty();
     }
 
-    /**
-     * Editar usuário (com atualização de senha opcional)
-     */
+    // Atualizar usuário
+    @Transactional
     public UsuarioModelo atualizarUsuario(Integer id, UsuarioModelo novosDados) {
-
         UsuarioModelo existente = usuarioRepositorio.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-        existente.setName(novosDados.getName());
+        if (novosDados.getName() != null && !novosDados.getName().isBlank()) {
+            existente.setName(novosDados.getName().trim());
+        }
 
-        // Atualiza senha somente se nova senha vier preenchida
         if (novosDados.getSenha() != null && !novosDados.getSenha().isBlank()) {
-            existente.setSenha(Encrypt.encrypt(novosDados.getSenha()));
+            existente.setSenha(encryptService.encrypt(novosDados.getSenha()));
         }
 
         return usuarioRepositorio.save(existente);
+    }
+
+    // Atualizar senha
+    @Transactional
+    public void atualizarSenha(Integer id, String oldPassword, String newPassword) {
+        UsuarioModelo usuario = usuarioRepositorio.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        String senhaAtualDescriptografada = encryptService.decrypt(usuario.getSenha());
+        if (!senhaAtualDescriptografada.equals(oldPassword)) {
+            throw new IllegalArgumentException("Senha atual incorreta");
+        }
+
+        usuario.setSenha(encryptService.encrypt(newPassword));
+        usuarioRepositorio.save(usuario);
+    }
+
+    // Atualizar nome
+    @Transactional
+    public void atualizarNome(Integer id, String newName) {
+        if (newName == null || newName.isBlank()) {
+            throw new IllegalArgumentException("Nome não pode ser vazio");
+        }
+
+        UsuarioModelo usuario = usuarioRepositorio.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        usuario.setName(newName.trim());
+        usuarioRepositorio.save(usuario);
     }
 
     // Deletar usuário
@@ -74,57 +97,20 @@ public class UsuarioService {
         usuarioRepositorio.deleteById(id);
     }
 
-    // Buscar usuário por ID
+    // Buscas
     public Optional<UsuarioModelo> buscarUsuarioPorId(Integer id) {
         return usuarioRepositorio.findById(id);
     }
 
-    // Buscar usuário por nome
     public Optional<UsuarioModelo> buscarUsuarioPorNome(String name) {
         return usuarioRepositorio.findByName(name);
     }
 
-    // Buscar usuário por nome ignorando case
     public Optional<UsuarioModelo> buscarUsuarioPorNomeIgnorandoCase(String name) {
         return usuarioRepositorio.findByNameIgnoreCase(name);
     }
 
-    // Editar senha
-    public void AtualizaSenha(Integer userId, String oldPassword, String newPassword) {
-
-        UsuarioModelo usuario = usuarioRepositorio.findById(userId.intValue())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-    
-        // Descriptografa a senha atual do banco
-        String senhaAtualDescriptografada = Encrypt.decrypt(usuario.getSenha());
-    
-        // Verifica se a senha antiga informada está correta
-        if (!senhaAtualDescriptografada.equals(oldPassword)) {
-            throw new IllegalArgumentException("Senha atual incorreta");
-        }
-    
-        // Criptografa a nova senha
-        String novaSenhaCriptografada = Encrypt.encrypt(newPassword);
-    
-        // Atualiza e salva
-        usuario.setSenha(novaSenhaCriptografada);
-        usuarioRepositorio.save(usuario);
+    public List<UsuarioModelo> buscarPorFragmentoNome(String fragment) {
+        return usuarioRepositorio.findByNameContainingIgnoreCase(fragment);
     }
-
-    // Atualizar Nome
-    public void AtualizarNome(Integer id, String newName) {
-
-        UsuarioModelo usuario = usuarioRepositorio.findById(id.intValue())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-    
-        if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome não pode ser vazio");
-        }
-    
-        usuario.setName(newName.trim());
-        usuarioRepositorio.save(usuario);
-    }
-
-    
-
 }

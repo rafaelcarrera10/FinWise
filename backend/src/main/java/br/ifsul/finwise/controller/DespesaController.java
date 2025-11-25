@@ -2,51 +2,72 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.DespesaModelo;
 import br.ifsul.finwise.service.DespesaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/despesa")
+@RequestMapping("/despesas")
+@CrossOrigin(origins = "*")
 public class DespesaController {
 
-    @Autowired
-    private DespesaService service;
+    private final DespesaService service;
 
-    // Cria despesa
+    public DespesaController(DespesaService service) {
+        this.service = service;
+    }
+
+    // Criar despesa
     @PostMapping
-    public DespesaModelo criar(@RequestBody DespesaModelo despesa) {
-        return service.criar(despesa);
+    public ResponseEntity<?> criar(@RequestBody DespesaModelo despesa) {
+        try {
+            DespesaModelo criada = service.criar(despesa);
+            return ResponseEntity.ok(criada);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // Busca despesa por id
+    // Buscar despesa por ID
     @GetMapping("/{id}")
-    public DespesaModelo buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(despesa -> ResponseEntity.ok(despesa))
+                .orElseGet(() -> ResponseEntity.status(404).body("Despesa não encontrada"));
     }
 
-    // Lista despesas de uma conta
+    // Listar despesas por conta
     @GetMapping("/conta/{contaId}")
-    public List<DespesaModelo> buscarPorConta(@PathVariable Integer contaId) {
-        return service.buscarPorConta(contaId);
+    public ResponseEntity<List<DespesaModelo>> buscarPorConta(@PathVariable Integer contaId) {
+        return ResponseEntity.ok(service.buscarPorConta(contaId));
     }
 
-    // Lista despesas por categoria
+    // Listar despesas por categoria
     @GetMapping("/categoria/{catId}")
-    public List<DespesaModelo> buscarPorCategoria(@PathVariable Integer catId) {
-        return service.buscarPorCategoria(catId);
+    public ResponseEntity<List<DespesaModelo>> buscarPorCategoria(@PathVariable Integer catId) {
+        return ResponseEntity.ok(service.buscarPorCategoria(catId));
     }
 
-    // Atualiza despesa
+    // Atualizar despesa
     @PutMapping("/{id}")
-    public DespesaModelo atualizar(@PathVariable Integer id, @RequestBody DespesaModelo despesa) {
-        return service.editar(id, despesa);
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody DespesaModelo despesa) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(d -> {
+                    DespesaModelo atualizada = service.editar(id, despesa);
+                    return ResponseEntity.ok(atualizada);
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("Despesa não encontrada"));
     }
 
-    // Deleta despesa
+    // Deletar despesa
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
+        return service.buscarPorId(id)
+                .<ResponseEntity<?>>map(d -> {
+                    service.deletar(id);
+                    return ResponseEntity.ok("Despesa deletada com sucesso!");
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("Despesa não encontrada"));
     }
 }

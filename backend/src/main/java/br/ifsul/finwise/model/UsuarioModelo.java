@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     property = "role" // campo no JSON que indica o tipo
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = StudentModel.class, name = "aluno"),
-    @JsonSubTypes.Type(value = TeacherModel.class, name = "professor"),
+    @JsonSubTypes.Type(value = AlunoModelo.class, name = "aluno"),
+    @JsonSubTypes.Type(value = ProfessorModelo.class, name = "professor"),
 })
 
 @Entity

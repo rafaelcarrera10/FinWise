@@ -1,7 +1,9 @@
 package br.ifsul.finwise.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import br.ifsul.finwise.model.VideoModelo;
 import br.ifsul.finwise.model.TagEnum;
 import br.ifsul.finwise.repository.VideoRepositorio;
@@ -30,7 +32,7 @@ public class VideoService {
         return videoRepositorio.findById(id);
     }
 
-    // Buscar por título
+    // Buscar por título exato
     public Optional<VideoModelo> findByTitulo(String titulo) {
         return videoRepositorio.findByTitulo(titulo);
     }
@@ -46,7 +48,11 @@ public class VideoService {
     }
 
     // Deletar vídeo
+    @Transactional
     public void deleteById(Integer id) {
+        if (!videoRepositorio.existsById(id)) {
+            throw new IllegalArgumentException("Vídeo não encontrado");
+        }
         videoRepositorio.deleteById(id);
     }
 }

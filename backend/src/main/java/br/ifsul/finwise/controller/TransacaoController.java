@@ -2,46 +2,65 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.TransacaoModelo;
 import br.ifsul.finwise.service.TransacaoService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
-@RequestMapping("/transacao")
+@RequestMapping("/transacoes")
+@CrossOrigin(origins = "*")
 public class TransacaoController {
 
-    @Autowired
-    private TransacaoService service;
+    private final TransacaoService service;
 
-    // Cria transação
-    @PostMapping
-    public TransacaoModelo criar(@RequestBody TransacaoModelo transacao) {
-        return service.salvar(transacao);
+    public TransacaoController(TransacaoService service) {
+        this.service = service;
     }
 
-    // Busca transação por id
-    @GetMapping("/{id}")
-    public Optional<TransacaoModelo> buscarPorId(@PathVariable Integer id) {
-        return service.buscarPorId(id);
+    // Cria transação
+    @PostMapping("/create")
+    public ResponseEntity<TransacaoModelo> criar(@RequestBody TransacaoModelo transacao) {
+        try {
+            TransacaoModelo t = service.salvar(transacao);
+            return ResponseEntity.ok(t);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // Busca transação por ID
+    @GetMapping("/by-id/{id}")
+    public ResponseEntity<TransacaoModelo> buscarPorId(@PathVariable Integer id) {
+        return service.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Lista transações de uma conta financeira
     @GetMapping("/conta/{contaId}")
-    public List<TransacaoModelo> buscarPorConta(@PathVariable Integer contaId) {
-        return service.listarPorConta(contaId);
+    public ResponseEntity<List<TransacaoModelo>> buscarPorConta(@PathVariable Integer contaId) {
+        List<TransacaoModelo> lista = service.listarPorConta(contaId);
+        return lista.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(lista);
     }
 
     // Atualiza transação
-    @PutMapping("/{id}")
-    public TransacaoModelo atualizar(@PathVariable Integer id, @RequestBody TransacaoModelo transacao) {
-        return service.atualizarTransacao(id, transacao);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<TransacaoModelo> atualizar(@PathVariable Integer id, @RequestBody TransacaoModelo transacao) {
+        try {
+            TransacaoModelo t = service.atualizarTransacao(id, transacao);
+            return ResponseEntity.ok(t);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // Deleta transação
-    @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Integer id) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         service.deletar(id);
+        return ResponseEntity.ok().build();
     }
 }

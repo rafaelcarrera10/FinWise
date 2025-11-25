@@ -2,12 +2,13 @@ package br.ifsul.finwise.controller;
 
 import br.ifsul.finwise.model.UsuarioModelo;
 import br.ifsul.finwise.service.UsuarioService;
+import br.ifsul.finwise.service.EncryptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import br.ifsul.finwise.service.EncryptionService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,92 +21,100 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private EncryptionService Encrypt;
+    private EncryptionService encryptService;
 
-    // ----------- CRIPTOGRAFIA / DESCRIPTOGRAFIA -----------
-
+    // Criptografia / Descriptografia
     @PostMapping("/encrypt")
     public ResponseEntity<String> encrypt(@RequestBody String data) {
-        return ResponseEntity.ok(Encrypt.encrypt(data));
+        return ResponseEntity.ok(encryptService.encrypt(data));
     }
 
     @PostMapping("/decrypt")
     public ResponseEntity<String> decrypt(@RequestBody String data) {
         try {
-            return ResponseEntity.ok(Encrypt.decrypt(data));
+            return ResponseEntity.ok(encryptService.decrypt(data));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Falha ao descriptografar");
         }
     }
 
-    // ----------- CRIAÇÃO DE USUÁRIO -----------
-
+    // Criar usuário
     @PostMapping("/create")
     public ResponseEntity<UsuarioModelo> create(@RequestBody UsuarioModelo user) {
         try {
-            return ResponseEntity.ok(usuarioService.criarUsuario(user));
+            UsuarioModelo created = usuarioService.criarUsuario(user);
+            return ResponseEntity.ok(created);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    // ----------- LOGIN -----------
-
+    // Login
     @PostMapping("/login")
-        public ResponseEntity<UsuarioModelo> login(@RequestBody Map<String, Object> body) {
-        String email = (String) body.get("email");
+    public ResponseEntity<UsuarioModelo> login(@RequestBody Map<String, Object> body) {
+        String name = (String) body.get("name");
         String password = (String) body.get("password");
 
-        UsuarioModelo usuario = usuarioService.login(email, password);
+        Optional<UsuarioModelo> usuario = usuarioService.login(name, password);
 
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.status(401).build();
+        return usuario.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.status(401).build());
+    }
+
+    // Buscar usuário por ID
+    @GetMapping("/by-id")
+    public ResponseEntity<UsuarioModelo> getById(@RequestParam Integer id) {
+        Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(id);
+        return usuario.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Buscar usuário por nome
+    @GetMapping("/by-name")
+    public ResponseEntity<UsuarioModelo> getByName(@RequestParam String name) {
+        Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorNome(name);
+        return usuario.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Buscar por fragmento de nome
+    @GetMapping("/search")
+    public ResponseEntity<List<UsuarioModelo>> searchByFragment(@RequestParam String q) {
+        List<UsuarioModelo> usuarios = usuarioService.buscarPorFragmentoNome(q);
+        return ResponseEntity.ok(usuarios);
+    }
+
+    // Atualizar nome
+    @PostMapping("/update-name")
+    public ResponseEntity<Void> updateName(@RequestBody Map<String, Object> body) {
+        try {
+            Integer id = ((Number) body.get("id")).intValue();
+            String newName = (String) body.get("newName");
+            usuarioService.atualizarNome(id, newName);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    // BUSCAS 
-
-
-    @GetMapping("/by-name")
-    public ResponseEntity<Optional<UsuarioModelo>> getByName(@RequestParam String name) {
-        return ResponseEntity.ok(usuarioService.buscarUsuarioPorNome(name));
-    }
-
-    // TUALIZAÇÕES
-
-    @PostMapping("/update-name")
-    public ResponseEntity<Void> updateName(@RequestBody Map<String, Object> body) {
-        Integer id = ((Number) body.get("id")).intValue();
-        String newName = (String) body.get("newName");
-
-        usuarioService.AtualizarNome(id, newName);
-        return ResponseEntity.ok().build();
-    }
-
-
+    // Atualizar senha
     @PostMapping("/update-password")
     public ResponseEntity<Void> updatePassword(@RequestBody Map<String, Object> body) {
-        Integer userId = ((Number) body.get("userId")).intValue();
-        String oldPassword = (String) body.get("oldPassword");
-        String newPassword = (String) body.get("newPassword");
-
         try {
-            usuarioService.AtualizaSenha(userId, oldPassword, newPassword);
+            Integer id = ((Number) body.get("id")).intValue();
+            String oldPassword = (String) body.get("oldPassword");
+            String newPassword = (String) body.get("newPassword");
+            usuarioService.atualizarSenha(id, oldPassword, newPassword);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).build();
         }
     }
 
-    // ----------- REMOÇÕES -----------
-
+    // Deletar usuário
     @PostMapping("/delete-by-id")
-    public ResponseEntity<Void> deleteByName(@RequestParam Integer id) {
+    public ResponseEntity<Void> deleteById(@RequestParam Integer id) {
         usuarioService.deletarUsuario(id);
         return ResponseEntity.ok().build();
     }
-
-
 }
