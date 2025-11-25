@@ -17,6 +17,7 @@ import jakarta.validation.constraints.Size;
 @Table(name = "professor")
 public class ProfessorModelo extends UsuarioModelo {
     
+    
     // Atributos
 
     @Column(name = "status", nullable = false)
@@ -30,6 +31,7 @@ public class ProfessorModelo extends UsuarioModelo {
     @Column(name = "biografia", nullable = false)
     @NotNull(message = "Biografia não pode ser nulo")
     private String biografia;
+    
 
     // Relacionamentos
 

@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "Despesa")
 public class DespesaModelo extends TransacaoModelo {
     
+    
     // Atributos
 
     @Column(name = "status", nullable = false)

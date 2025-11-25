@@ -42,6 +42,7 @@ public abstract class ConteudoModelo{
     @Column(name = "titulo", nullable = false)
     @NotNull(message = "titulo não pode ser nulo")
     private String titulo;
+    
 
     // Relacionamentos
 

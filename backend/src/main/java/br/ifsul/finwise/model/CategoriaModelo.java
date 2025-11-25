@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "categoria")
 public class CategoriaModelo {
     
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
