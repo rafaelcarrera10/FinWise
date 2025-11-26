@@ -1,139 +1,200 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import VideoIcon from "lucide-svelte/icons/video";
-  import X from "lucide-svelte/icons/x";
+  import type { Video } from "$lib/api/video";
+  import type { PublicacaoDTO } from "$lib/api/publicacao";
 
-  import { VideoAPI, type Video } from '$lib/api/video';
-  import { TagAPI, type Tag } from '$lib/api/tag';
+  let videos: Video[] = [];
+  let publicacoes: PublicacaoDTO[] = [];
 
-  // Ex: src/routes/home/+page.ts
-import { protectRoute } from '$lib/utils/auth';
-
-export const load = async () => {
-  protectRoute();
-  return {};
-};
-
-
-  // Estrutura da tela
-  interface TagComVideos {
-    tag: Tag;     
-    videos: Video[];
-  }
-
-  let tagsComVideos: TagComVideos[] = [];
-  let loading = true;
   let selectedVideo: Video | null = null;
+  let selectedPublicacao: PublicacaoDTO | null = null;
 
-  function openVideo(video: Video) {
-    selectedVideo = video;
+  function toEmbed(url: string) {
+    if (!url) return "";
+    if (url.includes("embed")) return url;
+
+    const normal = url.match(/v=([^&]+)/);
+    if (normal) return `https://www.youtube.com/embed/${normal[1]}`;
+
+    const short = url.match(/youtu\.be\/([^?]+)/);
+    if (short) return `https://www.youtube.com/embed/${short[1]}`;
+
+    return url;
   }
 
-  function closeVideo() {
-    selectedVideo = null;
-  }
-
-  // Busca categorias + vídeos ao carregar
-  onMount(async () => {
-    try {
-      const categorias: Tag[] = await TagAPI.getAll();
-
-      const carregadas: TagComVideos[] = [];
-
-      for (const cat of categorias) {
-        const videos: Video[] = await VideoAPI.getByTag(cat); // cat é string literal
-        carregadas.push({ tag: cat, videos });
-      }
-
-      tagsComVideos = carregadas;
-    } catch (err) {
-      console.error("Erro carregando categorias/vídeos:", err);
-    } finally {
-      loading = false;
+  function handleKey(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      selectedVideo = null;
+      selectedPublicacao = null;
     }
+  }
+
+  async function loadData() {
+    try {
+      const resVideos = await fetch("http://localhost:8080/videos/all");
+      videos = await resVideos.json();
+
+      const resPubs = await fetch("http://localhost:8080/publicacoes/all");
+      publicacoes = await resPubs.json();
+    } catch (err) {
+      console.error("Erro ao carregar conteúdos:", err);
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener("keydown", handleKey);
+    loadData();
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
   });
 </script>
 
-<div class="min-h-screen p-8 text-white flex flex-col items-center">
-  <div class="w-full max-w-6xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-8">
+<!-- CONTAINER PRINCIPAL -->
+<div class="min-h-screen flex flex-col items-center justify-center p-6 text-white">
+  <div class="w-full max-w-6xl bg-slate-800/60 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8 space-y-10">
 
-    <h1 class="text-3xl font-semibold text-center">Educação Financeira</h1>
+    <!-- VÍDEOS -->
+    <div>
+      <h1 class="text-3xl font-bold mb-6">Vídeo Aulas</h1>
 
-    {#if loading}
-      <p class="text-center text-gray-300">Carregando conteúdo...</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        {#each videos as v}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            class="bg-slate-900/40 p-4 rounded-xl shadow-inner cursor-pointer hover:scale-[1.02] transition space-y-3"
+            on:click={() => (selectedVideo = v)}
+          >
+              <!-- svelte-ignore a11y_missing_attribute -->
+            <div class="relative w-full h-48 overflow-hidden rounded-lg">
+              <iframe
+                src={toEmbed(v.videoUrl) + "?controls=0&disablekb=1&modestbranding=1"}
+                class="absolute inset-0 w-full h-full opacity-60 pointer-events-none"
+              ></iframe>
+
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="bg-black/60 text-white text-sm px-3 py-1 rounded-lg">
+                  Prévia
+                </span>
+              </div>
+            </div>
+
+            <h2 class="text-xl font-semibold">{v.titulo}</h2>
+            <p class="text-blue-300 underline">Acesse aqui para assistir</p>
+          </div>
+        {/each}
+
+        {#if videos.length === 0}
+          <p class="text-gray-300">Nenhum vídeo encontrado.</p>
+        {/if}
+      </div>
+    </div>
+
+    <!-- PUBLICAÇÕES -->
+    <div>
+      <h1 class="text-3xl font-bold mt-6 mb-6">Publicações</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {#each publicacoes as p}
+  <button
+    type="button"
+    class="bg-slate-900/40 p-4 rounded-xl shadow-inner space-y-3 cursor-pointer 
+           hover:scale-[1.02] transition w-full text-left"
+    on:click={() => (selectedPublicacao = p)}
+  >
+
+    {#if p.fotos && p.fotos.length > 0}
+      <img
+        src={"data:image/jpeg;base64," + p.fotos[0]}
+        class="w-full h-48 object-cover rounded-lg"
+        alt="Imagem da publicação"
+      />
     {/if}
 
-    {#each tagsComVideos as bloco}
-      <section class="space-y-4">
+    <h2 class="text-xl font-semibold">{p.titulo}</h2>
 
-        <h2 class="text-2xl font-bold border-b border-slate-700 pb-2">
-          {bloco.tag} <!-- usa a string diretamente -->
-        </h2>
+    <p class="text-blue-300 underline">Acessar</p>
 
-        <!-- CARROSSEL -->
-        <div class="flex gap-6 overflow-x-auto pb-4" style="scroll-snap-type: x mandatory;">
-          
-          {#each bloco.videos as video}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <div
-              class="min-w-[260px] bg-slate-900/40 p-4 rounded-xl shadow-inner cursor-pointer hover:bg-slate-900/60 transition"
-              style="scroll-snap-align: start;"
-              on:click={() => openVideo(video)}
-            >
-              <div class="aspect-video bg-black/40 rounded-lg mb-3 flex items-center justify-center text-slate-400">
-                <VideoIcon size="48" />
-              </div>
+  </button>
+{/each}
 
-              <h3 class="text-lg font-semibold">{video.titulo}</h3>
-
-              <p class="text-gray-400 text-sm mt-1">
-                Clique para abrir a aula
-              </p>
-            </div>
-          {/each}
-
-          <div class="min-w-[20px]"></div>
-        </div>
-      </section>
-    {/each}
-  </div>
-
-  <!-- MODAL -->
-  {#if selectedVideo}
-    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div class="bg-white text-black rounded-xl shadow-xl p-6 max-w-3xl w-full space-y-4 relative">
-
-        <button
-          on:click={closeVideo}
-          class="absolute right-4 top-4 text-black hover:text-red-600"
-        >
-          <X size="22" />
-        </button>
-
-        <h2 class="text-2xl font-bold">{selectedVideo.titulo}</h2>
-
-        <div class="w-full aspect-video">
-          <!-- svelte-ignore a11y_missing_attribute -->
-          <iframe
-            src={selectedVideo.video}
-            class="w-full h-full rounded-lg border border-gray-300"
-            allowfullscreen
-          ></iframe>
-        </div>
-
-        <p class="text-gray-700">{selectedVideo.descricao}</p>
-
-        <div class="flex justify-end">
-          <button
-            on:click={closeVideo}
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Fechar
-          </button>
-        </div>
+        {#if publicacoes.length === 0}
+          <p class="text-gray-300">Nenhuma publicação encontrada.</p>
+        {/if}
 
       </div>
     </div>
-  {/if}
+
+  </div>
 </div>
+
+<!-- MODAL DO VÍDEO -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+{#if selectedVideo}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+    on:click={() => (selectedVideo = null)}
+  >
+    <div
+      class="bg-white p-6 rounded-xl w-11/12 max-w-3xl shadow-xl relative"
+      on:click|stopPropagation
+    >
+      <h2 class="text-2xl font-bold mb-4">{selectedVideo.titulo}</h2>
+
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <iframe
+        src={toEmbed(selectedVideo.videoUrl)}
+        class="w-full h-72 rounded-lg mb-4"
+        allowfullscreen
+      ></iframe>
+
+      <p class="text-gray-600 mb-4">{selectedVideo.descricao}</p>
+
+      <button
+        class="absolute top-3 right-4 text-xl font-bold text-gray-500 hover:text-black"
+        on:click={() => (selectedVideo = null)}
+      > x
+      </button>
+    </div>
+  </div>
+{/if}
+
+<!-- MODAL DA PUBLICAÇÃO -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+{#if selectedPublicacao}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+    on:click={() => (selectedPublicacao = null)}
+  >
+    <div
+      class="bg-white p-6 rounded-xl w-11/12 max-w-3xl shadow-xl relative text-black"
+      on:click|stopPropagation
+    >
+      <h2 class="text-3xl font-bold mb-4">{selectedPublicacao.titulo}</h2>
+
+      <p class="mb-4 whitespace-pre-line">{selectedPublicacao.texto}</p>
+
+      {#if selectedPublicacao.fotos && selectedPublicacao.fotos.length > 0}
+        <!-- svelte-ignore a11y_missing_attribute -->
+        <img
+          src={"data:image/jpeg;base64," + selectedPublicacao.fotos[0]}
+          class="w-full rounded-lg mb-4"
+        />
+      {/if}
+
+      <button
+        class="absolute top-3 right-4 text-xl font-bold text-gray-500 hover:text-black"
+        on:click={() => (selectedPublicacao = null)}
+      >
+        ×
+      </button>
+    </div>
+  </div>
+{/if}

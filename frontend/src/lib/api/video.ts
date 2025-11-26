@@ -1,13 +1,8 @@
-import type { Tag } from "./tag";
-
 export interface Video {
   id?: number;
-  descricao: string;
-  tag: Tag; // usa o type Tag do tagApi
   titulo: string;
-  video: string;
-  professorId?: number;
-  usuariosFavoritosIds?: number[];
+  descricao: string;
+  videoUrl: string; // vem do DTO agora
 }
 
 const BASE_URL = "http://localhost:8080/videos";
@@ -41,17 +36,16 @@ export const VideoAPI = {
   },
 
   getByTitulo: async (titulo: string): Promise<Video[]> => {
-    const response = await fetch(`${BASE_URL}/by-titulo?titulo=${encodeURIComponent(titulo)}`);
+    const response = await fetch(
+      `${BASE_URL}/by-titulo?titulo=${encodeURIComponent(titulo)}`
+    );
     return handleResponse(response);
   },
 
   searchByTitulo: async (palavraChave: string): Promise<Video[]> => {
-    const response = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(palavraChave)}`);
-    return handleResponse(response);
-  },
-
-  getByTag: async (tag: Tag): Promise<Video[]> => {
-    const response = await fetch(`${BASE_URL}/by-tag?tag=${tag}`);
+    const response = await fetch(
+      `${BASE_URL}/search?q=${encodeURIComponent(palavraChave)}`
+    );
     return handleResponse(response);
   },
 
@@ -60,10 +54,5 @@ export const VideoAPI = {
       method: "POST",
     });
     return handleResponse(response);
-  },
-
-  getByCategoria: async (categoriaId: number): Promise<Video[]> => {
-    const response = await fetch(`${BASE_URL}/by-categoria?categoriaId=${categoriaId}`);
-    return handleResponse(response);
-  },
+  }
 };

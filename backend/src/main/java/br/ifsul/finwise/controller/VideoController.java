@@ -1,5 +1,6 @@
 package br.ifsul.finwise.controller;
 
+import br.ifsul.finwise.DTO.VideoDTO;
 import br.ifsul.finwise.model.TagEnum;
 import br.ifsul.finwise.model.VideoModelo;
 import br.ifsul.finwise.service.VideoService;
@@ -31,9 +32,13 @@ public class VideoController {
 
     // Listar todos os vídeos
     @GetMapping("/all")
-    public ResponseEntity<List<VideoModelo>> getAll() {
-        return ResponseEntity.ok(videoService.findAll());
+    public List<VideoDTO> getAll() {
+        return videoService.findAll()
+            .stream()
+            .map(VideoDTO::toDTO)
+            .toList();
     }
+
 
     // Buscar vídeo por ID
     @GetMapping("/by-id")
