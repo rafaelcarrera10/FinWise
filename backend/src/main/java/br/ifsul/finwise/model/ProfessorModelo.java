@@ -46,23 +46,23 @@ public class ProfessorModelo extends UsuarioModelo {
     public ProfessorModelo() {
     }
 
-    public ProfessorModelo(String name, String senha, @NotNull(message = "Status não pode ser nulo") Boolean status,
+    public ProfessorModelo(String name, String password, @NotNull(message = "Status não pode ser nulo") Boolean status,
             @NotNull(message = "Foto de perfil não pode ser nula") String fotoPerfil,
             @NotNull(message = "Biografia não pode ser nulo") String biografia) {
-        super(name, senha);
+        super(name, password);
         this.status = status;
         this.fotoPerfil = fotoPerfil;
         this.biografia = biografia;
     }
 
-   public ProfessorModelo(Integer id, String name, String senha, List<CategoriaModelo> listaCategoria,
+   public ProfessorModelo(Integer id, String name, String password, List<CategoriaModelo> listaCategoria,
             ContaFinanceiraModelo conta, Set<ConteudoModelo> listaFavoritos,
-            List<InvestmentAccountModel> listaInvestimentos,
+            List<ContaInvestimentoModel> listaInvestimentos,
             @NotNull(message = "Status não pode ser nulo") Boolean status,
             @NotNull(message = "Foto de perfil não pode ser nula") String fotoPerfil,
             @NotNull(message = "Biografia não pode ser nulo") String biografia, List<ConteudoModelo> listaConteudo,
             List<ListaConteudoModelo> colecaoListaConteudo) {
-        super(id, name, senha, listaCategoria, conta, listaFavoritos, listaInvestimentos);
+        super(id, name, password, listaCategoria, conta, listaFavoritos, listaInvestimentos);
         this.status = status;
         this.fotoPerfil = fotoPerfil;
         this.biografia = biografia;
@@ -123,7 +123,7 @@ public class ProfessorModelo extends UsuarioModelo {
         return "ProfessorModelo [status=" + status + ", fotoPerfil=" + fotoPerfil + ", biografia=" + biografia
                 + ", listaConteudo=" + listaConteudo + ", colecaoListaConteudo=" + colecaoListaConteudo
                 + ", getClass()=" + getClass() + ", getId()=" + getId() + ", getName()=" + getName() + ", getStatus()="
-                + getStatus() + ", getSenha()=" + getSenha() + ", getFotoPerfil()=" + getFotoPerfil()
+                + getStatus() + ", getpassword()=" + getpassword() + ", getFotoPerfil()=" + getFotoPerfil()
                 + ", getListaCategoria()=" + getListaCategoria() + ", getBiografia()=" + getBiografia()
                 + ", getConta()=" + getConta() + ", getListaConteudo()=" + getListaConteudo() + ", getListaFavoritos()="
                 + getListaFavoritos() + ", getColecaoListaConteudo()=" + getColecaoListaConteudo() + ", toString()="

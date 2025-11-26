@@ -11,9 +11,7 @@ public interface PlanoOrcamentarioRepository extends JpaRepository<PlanoOrcament
 
     List<PlanoOrcamentarioModelo> findByNome(String nome);
 
-    List<PlanoOrcamentarioModelo> findByContaId(Integer contaFinanceira);
+    List<PlanoOrcamentarioModelo> findByContaFinanceira_Id(Integer contaFinanceiraId);
 
     List<PlanoOrcamentarioModelo> findByCondicao(Boolean condicao);
-
-
 }

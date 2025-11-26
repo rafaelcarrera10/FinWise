@@ -15,7 +15,10 @@ public interface ContaFinanceiraRepositorio extends JpaRepository<ContaFinanceir
     @Query("SELECT c FROM ContaFinanceiraModelo c WHERE c.usuario.id = :userId")
     Optional<ContaFinanceiraModelo> findByUsuarioId(@Param("userId") Integer userId);
 
-    // Verifica se o usuário possui conta
+    Optional<ContaFinanceiraModelo> findByUsuario_Id(Integer usuarioId);
+
     @Query("SELECT COUNT(c) > 0 FROM ContaFinanceiraModelo c WHERE c.usuario.id = :userId")
     boolean existsByUsuarioId(@Param("userId") Integer userId);
+
+    
 }

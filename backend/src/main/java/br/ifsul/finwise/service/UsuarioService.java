@@ -19,28 +19,28 @@ public class UsuarioService {
     @Autowired
     private EncryptionService encryptService;
 
-    // Criação de usuário com criptografia
+    // Criação de usuário com criptografia AES
     public UsuarioModelo criarUsuario(UsuarioModelo usuario) {
-        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
+        if (usuario.getpassword() == null || usuario.getpassword().isBlank()) {
             throw new IllegalArgumentException("Senha não pode ser vazia");
         }
 
-        String senhaCriptografada = encryptService.encrypt(usuario.getSenha());
-        usuario.setSenha(senhaCriptografada);
+        String passwordCriptografada = encryptService.encrypt(usuario.getpassword());
+        usuario.setpassword(passwordCriptografada);
 
         return usuarioRepositorio.save(usuario);
     }
 
-    // Login
-    public Optional<UsuarioModelo> login(String emailOuNome, String senhaDigitada) {
-        Optional<UsuarioModelo> usuarioOpt = usuarioRepositorio.findByName(emailOuNome);
+    // Login (descriptografa a senha armazenada)
+    public Optional<UsuarioModelo> login(String name, String passwordDigitada) {
+        Optional<UsuarioModelo> usuarioOpt = usuarioRepositorio.findByName(name);
 
         if (usuarioOpt.isEmpty()) return Optional.empty();
 
         UsuarioModelo usuario = usuarioOpt.get();
-        String senhaCriptografada = encryptService.encrypt(senhaDigitada);
+        String senhaDoBanco = encryptService.decrypt(usuario.getpassword());
 
-        if (usuario.getSenha().equals(senhaCriptografada)) {
+        if (senhaDoBanco.equals(passwordDigitada)) {
             return Optional.of(usuario);
         }
         return Optional.empty();
@@ -56,25 +56,25 @@ public class UsuarioService {
             existente.setName(novosDados.getName().trim());
         }
 
-        if (novosDados.getSenha() != null && !novosDados.getSenha().isBlank()) {
-            existente.setSenha(encryptService.encrypt(novosDados.getSenha()));
+        if (novosDados.getpassword() != null && !novosDados.getpassword().isBlank()) {
+            existente.setpassword(encryptService.encrypt(novosDados.getpassword()));
         }
 
         return usuarioRepositorio.save(existente);
     }
 
-    // Atualizar senha
+    // Atualizar password
     @Transactional
-    public void atualizarSenha(Integer id, String oldPassword, String newPassword) {
+    public void atualizarpassword(Integer id, String oldpassword, String newpassword) {
         UsuarioModelo usuario = usuarioRepositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-        String senhaAtualDescriptografada = encryptService.decrypt(usuario.getSenha());
-        if (!senhaAtualDescriptografada.equals(oldPassword)) {
+        String passwordAtualDescriptografada = encryptService.decrypt(usuario.getpassword());
+        if (!passwordAtualDescriptografada.equals(oldpassword)) {
             throw new IllegalArgumentException("Senha atual incorreta");
         }
 
-        usuario.setSenha(encryptService.encrypt(newPassword));
+        usuario.setpassword(encryptService.encrypt(newpassword));
         usuarioRepositorio.save(usuario);
     }
 

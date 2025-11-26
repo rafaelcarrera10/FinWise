@@ -3,6 +3,8 @@ package br.ifsul.finwise.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -33,6 +35,7 @@ public class ContaFinanceiraModelo {
 
     // Relacionamentos
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @JsonManagedReference
     @JoinColumn(name = "usuario_id")
     private UsuarioModelo usuario;
 

@@ -1,6 +1,6 @@
 package br.ifsul.finwise.controller;
 
-import br.ifsul.finwise.model.InvestmentAccountModel;
+import br.ifsul.finwise.model.ContaInvestimentoModel;
 import br.ifsul.finwise.model.UsuarioModelo;
 import br.ifsul.finwise.service.ContaInvestimentoService;
 import br.ifsul.finwise.service.UsuarioService;
@@ -96,12 +96,12 @@ public class UsuarioController {
     }
 
     @PostMapping("/update-password")
-    public ResponseEntity<Void> updatePassword(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Void> updatepassword(@RequestBody Map<String, Object> body) {
         try {
             Integer id = ((Number) body.get("id")).intValue();
-            String oldPassword = (String) body.get("oldPassword");
-            String newPassword = (String) body.get("newPassword");
-            usuarioService.atualizarSenha(id, oldPassword, newPassword);
+            String oldpassword = (String) body.get("oldpassword");
+            String newpassword = (String) body.get("newpassword");
+            usuarioService.atualizarpassword(id, oldpassword, newpassword);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).build();
@@ -118,7 +118,7 @@ public class UsuarioController {
 
     // Listar todos os investimentos de um usuário
     @GetMapping("/{userId}/investments")
-    public ResponseEntity<List<InvestmentAccountModel>> getInvestments(@PathVariable Integer userId) {
+    public ResponseEntity<List<ContaInvestimentoModel>> getInvestments(@PathVariable Integer userId) {
         Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(userId);
         return usuario.map(u -> ResponseEntity.ok(u.getListaInvestimentos()))
                       .orElseGet(() -> ResponseEntity.notFound().build());
@@ -126,9 +126,9 @@ public class UsuarioController {
 
     // Adicionar um investimento para um usuário
     @PostMapping("/{userId}/investments")
-    public ResponseEntity<InvestmentAccountModel> addInvestment(
+    public ResponseEntity<ContaInvestimentoModel> addInvestment(
             @PathVariable Integer userId,
-            @RequestBody InvestmentAccountModel investment) {
+            @RequestBody ContaInvestimentoModel investment) {
 
         Optional<UsuarioModelo> usuario = usuarioService.buscarUsuarioPorId(userId);
         if (usuario.isEmpty()) {
@@ -137,7 +137,7 @@ public class UsuarioController {
 
         // Vincula o investimento ao usuário
         investment.setUsuario(usuario.get());
-        InvestmentAccountModel saved = investmentService.save(investment);
+        ContaInvestimentoModel saved = investmentService.save(investment);
 
         // Adiciona à lista do usuário
         usuario.get().getListaInvestimentos().add(saved);

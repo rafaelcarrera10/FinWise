@@ -24,11 +24,10 @@ public class PlanoOrcamentarioController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PlanoOrcamentarioModelo plano) {
         if (plano.dataInvalida()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.badRequest()
                     .body("A data inicial não pode ser maior que a data final.");
         }
-        PlanoOrcamentarioModelo novo = service.save(plano);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(plano));
     }
 
     // Listar todos
@@ -39,27 +38,28 @@ public class PlanoOrcamentarioController {
 
     // Buscar por ID
     @GetMapping("/{id}")
-public ResponseEntity<PlanoOrcamentarioModelo> getById(@PathVariable Integer id) {
-    PlanoOrcamentarioModelo p = service.findById(id)
-                                       .orElseThrow(() -> new RuntimeException("Plano não encontrado"));
-    return ResponseEntity.ok(p);
-}
-
-
+    public ResponseEntity<?> getById(@PathVariable Integer id) {
+        return service.findById(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Plano não encontrado."));
+    }
 
     // Atualizar
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id,
-            @Valid @RequestBody PlanoOrcamentarioModelo plano) {
+                                    @Valid @RequestBody PlanoOrcamentarioModelo plano) {
 
         if (plano.dataInvalida()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.badRequest()
                     .body("A data inicial não pode ser maior que a data final.");
         }
 
         PlanoOrcamentarioModelo atualizado = service.update(id, plano);
+
         if (atualizado == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Plano não encontrado.");
         }
 
         return ResponseEntity.ok(atualizado);
@@ -68,20 +68,23 @@ public ResponseEntity<PlanoOrcamentarioModelo> getById(@PathVariable Integer id)
     // Deletar
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
-        boolean removido = service.delete(id);
-        if (!removido) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado.");
+        if (!service.delete(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Plano não encontrado.");
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 
     // Verifica se ultrapassou orçamento
     @GetMapping("/{id}/ultrapassou")
     public ResponseEntity<?> verificarUltrapassou(@PathVariable Integer id) {
         Optional<PlanoOrcamentarioModelo> p = service.findById(id);
+
         if (p.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Plano não encontrado.");
         }
+
         return ResponseEntity.ok(p.get().ultrapassouOrcamento());
     }
 
@@ -89,10 +92,12 @@ public ResponseEntity<PlanoOrcamentarioModelo> getById(@PathVariable Integer id)
     @GetMapping("/{id}/saldo")
     public ResponseEntity<?> saldo(@PathVariable Integer id) {
         Optional<PlanoOrcamentarioModelo> p = service.findById(id);
+
         if (p.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plano não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Plano não encontrado.");
         }
+
         return ResponseEntity.ok(p.get().calcularSaldoOrcamento());
     }
-
 }

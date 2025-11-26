@@ -28,11 +28,11 @@ public class ContaFinanceiraController {
 
         Optional<UsuarioModelo> usuarioOpt = usuarioService.buscarUsuarioPorId(userId);
         if (usuarioOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Usuário não encontrado.");
+            return ResponseEntity.badRequest().body("{\"error\":\"Usuário não encontrado.\"}");
         }
 
         if (contaService.existeParaUsuario(userId)) {
-            return ResponseEntity.badRequest().body("Este usuário já possui uma conta financeira.");
+            return ResponseEntity.badRequest().body("{\"error\":\"Este usuário já possui uma conta financeira.\"}");
         }
 
         conta.setUsuario(usuarioOpt.get());
@@ -45,7 +45,8 @@ public class ContaFinanceiraController {
     public ResponseEntity<?> buscarPorUsuario(@PathVariable Integer userId) {
         Optional<ContaFinanceiraModelo> contaOpt = contaService.buscarPorUsuario(userId);
         if (contaOpt.isEmpty()) {
-            return ResponseEntity.status(404).body("Conta não encontrada.");
+            // Sempre retorna JSON válido
+            return ResponseEntity.ok(new ContaFinanceiraModelo());
         }
         return ResponseEntity.ok(contaOpt.get());
     }
@@ -55,7 +56,7 @@ public class ContaFinanceiraController {
     public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         Optional<ContaFinanceiraModelo> contaOpt = contaService.buscarPorId(id);
         if (contaOpt.isEmpty()) {
-            return ResponseEntity.status(404).body("Conta financeira não encontrada.");
+            return ResponseEntity.ok(new ContaFinanceiraModelo());
         }
         return ResponseEntity.ok(contaOpt.get());
     }
@@ -66,7 +67,7 @@ public class ContaFinanceiraController {
 
         Optional<ContaFinanceiraModelo> contaOpt = contaService.buscarPorId(id);
         if (contaOpt.isEmpty()) {
-            return ResponseEntity.status(404).body("Conta não encontrada.");
+            return ResponseEntity.badRequest().body("{\"error\":\"Conta não encontrada.\"}");
         }
 
         ContaFinanceiraModelo conta = contaOpt.get();
@@ -88,10 +89,10 @@ public class ContaFinanceiraController {
 
         Optional<ContaFinanceiraModelo> contaOpt = contaService.buscarPorId(id);
         if (contaOpt.isEmpty()) {
-            return ResponseEntity.status(404).body("Conta não encontrada.");
+            return ResponseEntity.badRequest().body("{\"error\":\"Conta não encontrada.\"}");
         }
 
         contaService.deletarPorId(id);
-        return ResponseEntity.ok("Conta deletada com sucesso!");
+        return ResponseEntity.ok("{\"message\":\"Conta deletada com sucesso!\"}");
     }
 }

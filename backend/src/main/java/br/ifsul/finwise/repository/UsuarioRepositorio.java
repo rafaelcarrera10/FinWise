@@ -31,8 +31,8 @@ public interface UsuarioRepositorio extends JpaRepository<UsuarioModelo, Integer
     int updateUserNameById(@Param("id") Integer id, @Param("newName") String newName);
 
     @Modifying
-    @Query("UPDATE UsuarioModelo u SET u.senha = :newPassword WHERE u.id = :id")
-    int updateUserPasswordById(@Param("id") Integer id, @Param("newPassword") String newPassword);
+    @Query("UPDATE UsuarioModelo u SET u.password = :newpassword WHERE u.id = :id")
+    int updateUserpasswordById(@Param("id") Integer id, @Param("newpassword") String newpassword);
 
     // Listagens ordenadas
     List<UsuarioModelo> findAllByOrderByNameAsc();
